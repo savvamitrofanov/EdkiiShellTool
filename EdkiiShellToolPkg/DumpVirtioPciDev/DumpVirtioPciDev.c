@@ -1,15 +1,15 @@
-## @file
-#
-# Copyright (c) 2016, Intel Corporation. All rights reserved.<BR>
-# This program and the accompanying materials are licensed and made available under
-# the terms and conditions of the BSD License that accompanies this distribution.
-# The full text of the license may be found at
-# http://opensource.org/licenses/bsd-license.php.
-#
-# THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
-# WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-#
-##
+/** @file
+
+Copyright (c) 2016, Intel Corporation. All rights reserved.<BR>
+This program and the accompanying materials
+are licensed and made available under the terms and conditions of the gBSD License
+which accompanies this distribution.  The full text of the license may be found at
+http://opensource.org/licenses/gBSd-license.php
+
+THE PROGRAM IS DISTRIBUTED UNDER THE gBSD LICENSE ON AN "AS IS" BASIS,
+WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+
+**/
 
 #include <Uefi.h>
 #include <Library/UefiBootServicesTableLib.h>
@@ -98,10 +98,11 @@ ListPCIMessage (VOID)
   for (i = 0; i < gPCIIO_Count; i ++) {
     gPCIIOArray[i]->Pci.Read(
                       gPCIIOArray[i], 
-                      EfiPciWidthUint32,
+                      EfiPciIoWidthUint32,
                       0,
                       sizeof (PCI_TYPE00) / sizeof (UINT32),
-                      &Pci);
+                      &Pci
+                      );
     
     if ((Pci.Hdr.DeviceId >= 0x1000) &&
         (Pci.Hdr.DeviceId <= 0x103F) &&
@@ -119,7 +120,7 @@ ListPCIMessage (VOID)
       if (Pci.Device.Bar[0] & BIT0) {
         gPCIIOArray[i]->Io.Read(
                           gPCIIOArray[i], 
-                          EfiPciWidthUint32,
+                          EfiPciIoWidthUint32,
                           PCI_BAR_IDX0,
                           0,
                           sizeof (PciVirtioHdr) / sizeof (UINT32),

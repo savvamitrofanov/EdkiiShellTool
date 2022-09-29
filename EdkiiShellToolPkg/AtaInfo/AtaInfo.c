@@ -1717,52 +1717,6 @@ DRQClear2 (
   return (Delay == 0) ? EFI_TIMEOUT : EFI_SUCCESS;
 }
 
-STATIC
-EFI_STATUS  
-DRQReady (
-  IN  IDE_DEV  *IdeDev,
-  IN  UINTN    TimeoutInMilliSeconds
-  )
-{
-  UINT32      Delay; 
-  UINT8       StatusRegister;
-  UINT8       ErrorRegister;
-
-  //
-  // This function is used to poll for the DRQ bit set in the 
-  // Status Register.
-  // DRQ is set when the device is ready to transfer data. So this function
-  // is called after the command is sent to the device and before required 
-  // data is transferred.
-  // 
-
-  Delay = (UINT32)(((TimeoutInMilliSeconds * STALL_1_MILLI_SECOND) / 30) + 1);
-  do {
-    //
-    //  read Status Register will clear interrupt
-    //
-    StatusRegister = IDEReadPortB(IdeDev->PciIo,IdeDev->IoPort->Reg.Status);   
-    
-    //
-    //  BSY==0,DRQ==1
-    //
-    if ((StatusRegister & (BSY | DRQ )) == DRQ) {
-      break;
-    }
-    
-    if ((StatusRegister & (BSY | ERR)) == ERR) {
-      ErrorRegister =  IDEReadPortB(IdeDev->PciIo,IdeDev->IoPort->Reg1.Error); 
-      if ((ErrorRegister & ABRT_ERR) == ABRT_ERR) {
-        return EFI_ABORTED;
-      }
-    }
-   
-    gBS->Stall(30); 
-    Delay --;
-  } while (Delay);
-
-  return (Delay == 0) ? EFI_TIMEOUT : EFI_SUCCESS;
-}
 
 STATIC
 EFI_STATUS  
@@ -1852,47 +1806,6 @@ DRDYReady (
   return (Delay == 0) ? EFI_TIMEOUT : EFI_SUCCESS;
 }
 
-STATIC
-EFI_STATUS  
-DRDYReady2 (
-  IN  IDE_DEV  *IdeDev,
-  IN  UINTN    DelayInMilliSeconds
-  )
-{
-  UINT32        Delay; 
-  UINT8         AltRegister;
-  UINT8       ErrorRegister;
-
-  // 
-  // This function is used to poll for the DRDY bit set in the 
-  // Alternate Status Register. DRDY bit is set when the device is ready 
-  // to accept command. Most ATA commands must be sent after 
-  // DRDY set except the ATAPI Packet Command.
-  //  
-  
-  Delay = (UINT32)(((DelayInMilliSeconds * STALL_1_MILLI_SECOND)  / 30) + 1);
-  do {
-    AltRegister = IDEReadPortB(IdeDev->PciIo,IdeDev->IoPort->Alt.AltStatus); 
-    //
-    //  BSY == 0 , DRDY == 1
-    //
-    if ((AltRegister & (DRDY | BSY)) == DRDY){
-      break;
-    }
-    
-    if ((AltRegister & (BSY | ERR)) == ERR) {
-      ErrorRegister = IDEReadPortB(IdeDev->PciIo,IdeDev->IoPort->Reg1.Error); 
-      if ((ErrorRegister & ABRT_ERR) == ABRT_ERR) {
-        return EFI_ABORTED;
-      }
-    }
-    
-    gBS->Stall(30); 
-    Delay --;
-  } while (Delay);
-  
-  return (Delay == 0) ? EFI_TIMEOUT : EFI_SUCCESS;
-}
 
 STATIC
 EFI_STATUS  

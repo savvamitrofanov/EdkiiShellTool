@@ -122,7 +122,7 @@ StriCmp (
   return UpperFirstString - UpperSecondString;
 }
 
-EFI_ALLOCATE_TYPE
+EFI_GCD_ALLOCATE_TYPE
 ParseAllocateType (
   IN CHAR16  *String
   )
@@ -162,7 +162,7 @@ Returns:
     return EfiGcdAllocateMaxAddressSearchTopDown;
   }
 
-  return MaxAllocateType;
+  return EfiGcdMaxAllocateType;
 }
 
 EFI_GCD_MEMORY_TYPE
