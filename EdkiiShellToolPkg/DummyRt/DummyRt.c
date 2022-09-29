@@ -10,8 +10,8 @@
 #include <Library/UefiBootServicesTableLib.h>
 #include <Library/UefiLib.h>
 
-VOID *mRtData;
-VOID *mRtCode;
+VOID  *mRtData;
+VOID  *mRtCode;
 
 /**
   Main entry for this driver/library.

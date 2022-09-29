@@ -20,23 +20,23 @@ WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
 #define MAP_HANDLE_INFO_SIGNATURE  SIGNATURE_32 ('H', 'M', 'A', 'P')
 
 typedef struct {
-  UINT32                                    Signature;
-  LIST_ENTRY                                Link;
-  EFI_HANDLE                                Handle;
-  UINT64                                    IoMmuAccess;
+  UINT32        Signature;
+  LIST_ENTRY    Link;
+  EFI_HANDLE    Handle;
+  UINT64        IoMmuAccess;
 } MAP_HANDLE_INFO;
 
 #define MAP_INFO_SIGNATURE  SIGNATURE_32 ('D', 'M', 'A', 'P')
 typedef struct {
-  UINT32                                    Signature;
-  LIST_ENTRY                                Link;
-  EDKII_IOMMU_OPERATION                     Operation;
-  UINTN                                     NumberOfBytes;
-  UINTN                                     NumberOfPages;
-  EFI_PHYSICAL_ADDRESS                      HostAddress;
-  EFI_PHYSICAL_ADDRESS                      DeviceAddress;
-  LIST_ENTRY                                HandleList;
+  UINT32                   Signature;
+  LIST_ENTRY               Link;
+  EDKII_IOMMU_OPERATION    Operation;
+  UINTN                    NumberOfBytes;
+  UINTN                    NumberOfPages;
+  EFI_PHYSICAL_ADDRESS     HostAddress;
+  EFI_PHYSICAL_ADDRESS     DeviceAddress;
+  LIST_ENTRY               HandleList;
 } MAP_INFO;
-#define MAP_INFO_FROM_LINK(a) CR (a, MAP_INFO, Link, MAP_INFO_SIGNATURE)
+#define MAP_INFO_FROM_LINK(a)  CR (a, MAP_INFO, Link, MAP_INFO_SIGNATURE)
 
 #endif

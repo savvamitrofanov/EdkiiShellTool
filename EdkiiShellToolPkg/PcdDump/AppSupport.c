@@ -27,10 +27,10 @@
 #include <Guid/FileInfo.h>
 #include <Guid/Gpt.h>
 
-#define MAX_ARG_NUM     11
+#define MAX_ARG_NUM  11
 
-UINTN  Argc;
-CHAR16 **Argv;
+UINTN   Argc;
+CHAR16  **Argv;
 
 /**
 
@@ -43,15 +43,15 @@ GetArg (
   VOID
   )
 {
-  EFI_STATUS                    Status;
-  EFI_SHELL_PARAMETERS_PROTOCOL *ShellParameters;
+  EFI_STATUS                     Status;
+  EFI_SHELL_PARAMETERS_PROTOCOL  *ShellParameters;
 
   Status = gBS->HandleProtocol (
                   gImageHandle,
                   &gEfiShellParametersProtocolGuid,
-                  (VOID**)&ShellParameters
+                  (VOID **)&ShellParameters
                   );
-  if (EFI_ERROR(Status)) {
+  if (EFI_ERROR (Status)) {
     return Status;
   }
 
@@ -70,9 +70,9 @@ GetMyVol (
   VOID
   )
 {
-  EFI_STATUS                        Status;
-  EFI_LOADED_IMAGE_PROTOCOL         *LoadedImage;
-  EFI_SIMPLE_FILE_SYSTEM_PROTOCOL   *Vol;
+  EFI_STATUS                       Status;
+  EFI_LOADED_IMAGE_PROTOCOL        *LoadedImage;
+  EFI_SIMPLE_FILE_SYSTEM_PROTOCOL  *Vol;
 
   Status = gBS->HandleProtocol (
                   gImageHandle,
@@ -106,19 +106,19 @@ GetMyVol (
 **/
 EFI_STATUS
 ReadFileFromVol (
-  IN  EFI_SIMPLE_FILE_SYSTEM_PROTOCOL   *Vol,
-  IN  CHAR16                            *FileName,
-  OUT UINTN                             *BufferSize,
-  OUT VOID                              **Buffer
+  IN  EFI_SIMPLE_FILE_SYSTEM_PROTOCOL  *Vol,
+  IN  CHAR16                           *FileName,
+  OUT UINTN                            *BufferSize,
+  OUT VOID                             **Buffer
   )
 {
-  EFI_STATUS                        Status;
-  EFI_FILE_HANDLE                   RootDir;
-  EFI_FILE_HANDLE                   Handle;
-  UINTN                             FileInfoSize;
-  EFI_FILE_INFO                     *FileInfo;
-  UINTN                             TempBufferSize;
-  VOID                              *TempBuffer;
+  EFI_STATUS       Status;
+  EFI_FILE_HANDLE  RootDir;
+  EFI_FILE_HANDLE  Handle;
+  UINTN            FileInfoSize;
+  EFI_FILE_INFO    *FileInfo;
+  UINTN            TempBufferSize;
+  VOID             *TempBuffer;
 
   //
   // Open the root directory
@@ -148,7 +148,7 @@ ReadFileFromVol (
   //
   // Get the file information
   //
-  FileInfoSize = sizeof(EFI_FILE_INFO) + 1024;
+  FileInfoSize = sizeof (EFI_FILE_INFO) + 1024;
 
   FileInfo = AllocateZeroPool (FileInfoSize);
   if (FileInfo == NULL) {
@@ -171,8 +171,8 @@ ReadFileFromVol (
   //
   // Allocate buffer for the file data. The last CHAR16 is for L'\0'
   //
-  TempBufferSize = (UINTN) FileInfo->FileSize + sizeof(CHAR16);
-  TempBuffer = AllocateZeroPool (TempBufferSize);
+  TempBufferSize = (UINTN)FileInfo->FileSize + sizeof (CHAR16);
+  TempBuffer     = AllocateZeroPool (TempBufferSize);
   if (TempBuffer == NULL) {
     Handle->Close (Handle);
     gBS->FreePool (FileInfo);
@@ -221,20 +221,20 @@ ReadFileFromVol (
 **/
 EFI_STATUS
 ReadFileToBufferEx (
-  IN OUT EFI_SIMPLE_FILE_SYSTEM_PROTOCOL   **ThisVol,
-  IN  CHAR16                               *FileName,
-  OUT UINTN                                *BufferSize,
-  OUT VOID                                 **Buffer,
-  IN  BOOLEAN                              ScanFs
+  IN OUT EFI_SIMPLE_FILE_SYSTEM_PROTOCOL  **ThisVol,
+  IN  CHAR16                              *FileName,
+  OUT UINTN                               *BufferSize,
+  OUT VOID                                **Buffer,
+  IN  BOOLEAN                             ScanFs
   )
 {
-  EFI_STATUS                        Status;
-  EFI_SIMPLE_FILE_SYSTEM_PROTOCOL   *Vol;
-  UINTN                             TempBufferSize;
-  VOID                              *TempBuffer;
-  UINTN                             NoHandles;
-  EFI_HANDLE                        *HandleBuffer;
-  UINTN                             Index;
+  EFI_STATUS                       Status;
+  EFI_SIMPLE_FILE_SYSTEM_PROTOCOL  *Vol;
+  UINTN                            TempBufferSize;
+  VOID                             *TempBuffer;
+  UINTN                            NoHandles;
+  EFI_HANDLE                       *HandleBuffer;
+  UINTN                            Index;
 
   //
   // Check parameters
@@ -253,6 +253,7 @@ ReadFileToBufferEx (
         return EFI_INVALID_PARAMETER;
       }
     }
+
     //
     // Read file directly from Vol
     //
@@ -267,12 +268,12 @@ ReadFileToBufferEx (
   // Get all Vol handle
   //
   Status = gBS->LocateHandleBuffer (
-                   ByProtocol,
-                   &gEfiSimpleFileSystemProtocolGuid,
-                   NULL,
-                   &NoHandles,
-                   &HandleBuffer
-                   );
+                  ByProtocol,
+                  &gEfiSimpleFileSystemProtocolGuid,
+                  NULL,
+                  &NoHandles,
+                  &HandleBuffer
+                  );
   if (EFI_ERROR (Status) && (NoHandles == 0)) {
     return EFI_NOT_FOUND;
   }
@@ -280,7 +281,7 @@ ReadFileToBufferEx (
   //
   // Walk through each Vol
   //
-  *ThisVol = NULL;
+  *ThisVol    = NULL;
   *BufferSize = 0;
   *Buffer     = NULL;
   for (Index = 0; Index < NoHandles; Index++) {
@@ -289,7 +290,7 @@ ReadFileToBufferEx (
                     &gEfiSimpleFileSystemProtocolGuid,
                     (VOID **)&Vol
                     );
-    if (EFI_ERROR(Status)) {
+    if (EFI_ERROR (Status)) {
       continue;
     }
 
@@ -310,7 +311,7 @@ ReadFileToBufferEx (
         //
         // Record value
         //
-        *ThisVol = Vol;
+        *ThisVol    = Vol;
         *BufferSize = TempBufferSize;
         *Buffer     = TempBuffer;
       }
@@ -342,14 +343,15 @@ ReadFileToBufferEx (
 **/
 EFI_STATUS
 ReadFileToBuffer (
-  IN  CHAR16                               *FileName,
-  OUT UINTN                                *BufferSize,
-  OUT VOID                                 **Buffer
+  IN  CHAR16  *FileName,
+  OUT UINTN   *BufferSize,
+  OUT VOID    **Buffer
   )
 {
-  EFI_SIMPLE_FILE_SYSTEM_PROTOCOL   *Vol;
+  EFI_SIMPLE_FILE_SYSTEM_PROTOCOL  *Vol;
+
   Vol = NULL;
-  return ReadFileToBufferEx(&Vol, FileName, BufferSize, Buffer, FALSE);
+  return ReadFileToBufferEx (&Vol, FileName, BufferSize, Buffer, FALSE);
 }
 
 /**
@@ -363,18 +365,18 @@ ReadFileToBuffer (
 **/
 EFI_STATUS
 WriteFileFromBuffer (
-  IN  CHAR16                               *FileName,
-  IN  UINTN                                BufferSize,
-  IN  VOID                                 *Buffer
+  IN  CHAR16  *FileName,
+  IN  UINTN   BufferSize,
+  IN  VOID    *Buffer
   )
 {
-  EFI_STATUS                        Status;
-  EFI_FILE_HANDLE                   RootDir;
-  EFI_FILE_HANDLE                   Handle;
-  UINTN                             TempBufferSize;
-  EFI_SIMPLE_FILE_SYSTEM_PROTOCOL   *Vol;
+  EFI_STATUS                       Status;
+  EFI_FILE_HANDLE                  RootDir;
+  EFI_FILE_HANDLE                  Handle;
+  UINTN                            TempBufferSize;
+  EFI_SIMPLE_FILE_SYSTEM_PROTOCOL  *Vol;
 
-  Vol = GetMyVol();
+  Vol = GetMyVol ();
   if (Vol == NULL) {
     return EFI_NOT_FOUND;
   }
@@ -405,8 +407,8 @@ WriteFileFromBuffer (
   //
   // Delete file
   //
-  Status = Handle->Delete(Handle);
-  if (EFI_ERROR(Status)) {
+  Status = Handle->Delete (Handle);
+  if (EFI_ERROR (Status)) {
     return Status;
   }
 
@@ -431,11 +433,11 @@ WriteFileFromBuffer (
   // Write the file data from the buffer
   //
   TempBufferSize = BufferSize;
-  Status = Handle->Write (
-                     Handle,
-                     &TempBufferSize,
-                     Buffer
-                     );
+  Status         = Handle->Write (
+                             Handle,
+                             &TempBufferSize,
+                             Buffer
+                             );
   if (EFI_ERROR (Status)) {
     Handle->Close (Handle);
     return Status;
@@ -445,4 +447,3 @@ WriteFileFromBuffer (
 
   return EFI_SUCCESS;
 }
-

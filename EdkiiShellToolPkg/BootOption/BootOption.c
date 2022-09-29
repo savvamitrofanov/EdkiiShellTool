@@ -23,10 +23,10 @@ WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
 #include <Library/DevicePathLib.h>
 #include <Protocol/DevicePath.h>
 
-extern UINTN  Argc;
-extern CHAR16 **Argv;
+extern UINTN   Argc;
+extern CHAR16  **Argv;
 
-EFI_GUID mZeroGuid;
+EFI_GUID  mZeroGuid;
 
 EFI_STATUS
 GetArg (
@@ -35,9 +35,9 @@ GetArg (
 
 EFI_STATUS
 ReadFileToBuffer (
-  IN  CHAR16                               *FileName,
-  OUT UINTN                                *BufferSize,
-  OUT VOID                                 **Buffer
+  IN  CHAR16  *FileName,
+  OUT UINTN   *BufferSize,
+  OUT VOID    **Buffer
   );
 
 VOID
@@ -47,7 +47,7 @@ DumpBootOption (
 {
   UINTN                     OptionSize;
   EFI_LOAD_OPTION           *Option;
-  CHAR16                    OptionName[sizeof("Boot####")];
+  CHAR16                    OptionName[sizeof ("Boot####")];
   CHAR16                    *Description;
   UINTN                     DescriptionSize;
   EFI_DEVICE_PATH_PROTOCOL  *FilePathList;
@@ -69,18 +69,19 @@ DumpBootOption (
 
   Print (L"  Attributes         - 0x%08x\n", Option->Attributes);
   Print (L"  FilePathListLength - 0x%04x\n", Option->FilePathListLength);
-  Description = (VOID *)(Option + 1);
+  Description     = (VOID *)(Option + 1);
   DescriptionSize = StrSize (Description);
   Print (L"  Description        - %s\n", Description);
-  FilePathList = (VOID *)((UINTN)Description + DescriptionSize);
+  FilePathList    = (VOID *)((UINTN)Description + DescriptionSize);
   FilePathListStr = ConvertDevicePathToText (FilePathList, FALSE, FALSE);
   Print (L"  FilePathList       - %s\n", FilePathListStr);
-  OptionalData = (VOID *)((UINTN)FilePathList + Option->FilePathListLength);
+  OptionalData     = (VOID *)((UINTN)FilePathList + Option->FilePathListLength);
   OptionalDataSize = (UINTN)Option + OptionSize - (UINTN)OptionalData;
   Print (L"  OptionalData       - ");
   for (Index = 0; Index < OptionalDataSize; Index++) {
     Print (L"%02x ", *((UINT8 *)OptionalData + Index));
   }
+
   Print (L"\n");
 
   FreePool (Option);
@@ -105,12 +106,13 @@ DumpAllBootOption (
   Print (L"Get BootOrder - %r\n", Status);
 
   Print (L"Boot Order - ");
-  for (Index = 0; Index < BufferSize/sizeof(CHAR16); Index++) {
+  for (Index = 0; Index < BufferSize/sizeof (CHAR16); Index++) {
     Print (L"0x%04x ", Buffer[Index]);
   }
+
   Print (L"\n");
 
-  for (Index = 0; Index < BufferSize/sizeof(CHAR16); Index++) {
+  for (Index = 0; Index < BufferSize/sizeof (CHAR16); Index++) {
     DumpBootOption (Buffer[Index]);
   }
 
@@ -137,58 +139,60 @@ GetNewBootIndex (
              (void **)&Buffer,
              &BufferSize
              );
-  if (EFI_ERROR(Status)) {
-    NewIndex = 0;
-    NewBufferSize = sizeof(UINT16);
-    NewBuffer = AllocateZeroPool (NewBufferSize);
-    ASSERT(NewBuffer != NULL);
+  if (EFI_ERROR (Status)) {
+    NewIndex      = 0;
+    NewBufferSize = sizeof (UINT16);
+    NewBuffer     = AllocateZeroPool (NewBufferSize);
+    ASSERT (NewBuffer != NULL);
     *(UINT16 *)NewBuffer = (UINT16)NewIndex;
-    Status = gRT->SetVariable (
-                    L"BootOrder",
-                    &gEfiGlobalVariableGuid,
-                    EFI_VARIABLE_NON_VOLATILE |
-                      EFI_VARIABLE_BOOTSERVICE_ACCESS |
-                      EFI_VARIABLE_RUNTIME_ACCESS,
-                    NewBufferSize,
-                    NewBuffer
-                    );
-    ASSERT_EFI_ERROR(Status);
+    Status               = gRT->SetVariable (
+                                  L"BootOrder",
+                                  &gEfiGlobalVariableGuid,
+                                  EFI_VARIABLE_NON_VOLATILE |
+                                  EFI_VARIABLE_BOOTSERVICE_ACCESS |
+                                  EFI_VARIABLE_RUNTIME_ACCESS,
+                                  NewBufferSize,
+                                  NewBuffer
+                                  );
+    ASSERT_EFI_ERROR (Status);
     FreePool (NewBuffer);
     return (UINT16)NewIndex;
   }
 
   for (NewIndex = 0; NewIndex < 0xFFFF; NewIndex++) {
     Match = FALSE;
-    for (Index = 0; Index < BufferSize/sizeof(CHAR16); Index++) {
+    for (Index = 0; Index < BufferSize/sizeof (CHAR16); Index++) {
       if (NewIndex == Index) {
         Match = TRUE;
       }
     }
+
     if (!Match) {
-      NewBufferSize = BufferSize + sizeof(UINT16);
-      NewBuffer = AllocateZeroPool (NewBufferSize);
-      ASSERT(NewBuffer != NULL);
+      NewBufferSize = BufferSize + sizeof (UINT16);
+      NewBuffer     = AllocateZeroPool (NewBufferSize);
+      ASSERT (NewBuffer != NULL);
       *(UINT16 *)NewBuffer = (UINT16)NewIndex;
-      CopyMem ((UINT8 *)NewBuffer + sizeof(UINT16), Buffer, BufferSize);
+      CopyMem ((UINT8 *)NewBuffer + sizeof (UINT16), Buffer, BufferSize);
       Status = gRT->SetVariable (
                       L"BootOrder",
                       &gEfiGlobalVariableGuid,
                       EFI_VARIABLE_NON_VOLATILE |
-                        EFI_VARIABLE_BOOTSERVICE_ACCESS |
-                        EFI_VARIABLE_RUNTIME_ACCESS,
+                      EFI_VARIABLE_BOOTSERVICE_ACCESS |
+                      EFI_VARIABLE_RUNTIME_ACCESS,
                       NewBufferSize,
                       NewBuffer
                       );
-      ASSERT_EFI_ERROR(Status);
+      ASSERT_EFI_ERROR (Status);
 
       FreePool (Buffer);
       FreePool (NewBuffer);
       return (UINT16)NewIndex;
     }
   }
+
   FreePool (Buffer);
 
-  ASSERT(FALSE);
+  ASSERT (FALSE);
   return 0xFFFF;
 }
 
@@ -200,7 +204,7 @@ AddBootOption (
   UINT16                    NewBootIndex;
   UINTN                     OptionSize;
   EFI_LOAD_OPTION           *Option;
-  CHAR16                    OptionName[sizeof("Boot####")];
+  CHAR16                    OptionName[sizeof ("Boot####")];
   UINTN                     DescriptionSize;
   EFI_DEVICE_PATH_PROTOCOL  *FilePathList;
   UINTN                     FilePathListSize;
@@ -211,33 +215,33 @@ AddBootOption (
 
   UnicodeSPrint (OptionName, sizeof (OptionName), L"Boot%04x", NewBootIndex);
 
-  DescriptionSize = StrSize (FilePath);
-  FilePathList = ConvertTextToDevicePath (FilePath);
+  DescriptionSize  = StrSize (FilePath);
+  FilePathList     = ConvertTextToDevicePath (FilePath);
   FilePathListSize = GetDevicePathSize (FilePathList);
   OptionalDataSize = 0;
-  OptionSize = sizeof(EFI_LOAD_OPTION) + DescriptionSize + FilePathListSize + OptionalDataSize;
-  Option = AllocateZeroPool (OptionSize);
-  ASSERT(Option != NULL);
+  OptionSize       = sizeof (EFI_LOAD_OPTION) + DescriptionSize + FilePathListSize + OptionalDataSize;
+  Option           = AllocateZeroPool (OptionSize);
+  ASSERT (Option != NULL);
 
-  Option->Attributes = LOAD_OPTION_ACTIVE;
+  Option->Attributes         = LOAD_OPTION_ACTIVE;
   Option->FilePathListLength = (UINT16)FilePathListSize;
-  CopyMem ((UINT8 *)Option + sizeof(EFI_LOAD_OPTION), FilePath, DescriptionSize);
-  CopyMem ((UINT8 *)Option + sizeof(EFI_LOAD_OPTION) + DescriptionSize, FilePathList, FilePathListSize);
+  CopyMem ((UINT8 *)Option + sizeof (EFI_LOAD_OPTION), FilePath, DescriptionSize);
+  CopyMem ((UINT8 *)Option + sizeof (EFI_LOAD_OPTION) + DescriptionSize, FilePathList, FilePathListSize);
 
   Status = gRT->SetVariable (
                   OptionName,
                   &gEfiGlobalVariableGuid,
                   EFI_VARIABLE_NON_VOLATILE |
-                    EFI_VARIABLE_BOOTSERVICE_ACCESS |
-                    EFI_VARIABLE_RUNTIME_ACCESS,
+                  EFI_VARIABLE_BOOTSERVICE_ACCESS |
+                  EFI_VARIABLE_RUNTIME_ACCESS,
                   OptionSize,
                   Option
                   );
-  ASSERT_EFI_ERROR(Status);
+  ASSERT_EFI_ERROR (Status);
 
   FreePool (FilePathList);
 
-  return ;
+  return;
 }
 
 /**
@@ -248,16 +252,16 @@ PrintUsage (
   VOID
   )
 {
-  Print(L"BootOption:  A tool to manage UEFI boot option\n");
-  Print(L"  BootOption -dump\n");
-  Print(L"  BootOption -add <file path>\n");
+  Print (L"BootOption:  A tool to manage UEFI boot option\n");
+  Print (L"  BootOption -dump\n");
+  Print (L"  BootOption -add <file path>\n");
 }
 
 EFI_STATUS
 EFIAPI
 BootOptionEntrypoint (
-  IN EFI_HANDLE           ImageHandle,
-  IN EFI_SYSTEM_TABLE     *SystemTable
+  IN EFI_HANDLE        ImageHandle,
+  IN EFI_SYSTEM_TABLE  *SystemTable
   )
 {
   GetArg ();
@@ -271,7 +275,6 @@ BootOptionEntrypoint (
     AddBootOption (Argv[2]);
     return EFI_SUCCESS;
   }
-
 
   PrintUsage ();
 

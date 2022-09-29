@@ -52,54 +52,54 @@ WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
 #include "SmmCore/PiSmmCore.h"
 
 typedef struct {
-  EFI_GUID   *Guid;
-  UINTN      FuncOffset;
+  EFI_GUID    *Guid;
+  UINTN       FuncOffset;
 } PROTOCOL_FUNC_STRUCT;
 
 PROTOCOL_FUNC_STRUCT  mProtocolFuncStruct[] = {
   // 4 SMM Protocols
-  { &gEfiSmmStatusCodeProtocolGuid, OFFSET_OF(EFI_SMM_STATUS_CODE_PROTOCOL, ReportStatusCode) },
-  { &gEfiSmmCpuProtocolGuid, OFFSET_OF(EFI_SMM_CPU_PROTOCOL, ReadSaveState) },
-  { &gEfiSmmCpuIo2ProtocolGuid, OFFSET_OF(EFI_SMM_CPU_IO2_PROTOCOL, Mem) },
-  { &gEfiSmmPciRootBridgeIoProtocolGuid, OFFSET_OF(EFI_SMM_PCI_ROOT_BRIDGE_IO_PROTOCOL, PollMem) },
+  { &gEfiSmmStatusCodeProtocolGuid,             OFFSET_OF (EFI_SMM_STATUS_CODE_PROTOCOL,              ReportStatusCode) },
+  { &gEfiSmmCpuProtocolGuid,                    OFFSET_OF (EFI_SMM_CPU_PROTOCOL,                      ReadSaveState)    },
+  { &gEfiSmmCpuIo2ProtocolGuid,                 OFFSET_OF (EFI_SMM_CPU_IO2_PROTOCOL,                  Mem)              },
+  { &gEfiSmmPciRootBridgeIoProtocolGuid,        OFFSET_OF (EFI_SMM_PCI_ROOT_BRIDGE_IO_PROTOCOL,       PollMem)          },
   // 6. SMM Child Dispatch Protocols
-  { &gEfiSmmSwDispatch2ProtocolGuid, OFFSET_OF(EFI_SMM_SW_DISPATCH2_PROTOCOL, Register) },
-  { &gEfiSmmSxDispatch2ProtocolGuid, OFFSET_OF(EFI_SMM_SX_DISPATCH2_PROTOCOL, Register) },
-  { &gEfiSmmPeriodicTimerDispatch2ProtocolGuid, OFFSET_OF(EFI_SMM_PERIODIC_TIMER_DISPATCH2_PROTOCOL, Register) },
-  { &gEfiSmmUsbDispatch2ProtocolGuid, OFFSET_OF(EFI_SMM_USB_DISPATCH2_PROTOCOL, Register) },
-  { &gEfiSmmGpiDispatch2ProtocolGuid, OFFSET_OF(EFI_SMM_GPI_DISPATCH2_PROTOCOL, Register) },
-  { &gEfiSmmStandbyButtonDispatch2ProtocolGuid, OFFSET_OF(EFI_SMM_STANDBY_BUTTON_DISPATCH2_PROTOCOL, Register) },
-  { &gEfiSmmPowerButtonDispatch2ProtocolGuid, OFFSET_OF(EFI_SMM_GPI_DISPATCH2_PROTOCOL, Register) },
-  { &gEfiSmmIoTrapDispatch2ProtocolGuid, OFFSET_OF(EFI_SMM_IO_TRAP_DISPATCH2_PROTOCOL, Register) },
+  { &gEfiSmmSwDispatch2ProtocolGuid,            OFFSET_OF (EFI_SMM_SW_DISPATCH2_PROTOCOL,             Register)         },
+  { &gEfiSmmSxDispatch2ProtocolGuid,            OFFSET_OF (EFI_SMM_SX_DISPATCH2_PROTOCOL,             Register)         },
+  { &gEfiSmmPeriodicTimerDispatch2ProtocolGuid, OFFSET_OF (EFI_SMM_PERIODIC_TIMER_DISPATCH2_PROTOCOL, Register)         },
+  { &gEfiSmmUsbDispatch2ProtocolGuid,           OFFSET_OF (EFI_SMM_USB_DISPATCH2_PROTOCOL,            Register)         },
+  { &gEfiSmmGpiDispatch2ProtocolGuid,           OFFSET_OF (EFI_SMM_GPI_DISPATCH2_PROTOCOL,            Register)         },
+  { &gEfiSmmStandbyButtonDispatch2ProtocolGuid, OFFSET_OF (EFI_SMM_STANDBY_BUTTON_DISPATCH2_PROTOCOL, Register)         },
+  { &gEfiSmmPowerButtonDispatch2ProtocolGuid,   OFFSET_OF (EFI_SMM_GPI_DISPATCH2_PROTOCOL,            Register)         },
+  { &gEfiSmmIoTrapDispatch2ProtocolGuid,        OFFSET_OF (EFI_SMM_IO_TRAP_DISPATCH2_PROTOCOL,        Register)         },
   // Vol 3
-  { &gEfiSmmRscHandlerProtocolGuid, OFFSET_OF(EFI_SMM_RSC_HANDLER_PROTOCOL, Register) },
+  { &gEfiSmmRscHandlerProtocolGuid,             OFFSET_OF (EFI_SMM_RSC_HANDLER_PROTOCOL,              Register)         },
 };
 
 MEDIA_FW_VOL_FILEPATH_DEVICE_PATH  mSmmCoreFilePath = {
-  { MEDIA_DEVICE_PATH, MEDIA_PIWG_FW_FILE_DP, {sizeof(MEDIA_FW_VOL_FILEPATH_DEVICE_PATH), 0} },
+  { MEDIA_DEVICE_PATH, MEDIA_PIWG_FW_FILE_DP, { sizeof (MEDIA_FW_VOL_FILEPATH_DEVICE_PATH), 0 }
+  },
   SMM_CORE_GUID,
 };
 
 EFI_LOADED_IMAGE_PROTOCOL  *mSmmCoreLoadedImage;
 
-LIST_ENTRY      *mSmmCoreHandleList;
-LIST_ENTRY      *mSmmCoreProtocolDatabase;
-LIST_ENTRY      *mSmmCoreRootSmiHandlerList;
-LIST_ENTRY      *mSmmCoreSmiEntryList;
+LIST_ENTRY  *mSmmCoreHandleList;
+LIST_ENTRY  *mSmmCoreProtocolDatabase;
+LIST_ENTRY  *mSmmCoreRootSmiHandlerList;
+LIST_ENTRY  *mSmmCoreSmiEntryList;
 
-CHAR16 mNameString[NAME_STRING_LENGTH + 1];
+CHAR16  mNameString[NAME_STRING_LENGTH + 1];
 
 IMAGE_STRUCT  *mImageStruct;
 UINTN         mImageStructCountMax;
 UINTN         mImageStructCount;
 
-
-EFI_SMRAM_DESCRIPTOR *mSmmCoreDumpInternalSmramRanges;
-UINTN                mSmmCoreDumpInternalSmramCount;
+EFI_SMRAM_DESCRIPTOR  *mSmmCoreDumpInternalSmramRanges;
+UINTN                 mSmmCoreDumpInternalSmramCount;
 
 BOOLEAN
 EFIAPI
-IsSmram(
+IsSmram (
   IN EFI_PHYSICAL_ADDRESS  Buffer,
   IN UINT64                Length
   )
@@ -108,7 +108,8 @@ IsSmram(
 
   for (Index = 0; Index < mSmmCoreDumpInternalSmramCount; Index++) {
     if (((Buffer >= mSmmCoreDumpInternalSmramRanges[Index].CpuStart) && (Buffer < mSmmCoreDumpInternalSmramRanges[Index].CpuStart + mSmmCoreDumpInternalSmramRanges[Index].PhysicalSize)) ||
-      ((mSmmCoreDumpInternalSmramRanges[Index].CpuStart >= Buffer) && (mSmmCoreDumpInternalSmramRanges[Index].CpuStart < Buffer + Length))) {
+        ((mSmmCoreDumpInternalSmramRanges[Index].CpuStart >= Buffer) && (mSmmCoreDumpInternalSmramRanges[Index].CpuStart < Buffer + Length)))
+    {
       return TRUE;
     }
   }
@@ -117,37 +118,37 @@ IsSmram(
 }
 
 EFI_STATUS
-ReadFileToBuffer(
-  IN  CHAR16                               *FileName,
-  OUT UINTN                                *BufferSize,
-  OUT VOID                                 **Buffer
+ReadFileToBuffer (
+  IN  CHAR16  *FileName,
+  OUT UINTN   *BufferSize,
+  OUT VOID    **Buffer
   )
 {
   return EFI_UNSUPPORTED;
 }
 
-/** 
+/**
   Get the file name portion of the Pdb File Name.
-  
+
   The portion of the Pdb File Name between the last backslash and
   either a following period or the end of the string is converted
   to Unicode and copied into UnicodeBuffer.  The name is truncated,
   if necessary, to ensure that UnicodeBuffer is not overrun.
-  
+
   @param[in]  PdbFileName     Pdb file name.
   @param[out] UnicodeBuffer   The resultant Unicode File Name.
-  
+
 **/
 VOID
 GetShortPdbFileName (
-  IN  CHAR8     *PdbFileName,
-  OUT CHAR16    *UnicodeBuffer
+  IN  CHAR8   *PdbFileName,
+  OUT CHAR16  *UnicodeBuffer
   )
 {
-  UINTN IndexA;     // Current work location within an ASCII string.
-  UINTN IndexU;     // Current work location within a Unicode string.
-  UINTN StartIndex;
-  UINTN EndIndex;
+  UINTN  IndexA;    // Current work location within an ASCII string.
+  UINTN  IndexU;    // Current work location within a Unicode string.
+  UINTN  StartIndex;
+  UINTN  EndIndex;
 
   ZeroMem (UnicodeBuffer, (NAME_STRING_LENGTH + 1) * sizeof (CHAR16));
 
@@ -155,7 +156,9 @@ GetShortPdbFileName (
     StrnCpyS (UnicodeBuffer, NAME_STRING_LENGTH + 1, L" ", 1);
   } else {
     StartIndex = 0;
-    for (EndIndex = 0; PdbFileName[EndIndex] != 0; EndIndex++);
+    for (EndIndex = 0; PdbFileName[EndIndex] != 0; EndIndex++) {
+    }
+
     for (IndexA = 0; PdbFileName[IndexA] != 0; IndexA++) {
       if (PdbFileName[IndexA] == '\\') {
         StartIndex = IndexA + 1;
@@ -168,7 +171,7 @@ GetShortPdbFileName (
 
     IndexU = 0;
     for (IndexA = StartIndex; IndexA < EndIndex; IndexA++) {
-      UnicodeBuffer[IndexU] = (CHAR16) PdbFileName[IndexA];
+      UnicodeBuffer[IndexU] = (CHAR16)PdbFileName[IndexA];
       IndexU++;
       if (IndexU >= NAME_STRING_LENGTH) {
         UnicodeBuffer[NAME_STRING_LENGTH] = 0;
@@ -178,7 +181,7 @@ GetShortPdbFileName (
   }
 }
 
-/** 
+/**
   Get a human readable name for an image.
   The following methods will be tried orderly:
     1. Image PDB
@@ -193,32 +196,34 @@ GetShortPdbFileName (
 **/
 CHAR16 *
 GetDriverNameString (
- IN  EFI_LOADED_IMAGE_PROTOCOL  *LoadedImage,
- OUT EFI_GUID                   *Guid
- )
+  IN  EFI_LOADED_IMAGE_PROTOCOL  *LoadedImage,
+  OUT EFI_GUID                   *Guid
+  )
 {
-  EFI_STATUS                  Status;
-  CHAR8                       *PdbFileName;
-  CHAR16                      *NameString;
-  UINTN                       StringSize;
-  EFI_GUID                    *FileName;
+  EFI_STATUS  Status;
+  CHAR8       *PdbFileName;
+  CHAR16      *NameString;
+  UINTN       StringSize;
+  EFI_GUID    *FileName;
 
   FileName = NULL;
-  if ((DevicePathType(LoadedImage->FilePath) == MEDIA_DEVICE_PATH) &&
-      (DevicePathSubType(LoadedImage->FilePath) == MEDIA_PIWG_FW_FILE_DP)) {
+  if ((DevicePathType (LoadedImage->FilePath) == MEDIA_DEVICE_PATH) &&
+      (DevicePathSubType (LoadedImage->FilePath) == MEDIA_PIWG_FW_FILE_DP))
+  {
     FileName = &((MEDIA_FW_VOL_FILEPATH_DEVICE_PATH *)LoadedImage->FilePath)->FvFileName;
   }
+
   if (FileName != NULL) {
-    CopyGuid(Guid, FileName);
+    CopyGuid (Guid, FileName);
   } else {
-    ZeroMem(Guid, sizeof(EFI_GUID));
+    ZeroMem (Guid, sizeof (EFI_GUID));
   }
 
   //
   // Method 1: Get the name string from image PDB
   //
   if (LoadedImage->ImageBase != 0) {
-    PdbFileName = PeCoffLoaderGetPdbPointer ((VOID *) (UINTN)LoadedImage->ImageBase);
+    PdbFileName = PeCoffLoaderGetPdbPointer ((VOID *)(UINTN)LoadedImage->ImageBase);
     if (PdbFileName != NULL) {
       GetShortPdbFileName (PdbFileName, mNameString);
       return mNameString;
@@ -231,13 +236,13 @@ GetDriverNameString (
     //
     NameString = NULL;
     StringSize = 0;
-    Status = GetSectionFromAnyFv (
-               FileName,
-               EFI_SECTION_USER_INTERFACE,
-               0,
-               (VOID **) &NameString,
-               &StringSize
-               );
+    Status     = GetSectionFromAnyFv (
+                   FileName,
+                   EFI_SECTION_USER_INTERFACE,
+                   0,
+                   (VOID **)&NameString,
+                   &StringSize
+                   );
     if (!EFI_ERROR (Status)) {
       //
       // Method 2: Get the name string from FFS UI section
@@ -255,10 +260,12 @@ GetDriverNameString (
     return mNameString;
   }
 
-  if ((DevicePathType(LoadedImage->FilePath) == MEDIA_DEVICE_PATH) &&
-    (DevicePathSubType(LoadedImage->FilePath) == MEDIA_FILEPATH_DP)) {
+  if ((DevicePathType (LoadedImage->FilePath) == MEDIA_DEVICE_PATH) &&
+      (DevicePathSubType (LoadedImage->FilePath) == MEDIA_FILEPATH_DP))
+  {
     return ((FILEPATH_DEVICE_PATH *)LoadedImage->FilePath)->PathName;
   }
+
   return NULL;
 }
 
@@ -285,23 +292,23 @@ InternalPeCoffGetEntryPoint (
   OUT VOID  **EntryPoint
   )
 {
-  EFI_IMAGE_DOS_HEADER                  *DosHdr;
-  EFI_IMAGE_OPTIONAL_HEADER_PTR_UNION   Hdr;
+  EFI_IMAGE_DOS_HEADER                 *DosHdr;
+  EFI_IMAGE_OPTIONAL_HEADER_PTR_UNION  Hdr;
 
   ASSERT (Pe32Data   != NULL);
   ASSERT (EntryPoint != NULL);
 
-  DosHdr = (EFI_IMAGE_DOS_HEADER *) Pe32Data;
+  DosHdr = (EFI_IMAGE_DOS_HEADER *)Pe32Data;
   if (DosHdr->e_magic == EFI_IMAGE_DOS_SIGNATURE) {
     //
     // DOS image header is present, so read the PE header after the DOS image header.
     //
-    Hdr.Pe32 = (EFI_IMAGE_NT_HEADERS32 *) ((UINTN) Pe32Data + (UINTN) ((DosHdr->e_lfanew) & 0x0ffff));
+    Hdr.Pe32 = (EFI_IMAGE_NT_HEADERS32 *)((UINTN)Pe32Data + (UINTN)((DosHdr->e_lfanew) & 0x0ffff));
   } else {
     //
     // DOS image header is not present, so PE header is at the image base.
     //
-    Hdr.Pe32 = (EFI_IMAGE_NT_HEADERS32 *) Pe32Data;
+    Hdr.Pe32 = (EFI_IMAGE_NT_HEADERS32 *)Pe32Data;
   }
 
   //
@@ -309,10 +316,10 @@ InternalPeCoffGetEntryPoint (
   // AddressOfEntryPoint is common for PE32 & PE32+
   //
   if (Hdr.Te->Signature == EFI_TE_IMAGE_HEADER_SIGNATURE) {
-    *EntryPoint = (VOID *) ((UINTN) Pe32Data + (UINTN) (Hdr.Te->AddressOfEntryPoint & 0x0ffffffff) + sizeof (EFI_TE_IMAGE_HEADER) - Hdr.Te->StrippedSize);
+    *EntryPoint = (VOID *)((UINTN)Pe32Data + (UINTN)(Hdr.Te->AddressOfEntryPoint & 0x0ffffffff) + sizeof (EFI_TE_IMAGE_HEADER) - Hdr.Te->StrippedSize);
     return RETURN_SUCCESS;
   } else if (Hdr.Pe32->Signature == EFI_IMAGE_NT_SIGNATURE) {
-    *EntryPoint = (VOID *) ((UINTN) Pe32Data + (UINTN) (Hdr.Pe32->OptionalHeader.AddressOfEntryPoint & 0x0ffffffff));
+    *EntryPoint = (VOID *)((UINTN)Pe32Data + (UINTN)(Hdr.Pe32->OptionalHeader.AddressOfEntryPoint & 0x0ffffffff));
     return RETURN_SUCCESS;
   }
 
@@ -320,7 +327,7 @@ InternalPeCoffGetEntryPoint (
 }
 
 VOID
-AddImageStruct(
+AddImageStruct (
   IN UINTN     ImageBase,
   IN UINTN     ImageSize,
   IN UINTN     LoadedImageBase,
@@ -330,24 +337,25 @@ AddImageStruct(
   )
 {
   if (mImageStructCount >= mImageStructCountMax) {
-    ASSERT(FALSE);
+    ASSERT (FALSE);
     return;
   }
 
-  mImageStruct[mImageStructCount].ImageBase = ImageBase;
-  mImageStruct[mImageStructCount].ImageSize = ImageSize;
+  mImageStruct[mImageStructCount].ImageBase       = ImageBase;
+  mImageStruct[mImageStructCount].ImageSize       = ImageSize;
   mImageStruct[mImageStructCount].LoadedImageBase = LoadedImageBase;
-  mImageStruct[mImageStructCount].EntryPoint = EntryPoint;
+  mImageStruct[mImageStructCount].EntryPoint      = EntryPoint;
   if (NameString != NULL) {
-    StrnCpyS(mImageStruct[mImageStructCount].NameString, NAME_STRING_LENGTH + 1, NameString, NAME_STRING_LENGTH);
+    StrnCpyS (mImageStruct[mImageStructCount].NameString, NAME_STRING_LENGTH + 1, NameString, NAME_STRING_LENGTH);
   }
-  CopyGuid(&mImageStruct[mImageStructCount].FileGuid, Guid);
+
+  CopyGuid (&mImageStruct[mImageStructCount].FileGuid, Guid);
 
   mImageStructCount++;
 }
 
 CHAR16 *
-AddressToImageName(
+AddressToImageName (
   IN UINTN  Address
   )
 {
@@ -355,35 +363,40 @@ AddressToImageName(
 
   for (Index = 0; Index < mImageStructCount; Index++) {
     if ((Address >= mImageStruct[Index].ImageBase) &&
-        (Address < mImageStruct[Index].ImageBase + mImageStruct[Index].ImageSize)) {
+        (Address < mImageStruct[Index].ImageBase + mImageStruct[Index].ImageSize))
+    {
       return mImageStruct[Index].NameString;
     }
   }
+
   return UNKNOWN_NAME;
 }
 
 CHAR16 *
-AddressToImageNameEx(
+AddressToImageNameEx (
   IN UINTN     Address,
   IN EFI_GUID  *Protocol
   )
 {
   CHAR16  *Name;
   UINTN   Index;
-  Name = AddressToImageName(Address);
-  if (StrCmp(Name, UNKNOWN_NAME) != 0) {
+
+  Name = AddressToImageName (Address);
+  if (StrCmp (Name, UNKNOWN_NAME) != 0) {
     return Name;
   }
-  for (Index = 0; Index < sizeof(mProtocolFuncStruct) / sizeof(mProtocolFuncStruct[0]); Index++) {
-    if (CompareGuid(Protocol, mProtocolFuncStruct[Index].Guid)) {
-      return AddressToImageName(*(UINTN *)(Address + mProtocolFuncStruct[Index].FuncOffset));
+
+  for (Index = 0; Index < sizeof (mProtocolFuncStruct) / sizeof (mProtocolFuncStruct[0]); Index++) {
+    if (CompareGuid (Protocol, mProtocolFuncStruct[Index].Guid)) {
+      return AddressToImageName (*(UINTN *)(Address + mProtocolFuncStruct[Index].FuncOffset));
     }
   }
+
   return UNKNOWN_NAME;
 }
 
 UINTN
-AddressToImageRef(
+AddressToImageRef (
   IN UINTN  Address
   )
 {
@@ -391,35 +404,40 @@ AddressToImageRef(
 
   for (Index = 0; Index < mImageStructCount; Index++) {
     if ((Address >= mImageStruct[Index].ImageBase) &&
-        (Address < mImageStruct[Index].ImageBase + mImageStruct[Index].ImageSize)) {
+        (Address < mImageStruct[Index].ImageBase + mImageStruct[Index].ImageSize))
+    {
       return Index;
     }
   }
+
   return (UINTN)-1;
 }
 
 UINTN
-AddressToImageRefEx(
+AddressToImageRefEx (
   IN UINTN     Address,
   IN EFI_GUID  *Protocol
   )
 {
-  UINTN   ImageRef;
-  UINTN   Index;
-  ImageRef = AddressToImageRef(Address);
+  UINTN  ImageRef;
+  UINTN  Index;
+
+  ImageRef = AddressToImageRef (Address);
   if (ImageRef != (UINTN)-1) {
     return ImageRef;
   }
-  for (Index = 0; Index < sizeof(mProtocolFuncStruct) / sizeof(mProtocolFuncStruct[0]); Index++) {
-    if (CompareGuid(Protocol, mProtocolFuncStruct[Index].Guid)) {
-      return AddressToImageRef(*(UINTN *)(Address + mProtocolFuncStruct[Index].FuncOffset));
+
+  for (Index = 0; Index < sizeof (mProtocolFuncStruct) / sizeof (mProtocolFuncStruct[0]); Index++) {
+    if (CompareGuid (Protocol, mProtocolFuncStruct[Index].Guid)) {
+      return AddressToImageRef (*(UINTN *)(Address + mProtocolFuncStruct[Index].FuncOffset));
     }
   }
+
   return (UINTN)-1;
 }
 
 VOID
-GetSmmLoadedImage(
+GetSmmLoadedImage (
   VOID
   )
 {
@@ -438,55 +456,58 @@ GetSmmLoadedImage(
   EFI_GUID                   Guid;
 
   HandleBufferSize = 0;
-  HandleBuffer = NULL;
-  Status = gSmst->SmmLocateHandle(
-                    ByProtocol,
-                    &gEfiLoadedImageProtocolGuid,
-                    NULL,
-                    &HandleBufferSize,
-                    HandleBuffer
-                    );
+  HandleBuffer     = NULL;
+  Status           = gSmst->SmmLocateHandle (
+                              ByProtocol,
+                              &gEfiLoadedImageProtocolGuid,
+                              NULL,
+                              &HandleBufferSize,
+                              HandleBuffer
+                              );
   if (Status != EFI_BUFFER_TOO_SMALL) {
     return;
   }
+
   HandleBuffer = AllocateZeroPool (HandleBufferSize);
   if (HandleBuffer == NULL) {
     return;
   }
-  Status = gSmst->SmmLocateHandle(
+
+  Status = gSmst->SmmLocateHandle (
                     ByProtocol,
                     &gEfiLoadedImageProtocolGuid,
                     NULL,
                     &HandleBufferSize,
                     HandleBuffer
                     );
-  if (EFI_ERROR(Status)) {
+  if (EFI_ERROR (Status)) {
     return;
   }
 
-  NoHandles = HandleBufferSize/sizeof(EFI_HANDLE);
+  NoHandles            = HandleBufferSize/sizeof (EFI_HANDLE);
   mImageStructCountMax = NoHandles;
-  mImageStruct = AllocateZeroPool(mImageStructCountMax * sizeof(IMAGE_STRUCT));
+  mImageStruct         = AllocateZeroPool (mImageStructCountMax * sizeof (IMAGE_STRUCT));
   if (mImageStruct == NULL) {
     goto Done;
   }
 
   for (Index = 0; Index < NoHandles; Index++) {
-    Status = gSmst->SmmHandleProtocol(
+    Status = gSmst->SmmHandleProtocol (
                       HandleBuffer[Index],
                       &gEfiLoadedImageProtocolGuid,
                       (VOID **)&LoadedImage
                       );
-    if (EFI_ERROR(Status)) {
+    if (EFI_ERROR (Status)) {
       continue;
     }
-    PathStr = ConvertDevicePathToText(LoadedImage->FilePath, TRUE, TRUE);
-    NameStr = GetDriverNameString(LoadedImage, &Guid);
-    DEBUG((EFI_D_INFO, "Image: %s ", NameStr));
 
-    EntryPoint = 0;
-    RealImageBase = (UINTN)LoadedImage->ImageBase;
-    LoadedImagePrivate = BASE_CR(LoadedImage, EFI_SMM_DRIVER_ENTRY, SmmLoadedImage);
+    PathStr = ConvertDevicePathToText (LoadedImage->FilePath, TRUE, TRUE);
+    NameStr = GetDriverNameString (LoadedImage, &Guid);
+    DEBUG ((EFI_D_INFO, "Image: %s ", NameStr));
+
+    EntryPoint         = 0;
+    RealImageBase      = (UINTN)LoadedImage->ImageBase;
+    LoadedImagePrivate = BASE_CR (LoadedImage, EFI_SMM_DRIVER_ENTRY, SmmLoadedImage);
     if (LoadedImagePrivate->Signature == EFI_SMM_DRIVER_ENTRY_SIGNATURE) {
       EntryPoint = (UINTN)LoadedImagePrivate->ImageEntryPoint;
       if ((EntryPoint != 0) && ((EntryPoint < (UINTN)LoadedImage->ImageBase) || (EntryPoint >= ((UINTN)LoadedImage->ImageBase + (UINTN)LoadedImage->ImageSize)))) {
@@ -494,35 +515,38 @@ GetSmmLoadedImage(
         // If the EntryPoint is not in the range of image buffer, it should come from emulation environment.
         // So patch ImageBuffer here to align the EntryPoint.
         //
-        Status = InternalPeCoffGetEntryPoint(LoadedImage->ImageBase, &EntryPointInImage);
-        ASSERT_EFI_ERROR(Status);
+        Status = InternalPeCoffGetEntryPoint (LoadedImage->ImageBase, &EntryPointInImage);
+        ASSERT_EFI_ERROR (Status);
         RealImageBase = (UINTN)LoadedImage->ImageBase + EntryPoint - (UINTN)EntryPointInImage;
       }
     }
-    DEBUG((EFI_D_INFO, "(0x%x - 0x%x", LoadedImage->ImageBase, (UINTN)LoadedImage->ImageSize));
+
+    DEBUG ((EFI_D_INFO, "(0x%x - 0x%x", LoadedImage->ImageBase, (UINTN)LoadedImage->ImageSize));
     if (EntryPoint != 0) {
-      DEBUG((EFI_D_INFO, ", EntryPoint:0x%x", EntryPoint));
+      DEBUG ((EFI_D_INFO, ", EntryPoint:0x%x", EntryPoint));
     }
+
     if (RealImageBase != (UINTN)LoadedImage->ImageBase) {
-      DEBUG((EFI_D_INFO, ", Base:0x%x", RealImageBase));
+      DEBUG ((EFI_D_INFO, ", Base:0x%x", RealImageBase));
     }
-    DEBUG((EFI_D_INFO, ")\n"));
-    DEBUG((EFI_D_INFO, "       (%s)\n", PathStr));
 
-    AddImageStruct(RealImageBase, (UINTN)LoadedImage->ImageSize, (UINTN)LoadedImage->ImageBase, EntryPoint, NameStr, &Guid);
+    DEBUG ((EFI_D_INFO, ")\n"));
+    DEBUG ((EFI_D_INFO, "       (%s)\n", PathStr));
 
-    if (CompareMem(&mSmmCoreFilePath, LoadedImage->FilePath, sizeof(mSmmCoreFilePath)) == 0) {
+    AddImageStruct (RealImageBase, (UINTN)LoadedImage->ImageSize, (UINTN)LoadedImage->ImageBase, EntryPoint, NameStr, &Guid);
+
+    if (CompareMem (&mSmmCoreFilePath, LoadedImage->FilePath, sizeof (mSmmCoreFilePath)) == 0) {
       mSmmCoreLoadedImage = LoadedImage;
     }
   }
 
 Done:
-  FreePool(HandleBuffer);
+  FreePool (HandleBuffer);
   return;
 }
 
 VOID
-GetLoadedImage(
+GetLoadedImage (
   VOID
   )
 {
@@ -537,141 +561,149 @@ GetLoadedImage(
   UINTN                      RealImageBase;
   EFI_GUID                   Guid;
 
-  Status = gBS->LocateHandleBuffer(
+  Status = gBS->LocateHandleBuffer (
                   ByProtocol,
                   &gEfiLoadedImageProtocolGuid,
                   NULL,
                   &NoHandles,
                   &HandleBuffer
                   );
-  if (EFI_ERROR(Status)) {
+  if (EFI_ERROR (Status)) {
     return;
   }
 
   mImageStructCountMax = NoHandles;
-  mImageStruct = AllocateZeroPool(mImageStructCountMax * sizeof(IMAGE_STRUCT));
+  mImageStruct         = AllocateZeroPool (mImageStructCountMax * sizeof (IMAGE_STRUCT));
   if (mImageStruct == NULL) {
     goto Done;
   }
 
   for (Index = 0; Index < NoHandles; Index++) {
-    Status = gBS->HandleProtocol(
+    Status = gBS->HandleProtocol (
                     HandleBuffer[Index],
                     &gEfiLoadedImageProtocolGuid,
                     (VOID **)&LoadedImage
                     );
-    if (EFI_ERROR(Status)) {
+    if (EFI_ERROR (Status)) {
       continue;
     }
 
-    if (!IsSmram((UINT64)(UINTN)LoadedImage->ImageBase, LoadedImage->ImageSize)) {
+    if (!IsSmram ((UINT64)(UINTN)LoadedImage->ImageBase, LoadedImage->ImageSize)) {
       continue;
     }
 
-    PathStr = ConvertDevicePathToText(LoadedImage->FilePath, TRUE, TRUE);
-    NameStr = GetDriverNameString(LoadedImage, &Guid);
-    DEBUG((EFI_D_INFO, "Image: %s ", NameStr));
+    PathStr = ConvertDevicePathToText (LoadedImage->FilePath, TRUE, TRUE);
+    NameStr = GetDriverNameString (LoadedImage, &Guid);
+    DEBUG ((EFI_D_INFO, "Image: %s ", NameStr));
 
-    EntryPoint = 0;
+    EntryPoint    = 0;
     RealImageBase = (UINTN)LoadedImage->ImageBase;
 
-    DEBUG((EFI_D_INFO, "(0x%x - 0x%x", LoadedImage->ImageBase, (UINTN)LoadedImage->ImageSize));
+    DEBUG ((EFI_D_INFO, "(0x%x - 0x%x", LoadedImage->ImageBase, (UINTN)LoadedImage->ImageSize));
     if (EntryPoint != 0) {
-      DEBUG((EFI_D_INFO, ", EntryPoint:0x%x", EntryPoint));
+      DEBUG ((EFI_D_INFO, ", EntryPoint:0x%x", EntryPoint));
     }
+
     if (RealImageBase != (UINTN)LoadedImage->ImageBase) {
-      DEBUG((EFI_D_INFO, ", Base:0x%x", RealImageBase));
+      DEBUG ((EFI_D_INFO, ", Base:0x%x", RealImageBase));
     }
-    DEBUG((EFI_D_INFO, ")\n"));
-    DEBUG((EFI_D_INFO, "       (%s)\n", PathStr));
 
-    AddImageStruct(RealImageBase, (UINTN)LoadedImage->ImageSize, (UINTN)LoadedImage->ImageBase, EntryPoint, NameStr, &Guid);
+    DEBUG ((EFI_D_INFO, ")\n"));
+    DEBUG ((EFI_D_INFO, "       (%s)\n", PathStr));
 
-    if (CompareMem(&mSmmCoreFilePath, LoadedImage->FilePath, sizeof(mSmmCoreFilePath)) == 0) {
+    AddImageStruct (RealImageBase, (UINTN)LoadedImage->ImageSize, (UINTN)LoadedImage->ImageBase, EntryPoint, NameStr, &Guid);
+
+    if (CompareMem (&mSmmCoreFilePath, LoadedImage->FilePath, sizeof (mSmmCoreFilePath)) == 0) {
       mSmmCoreLoadedImage = LoadedImage;
     }
   }
 
 Done:
-  gBS->FreePool(HandleBuffer);
+  gBS->FreePool (HandleBuffer);
   return;
 }
 
 VOID
-DumpProtocolInterfacesOnHandle(
-  IN IHANDLE    *IHandle
+DumpProtocolInterfacesOnHandle (
+  IN IHANDLE  *IHandle
   )
 {
-  LIST_ENTRY           *ListEntry;
-  PROTOCOL_INTERFACE   *ProtocolInterface;
-  CHAR16               *PathStr;
+  LIST_ENTRY          *ListEntry;
+  PROTOCOL_INTERFACE  *ProtocolInterface;
+  CHAR16              *PathStr;
 
   ListEntry = &IHandle->Protocols;
   for (ListEntry = ListEntry->ForwardLink;
        ListEntry != &IHandle->Protocols;
-       ListEntry = ListEntry->ForwardLink) {
-    ProtocolInterface = CR(ListEntry, PROTOCOL_INTERFACE, Link, PROTOCOL_INTERFACE_SIGNATURE);
-    DEBUG((EFI_D_INFO, "  Protocol - %a, Interface - 0x%x", GuidToName(&ProtocolInterface->Protocol->ProtocolID), ProtocolInterface->Interface));
+       ListEntry = ListEntry->ForwardLink)
+  {
+    ProtocolInterface = CR (ListEntry, PROTOCOL_INTERFACE, Link, PROTOCOL_INTERFACE_SIGNATURE);
+    DEBUG ((EFI_D_INFO, "  Protocol - %a, Interface - 0x%x", GuidToName (&ProtocolInterface->Protocol->ProtocolID), ProtocolInterface->Interface));
     if (ProtocolInterface->Interface != NULL) {
       CHAR16  *Name;
-      Name = AddressToImageNameEx((UINTN)ProtocolInterface->Interface, &ProtocolInterface->Protocol->ProtocolID);
-      if (StrCmp(Name, UNKNOWN_NAME) != 0) {
-        DEBUG((EFI_D_INFO, " (%s)", Name));
+      Name = AddressToImageNameEx ((UINTN)ProtocolInterface->Interface, &ProtocolInterface->Protocol->ProtocolID);
+      if (StrCmp (Name, UNKNOWN_NAME) != 0) {
+        DEBUG ((EFI_D_INFO, " (%s)", Name));
       }
     }
-    DEBUG((EFI_D_INFO, "\n"));
-    if (CompareGuid(&ProtocolInterface->Protocol->ProtocolID, &gEfiDevicePathProtocolGuid)) {
-      if (IsDevicePathValid(ProtocolInterface->Interface, SIZE_4KB)) {
-        PathStr = ConvertDevicePathToText(ProtocolInterface->Interface, TRUE, TRUE);
-        DEBUG((EFI_D_INFO, "    (%s)\n", PathStr));
+
+    DEBUG ((EFI_D_INFO, "\n"));
+    if (CompareGuid (&ProtocolInterface->Protocol->ProtocolID, &gEfiDevicePathProtocolGuid)) {
+      if (IsDevicePathValid (ProtocolInterface->Interface, SIZE_4KB)) {
+        PathStr = ConvertDevicePathToText (ProtocolInterface->Interface, TRUE, TRUE);
+        DEBUG ((EFI_D_INFO, "    (%s)\n", PathStr));
       } else {
-        DEBUG((EFI_D_INFO, "    (INVALID DEVICE PATH)\n"));
+        DEBUG ((EFI_D_INFO, "    (INVALID DEVICE PATH)\n"));
       }
     }
-    if (CompareGuid(&ProtocolInterface->Protocol->ProtocolID, &gEfiLoadedImageProtocolGuid)) {
-      PathStr = ConvertDevicePathToText(((EFI_LOADED_IMAGE_PROTOCOL *)ProtocolInterface->Interface)->FilePath, TRUE, TRUE);
-      DEBUG((EFI_D_INFO, "    (%s)\n", PathStr));
+
+    if (CompareGuid (&ProtocolInterface->Protocol->ProtocolID, &gEfiLoadedImageProtocolGuid)) {
+      PathStr = ConvertDevicePathToText (((EFI_LOADED_IMAGE_PROTOCOL *)ProtocolInterface->Interface)->FilePath, TRUE, TRUE);
+      DEBUG ((EFI_D_INFO, "    (%s)\n", PathStr));
     }
-    if (CompareGuid(&ProtocolInterface->Protocol->ProtocolID, &gEfiLoadedImageDevicePathProtocolGuid)) {
-      PathStr = ConvertDevicePathToText(ProtocolInterface->Interface, TRUE, TRUE);
-      DEBUG((EFI_D_INFO, "    (%s)\n", PathStr));
+
+    if (CompareGuid (&ProtocolInterface->Protocol->ProtocolID, &gEfiLoadedImageDevicePathProtocolGuid)) {
+      PathStr = ConvertDevicePathToText (ProtocolInterface->Interface, TRUE, TRUE);
+      DEBUG ((EFI_D_INFO, "    (%s)\n", PathStr));
     }
   }
 }
 
 VOID
-DumpHandleList(
+DumpHandleList (
   VOID
   )
 {
-  LIST_ENTRY      *ListEntry;
-  IHANDLE         *Handle;
+  LIST_ENTRY  *ListEntry;
+  IHANDLE     *Handle;
 
   ListEntry = mSmmCoreHandleList;
   for (ListEntry = ListEntry->ForwardLink;
        ListEntry != mSmmCoreHandleList;
-       ListEntry = ListEntry->ForwardLink) {
-    Handle = CR(ListEntry, IHANDLE, AllHandles, EFI_HANDLE_SIGNATURE);
-    DEBUG((EFI_D_INFO, "Handle - 0x%x\n", Handle));
-    DumpProtocolInterfacesOnHandle(Handle);
+       ListEntry = ListEntry->ForwardLink)
+  {
+    Handle = CR (ListEntry, IHANDLE, AllHandles, EFI_HANDLE_SIGNATURE);
+    DEBUG ((EFI_D_INFO, "Handle - 0x%x\n", Handle));
+    DumpProtocolInterfacesOnHandle (Handle);
   }
 
   return;
 }
 
 VOID
-GetSmmCoreHandleList(
-  IN IHANDLE    *IHandle
+GetSmmCoreHandleList (
+  IN IHANDLE  *IHandle
   )
 {
-  LIST_ENTRY      *ListEntry;
-  IHANDLE         *Handle;
+  LIST_ENTRY  *ListEntry;
+  IHANDLE     *Handle;
 
   ListEntry = &IHandle->AllHandles;
   for (ListEntry = ListEntry->ForwardLink;
        ListEntry != &IHandle->AllHandles;
-       ListEntry = ListEntry->ForwardLink) {
-    Handle = BASE_CR(ListEntry, IHANDLE, AllHandles);
+       ListEntry = ListEntry->ForwardLink)
+  {
+    Handle = BASE_CR (ListEntry, IHANDLE, AllHandles);
     if (Handle->Signature != EFI_HANDLE_SIGNATURE) {
       // BUGBUG: NT32 will load image to BS memory, but execute code in DLL.
       // Do not use mSmmCoreLoadedImage->ImageBase/ImageSize
@@ -684,8 +716,8 @@ GetSmmCoreHandleList(
 }
 
 VOID
-GetSmmCoreProtocolDatabase(
-  IN IHANDLE    *IHandle
+GetSmmCoreProtocolDatabase (
+  IN IHANDLE  *IHandle
   )
 {
   LIST_ENTRY      *ListEntry;
@@ -694,27 +726,31 @@ GetSmmCoreProtocolDatabase(
   PROTOCOL_ENTRY  *ProtocolEntry;
 
   IProtocolEntry = NULL;
-  ListEntry = &IHandle->AllHandles;
+  ListEntry      = &IHandle->AllHandles;
   for (ListEntry = ListEntry->ForwardLink;
        ListEntry != &IHandle->AllHandles;
-       ListEntry = ListEntry->ForwardLink) {
-    Handle = BASE_CR(ListEntry, IHANDLE, AllHandles);
+       ListEntry = ListEntry->ForwardLink)
+  {
+    Handle = BASE_CR (ListEntry, IHANDLE, AllHandles);
     if (Handle->Signature == EFI_HANDLE_SIGNATURE) {
-      LIST_ENTRY           *ProtocolListEntry;
-      PROTOCOL_INTERFACE   *ProtocolInterface;
+      LIST_ENTRY          *ProtocolListEntry;
+      PROTOCOL_INTERFACE  *ProtocolInterface;
 
       ProtocolListEntry = &Handle->Protocols;
       for (ProtocolListEntry = ProtocolListEntry->ForwardLink;
            ProtocolListEntry != &Handle->Protocols;
-           ProtocolListEntry = ProtocolListEntry->ForwardLink) {
-        ProtocolInterface = BASE_CR(ProtocolListEntry, PROTOCOL_INTERFACE, Link);
+           ProtocolListEntry = ProtocolListEntry->ForwardLink)
+      {
+        ProtocolInterface = BASE_CR (ProtocolListEntry, PROTOCOL_INTERFACE, Link);
         if (ProtocolInterface->Signature == PROTOCOL_INTERFACE_SIGNATURE) {
           IProtocolEntry = ProtocolInterface->Protocol;
         }
+
         if (IProtocolEntry != NULL) {
           break;
         }
       }
+
       if (IProtocolEntry != NULL) {
         break;
       }
@@ -728,8 +764,9 @@ GetSmmCoreProtocolDatabase(
   ListEntry = &IProtocolEntry->AllEntries;
   for (ListEntry = ListEntry->ForwardLink;
        ListEntry != &IProtocolEntry->AllEntries;
-       ListEntry = ListEntry->ForwardLink) {
-    ProtocolEntry = BASE_CR(ListEntry, PROTOCOL_ENTRY, AllEntries);
+       ListEntry = ListEntry->ForwardLink)
+  {
+    ProtocolEntry = BASE_CR (ListEntry, PROTOCOL_ENTRY, AllEntries);
     if (ProtocolEntry->Signature != PROTOCOL_ENTRY_SIGNATURE) {
       // BUGBUG: NT32 will load image to BS memory, but execute code in DLL.
       // Do not use mSmmCoreLoadedImage->ImageBase/ImageSize
@@ -742,74 +779,80 @@ GetSmmCoreProtocolDatabase(
 }
 
 VOID
-DumpProtocolInterfacesOnProtocolEntry(
+DumpProtocolInterfacesOnProtocolEntry (
   IN PROTOCOL_ENTRY  *ProtocolEntry
   )
 {
-  LIST_ENTRY           *ListEntry;
-  PROTOCOL_INTERFACE   *ProtocolInterface;
-  CHAR16               *PathStr;
+  LIST_ENTRY          *ListEntry;
+  PROTOCOL_INTERFACE  *ProtocolInterface;
+  CHAR16              *PathStr;
 
   ListEntry = &ProtocolEntry->Protocols;
   for (ListEntry = ListEntry->ForwardLink;
        ListEntry != &ProtocolEntry->Protocols;
-       ListEntry = ListEntry->ForwardLink) {
-    ProtocolInterface = CR(ListEntry, PROTOCOL_INTERFACE, ByProtocol, PROTOCOL_INTERFACE_SIGNATURE);
-    DEBUG((EFI_D_INFO, "  Interface - 0x%x", ProtocolInterface->Interface));
+       ListEntry = ListEntry->ForwardLink)
+  {
+    ProtocolInterface = CR (ListEntry, PROTOCOL_INTERFACE, ByProtocol, PROTOCOL_INTERFACE_SIGNATURE);
+    DEBUG ((EFI_D_INFO, "  Interface - 0x%x", ProtocolInterface->Interface));
     if (ProtocolInterface->Interface != NULL) {
       CHAR16  *Name;
-      Name = AddressToImageNameEx((UINTN)ProtocolInterface->Interface, &ProtocolInterface->Protocol->ProtocolID);
-      if (StrCmp(Name, UNKNOWN_NAME) != 0) {
-        DEBUG((EFI_D_INFO, " (%s)", Name));
+      Name = AddressToImageNameEx ((UINTN)ProtocolInterface->Interface, &ProtocolInterface->Protocol->ProtocolID);
+      if (StrCmp (Name, UNKNOWN_NAME) != 0) {
+        DEBUG ((EFI_D_INFO, " (%s)", Name));
       }
     }
-    DEBUG((EFI_D_INFO, "\n"));
-    if (CompareGuid(&ProtocolInterface->Protocol->ProtocolID, &gEfiDevicePathProtocolGuid)) {
-      if (IsDevicePathValid(ProtocolInterface->Interface, SIZE_4KB)) {
-        PathStr = ConvertDevicePathToText(ProtocolInterface->Interface, TRUE, TRUE);
-        DEBUG((EFI_D_INFO, "    (%s)\n", PathStr));
+
+    DEBUG ((EFI_D_INFO, "\n"));
+    if (CompareGuid (&ProtocolInterface->Protocol->ProtocolID, &gEfiDevicePathProtocolGuid)) {
+      if (IsDevicePathValid (ProtocolInterface->Interface, SIZE_4KB)) {
+        PathStr = ConvertDevicePathToText (ProtocolInterface->Interface, TRUE, TRUE);
+        DEBUG ((EFI_D_INFO, "    (%s)\n", PathStr));
       } else {
-        DEBUG((EFI_D_INFO, "    (INVALID DEVICE PATH)\n"));
+        DEBUG ((EFI_D_INFO, "    (INVALID DEVICE PATH)\n"));
       }
     }
-    if (CompareGuid(&ProtocolInterface->Protocol->ProtocolID, &gEfiLoadedImageProtocolGuid)) {
-      PathStr = ConvertDevicePathToText(((EFI_LOADED_IMAGE_PROTOCOL *)ProtocolInterface->Interface)->FilePath, TRUE, TRUE);
-      DEBUG((EFI_D_INFO, "    (%s)\n", PathStr));
+
+    if (CompareGuid (&ProtocolInterface->Protocol->ProtocolID, &gEfiLoadedImageProtocolGuid)) {
+      PathStr = ConvertDevicePathToText (((EFI_LOADED_IMAGE_PROTOCOL *)ProtocolInterface->Interface)->FilePath, TRUE, TRUE);
+      DEBUG ((EFI_D_INFO, "    (%s)\n", PathStr));
     }
-    if (CompareGuid(&ProtocolInterface->Protocol->ProtocolID, &gEfiLoadedImageDevicePathProtocolGuid)) {
-      PathStr = ConvertDevicePathToText(ProtocolInterface->Interface, TRUE, TRUE);
-      DEBUG((EFI_D_INFO, "    (%s)\n", PathStr));
+
+    if (CompareGuid (&ProtocolInterface->Protocol->ProtocolID, &gEfiLoadedImageDevicePathProtocolGuid)) {
+      PathStr = ConvertDevicePathToText (ProtocolInterface->Interface, TRUE, TRUE);
+      DEBUG ((EFI_D_INFO, "    (%s)\n", PathStr));
     }
   }
 }
 
 VOID
-DumpProtocolNotifyOnProtocolEntry(
+DumpProtocolNotifyOnProtocolEntry (
   IN PROTOCOL_ENTRY  *ProtocolEntry
   )
 {
-  LIST_ENTRY           *ListEntry;
-  PROTOCOL_NOTIFY      *ProtocolNotify;
+  LIST_ENTRY       *ListEntry;
+  PROTOCOL_NOTIFY  *ProtocolNotify;
 
   ListEntry = &ProtocolEntry->Notify;
   for (ListEntry = ListEntry->ForwardLink;
        ListEntry != &ProtocolEntry->Notify;
-       ListEntry = ListEntry->ForwardLink) {
-    ProtocolNotify = CR(ListEntry, PROTOCOL_NOTIFY, Link, PROTOCOL_NOTIFY_SIGNATURE);
-    DEBUG((EFI_D_INFO, "  Notify - 0x%x", ProtocolNotify->Function));
+       ListEntry = ListEntry->ForwardLink)
+  {
+    ProtocolNotify = CR (ListEntry, PROTOCOL_NOTIFY, Link, PROTOCOL_NOTIFY_SIGNATURE);
+    DEBUG ((EFI_D_INFO, "  Notify - 0x%x", ProtocolNotify->Function));
     if (ProtocolNotify->Function != NULL) {
       CHAR16  *Name;
-      Name = AddressToImageName((UINTN)ProtocolNotify->Function);
-      if (StrCmp(Name, UNKNOWN_NAME) != 0) {
-        DEBUG((EFI_D_INFO, " (%s)", Name));
+      Name = AddressToImageName ((UINTN)ProtocolNotify->Function);
+      if (StrCmp (Name, UNKNOWN_NAME) != 0) {
+        DEBUG ((EFI_D_INFO, " (%s)", Name));
       }
     }
-    DEBUG((EFI_D_INFO, "\n"));
+
+    DEBUG ((EFI_D_INFO, "\n"));
   }
 }
 
 VOID
-DumpProtocolDatabase(
+DumpProtocolDatabase (
   VOID
   )
 {
@@ -819,16 +862,18 @@ DumpProtocolDatabase(
   ListEntry = mSmmCoreProtocolDatabase;
   for (ListEntry = ListEntry->ForwardLink;
        ListEntry != mSmmCoreProtocolDatabase;
-       ListEntry = ListEntry->ForwardLink) {
-    ProtocolEntry = CR(ListEntry, PROTOCOL_ENTRY, AllEntries, PROTOCOL_ENTRY_SIGNATURE);
+       ListEntry = ListEntry->ForwardLink)
+  {
+    ProtocolEntry = CR (ListEntry, PROTOCOL_ENTRY, AllEntries, PROTOCOL_ENTRY_SIGNATURE);
     if (CompareGuid (&ProtocolEntry->ProtocolID, &gEfiCallerIdGuid)) {
       // Need filter it here, because UninstallProtocol still keeps the entry
       // just leave an empty link list.
       break;
     }
-    DEBUG((EFI_D_INFO, "Protocol - %a\n", GuidToName(&ProtocolEntry->ProtocolID)));
-    DumpProtocolInterfacesOnProtocolEntry(ProtocolEntry);
-    DumpProtocolNotifyOnProtocolEntry(ProtocolEntry);
+
+    DEBUG ((EFI_D_INFO, "Protocol - %a\n", GuidToName (&ProtocolEntry->ProtocolID)));
+    DumpProtocolInterfacesOnProtocolEntry (ProtocolEntry);
+    DumpProtocolNotifyOnProtocolEntry (ProtocolEntry);
   }
 
   return;
@@ -840,33 +885,33 @@ GetSmram (
   VOID
   )
 {
-  EFI_STATUS                    Status;
-  EFI_SMM_ACCESS2_PROTOCOL      *SmmAccess;
-  UINTN                         Size;
+  EFI_STATUS                Status;
+  EFI_SMM_ACCESS2_PROTOCOL  *SmmAccess;
+  UINTN                     Size;
 
   //
   // Get SMRAM information
   //
-  Status = gBS->LocateProtocol(&gEfiSmmAccess2ProtocolGuid, NULL, (VOID **)&SmmAccess);
-  ASSERT_EFI_ERROR(Status);
+  Status = gBS->LocateProtocol (&gEfiSmmAccess2ProtocolGuid, NULL, (VOID **)&SmmAccess);
+  ASSERT_EFI_ERROR (Status);
 
-  Size = 0;
-  Status = SmmAccess->GetCapabilities(SmmAccess, &Size, NULL);
-  ASSERT(Status == EFI_BUFFER_TOO_SMALL);
+  Size   = 0;
+  Status = SmmAccess->GetCapabilities (SmmAccess, &Size, NULL);
+  ASSERT (Status == EFI_BUFFER_TOO_SMALL);
 
-  mSmmCoreDumpInternalSmramRanges = AllocatePool(Size);
-  ASSERT(mSmmCoreDumpInternalSmramRanges != NULL);
+  mSmmCoreDumpInternalSmramRanges = AllocatePool (Size);
+  ASSERT (mSmmCoreDumpInternalSmramRanges != NULL);
 
-  Status = SmmAccess->GetCapabilities(SmmAccess, &Size, mSmmCoreDumpInternalSmramRanges);
-  ASSERT_EFI_ERROR(Status);
+  Status = SmmAccess->GetCapabilities (SmmAccess, &Size, mSmmCoreDumpInternalSmramRanges);
+  ASSERT_EFI_ERROR (Status);
 
-  mSmmCoreDumpInternalSmramCount = Size / sizeof(EFI_SMRAM_DESCRIPTOR);
+  mSmmCoreDumpInternalSmramCount = Size / sizeof (EFI_SMRAM_DESCRIPTOR);
 
   {
     UINTN  Index;
 
     for (Index = 0; Index < mSmmCoreDumpInternalSmramCount; Index++) {
-      DEBUG((EFI_D_INFO, "SMRAM: 0x%lx - 0x%lx\n", mSmmCoreDumpInternalSmramRanges[Index].CpuStart, mSmmCoreDumpInternalSmramRanges[Index].PhysicalSize));
+      DEBUG ((EFI_D_INFO, "SMRAM: 0x%lx - 0x%lx\n", mSmmCoreDumpInternalSmramRanges[Index].CpuStart, mSmmCoreDumpInternalSmramRanges[Index].PhysicalSize));
     }
   }
 
@@ -875,7 +920,7 @@ GetSmram (
 
 EFI_STATUS
 EFIAPI
-DummyHandler(
+DummyHandler (
   IN EFI_HANDLE  DispatchHandle,
   IN CONST VOID  *Context         OPTIONAL,
   IN OUT VOID    *CommBuffer      OPTIONAL,
@@ -886,21 +931,22 @@ DummyHandler(
 }
 
 VOID
-GetSmmCoreSmiEntryList(
-  IN SMI_HANDLER    *SmiHandler
+GetSmmCoreSmiEntryList (
+  IN SMI_HANDLER  *SmiHandler
   )
 {
-  LIST_ENTRY      *ListEntry;
-  SMI_ENTRY       *SmiEntry;
-  SMI_ENTRY       *Entry;
+  LIST_ENTRY  *ListEntry;
+  SMI_ENTRY   *SmiEntry;
+  SMI_ENTRY   *Entry;
 
   SmiEntry = SmiHandler->SmiEntry;
 
   ListEntry = &SmiEntry->AllEntries;
   for (ListEntry = ListEntry->ForwardLink;
        ListEntry != &SmiEntry->AllEntries;
-       ListEntry = ListEntry->ForwardLink) {
-    Entry = BASE_CR(ListEntry, SMI_ENTRY, AllEntries);
+       ListEntry = ListEntry->ForwardLink)
+  {
+    Entry = BASE_CR (ListEntry, SMI_ENTRY, AllEntries);
     if (Entry->Signature != SMI_ENTRY_SIGNATURE) {
       // BUGBUG: NT32 will load image to BS memory, but execute code in DLL.
       // Do not use mSmmCoreLoadedImage->ImageBase/ImageSize
@@ -913,66 +959,70 @@ GetSmmCoreSmiEntryList(
 }
 
 VOID
-DumpSmiHandlerOnSmiEntry(
-  IN SMI_ENTRY       *SmiEntry
+DumpSmiHandlerOnSmiEntry (
+  IN SMI_ENTRY  *SmiEntry
   )
 {
-  LIST_ENTRY      *ListEntry;
-  SMI_HANDLER     *SmiHandler;
+  LIST_ENTRY   *ListEntry;
+  SMI_HANDLER  *SmiHandler;
 
   ListEntry = &SmiEntry->SmiHandlers;
   for (ListEntry = ListEntry->ForwardLink;
        ListEntry != &SmiEntry->SmiHandlers;
-       ListEntry = ListEntry->ForwardLink) {
-    SmiHandler = CR(ListEntry, SMI_HANDLER, Link, SMI_HANDLER_SIGNATURE);
-    DEBUG((EFI_D_INFO, "  SmiHandle - 0x%x\n", SmiHandler));
-    DEBUG((EFI_D_INFO, "    Handler - 0x%x", SmiHandler->Handler));
+       ListEntry = ListEntry->ForwardLink)
+  {
+    SmiHandler = CR (ListEntry, SMI_HANDLER, Link, SMI_HANDLER_SIGNATURE);
+    DEBUG ((EFI_D_INFO, "  SmiHandle - 0x%x\n", SmiHandler));
+    DEBUG ((EFI_D_INFO, "    Handler - 0x%x", SmiHandler->Handler));
     if (SmiHandler->Handler != NULL) {
       CHAR16  *Name;
-      Name = AddressToImageName((UINTN)SmiHandler->Handler);
-      if (StrCmp(Name, UNKNOWN_NAME) != 0) {
-        DEBUG((EFI_D_INFO, " (%s)", Name));
+      Name = AddressToImageName ((UINTN)SmiHandler->Handler);
+      if (StrCmp (Name, UNKNOWN_NAME) != 0) {
+        DEBUG ((EFI_D_INFO, " (%s)", Name));
       }
     }
-    DEBUG((EFI_D_INFO, "\n"));
+
+    DEBUG ((EFI_D_INFO, "\n"));
   }
 
   return;
 }
 
 VOID
-DumpSmiEntryList(
+DumpSmiEntryList (
   VOID
   )
 {
-  LIST_ENTRY      *ListEntry;
-  SMI_ENTRY       *SmiEntry;
+  LIST_ENTRY  *ListEntry;
+  SMI_ENTRY   *SmiEntry;
 
   ListEntry = mSmmCoreSmiEntryList;
   for (ListEntry = ListEntry->ForwardLink;
        ListEntry != mSmmCoreSmiEntryList;
-       ListEntry = ListEntry->ForwardLink) {
-    SmiEntry = CR(ListEntry, SMI_ENTRY, AllEntries, SMI_ENTRY_SIGNATURE);
-    DEBUG((EFI_D_INFO, "SmiEntry - %a\n", GuidToName(&SmiEntry->HandlerType)));
-    DumpSmiHandlerOnSmiEntry(SmiEntry);
+       ListEntry = ListEntry->ForwardLink)
+  {
+    SmiEntry = CR (ListEntry, SMI_ENTRY, AllEntries, SMI_ENTRY_SIGNATURE);
+    DEBUG ((EFI_D_INFO, "SmiEntry - %a\n", GuidToName (&SmiEntry->HandlerType)));
+    DumpSmiHandlerOnSmiEntry (SmiEntry);
   }
 
   return;
 }
 
 VOID
-GetSmmCoreRootSmiHandlerList(
-  IN SMI_HANDLER    *SmiHandler
+GetSmmCoreRootSmiHandlerList (
+  IN SMI_HANDLER  *SmiHandler
   )
 {
-  LIST_ENTRY      *ListEntry;
-  SMI_HANDLER     *Handler;
+  LIST_ENTRY   *ListEntry;
+  SMI_HANDLER  *Handler;
 
   ListEntry = &SmiHandler->Link;
   for (ListEntry = ListEntry->ForwardLink;
        ListEntry != &SmiHandler->Link;
-       ListEntry = ListEntry->ForwardLink) {
-    Handler = BASE_CR(ListEntry, SMI_HANDLER, Link);
+       ListEntry = ListEntry->ForwardLink)
+  {
+    Handler = BASE_CR (ListEntry, SMI_HANDLER, Link);
     if (Handler->Signature != SMI_HANDLER_SIGNATURE) {
       // BUGBUG: NT32 will load image to BS memory, but execute code in DLL.
       // Do not use mSmmCoreLoadedImage->ImageBase/ImageSize
@@ -985,28 +1035,30 @@ GetSmmCoreRootSmiHandlerList(
 }
 
 VOID
-DumpRootSmiHandlerList(
+DumpRootSmiHandlerList (
   VOID
   )
 {
-  LIST_ENTRY      *ListEntry;
-  SMI_HANDLER     *SmiHandler;
+  LIST_ENTRY   *ListEntry;
+  SMI_HANDLER  *SmiHandler;
 
   ListEntry = mSmmCoreRootSmiHandlerList;
   for (ListEntry = ListEntry->ForwardLink;
        ListEntry != mSmmCoreRootSmiHandlerList;
-       ListEntry = ListEntry->ForwardLink) {
-    SmiHandler = CR(ListEntry, SMI_HANDLER, Link, SMI_HANDLER_SIGNATURE);
-    DEBUG((EFI_D_INFO, "RootSmiHandle - 0x%x\n", SmiHandler));
-    DEBUG((EFI_D_INFO, "  Handler - 0x%x", SmiHandler->Handler));
+       ListEntry = ListEntry->ForwardLink)
+  {
+    SmiHandler = CR (ListEntry, SMI_HANDLER, Link, SMI_HANDLER_SIGNATURE);
+    DEBUG ((EFI_D_INFO, "RootSmiHandle - 0x%x\n", SmiHandler));
+    DEBUG ((EFI_D_INFO, "  Handler - 0x%x", SmiHandler->Handler));
     if (SmiHandler->Handler != NULL) {
       CHAR16  *Name;
-      Name = AddressToImageName((UINTN)SmiHandler->Handler);
-      if (StrCmp(Name, UNKNOWN_NAME) != 0) {
-        DEBUG((EFI_D_INFO, " (%s)", Name));
+      Name = AddressToImageName ((UINTN)SmiHandler->Handler);
+      if (StrCmp (Name, UNKNOWN_NAME) != 0) {
+        DEBUG ((EFI_D_INFO, " (%s)", Name));
       }
     }
-    DEBUG((EFI_D_INFO, "\n"));
+
+    DEBUG ((EFI_D_INFO, "\n"));
   }
 
   return;
@@ -1018,121 +1070,127 @@ SmmCoreDump (
   VOID
   )
 {
-  EFI_STATUS           Status;
-  EFI_HANDLE           SmmHandle;
-  EFI_HANDLE           SmiHandle;
+  EFI_STATUS  Status;
+  EFI_HANDLE  SmmHandle;
+  EFI_HANDLE  SmiHandle;
 
-  GetSmram();
+  GetSmram ();
 
   //
   // Dump all image
   //
-  DEBUG((EFI_D_INFO, "##################\n"));
-  DEBUG((EFI_D_INFO, "# IMAGE DATABASE #\n"));
-  DEBUG((EFI_D_INFO, "##################\n"));
+  DEBUG ((EFI_D_INFO, "##################\n"));
+  DEBUG ((EFI_D_INFO, "# IMAGE DATABASE #\n"));
+  DEBUG ((EFI_D_INFO, "##################\n"));
   GetSmmLoadedImage ();
   if (mSmmCoreLoadedImage == NULL) {
-    GetLoadedImage();
+    GetLoadedImage ();
   }
+
   if (mSmmCoreLoadedImage == NULL) {
-    DEBUG((EFI_D_INFO, "SmmCore is not found!\n"));
+    DEBUG ((EFI_D_INFO, "SmmCore is not found!\n"));
     goto Done;
   }
-  DEBUG((EFI_D_INFO, "\n"));
+
+  DEBUG ((EFI_D_INFO, "\n"));
 
   SmmHandle = NULL;
-  Status = gSmst->SmmInstallProtocolInterface(
-                    &SmmHandle,
+  Status    = gSmst->SmmInstallProtocolInterface (
+                       &SmmHandle,
+                       &gEfiCallerIdGuid,
+                       EFI_NATIVE_INTERFACE,
+                       NULL
+                       );
+  if (EFI_ERROR (Status)) {
+    goto Done;
+  }
+
+  GetSmmCoreHandleList ((IHANDLE *)SmmHandle);
+  GetSmmCoreProtocolDatabase ((IHANDLE *)SmmHandle);
+  Status = gSmst->SmmUninstallProtocolInterface (
+                    SmmHandle,
                     &gEfiCallerIdGuid,
-                    EFI_NATIVE_INTERFACE,
                     NULL
                     );
   if (EFI_ERROR (Status)) {
     goto Done;
   }
 
-  GetSmmCoreHandleList((IHANDLE *)SmmHandle);
-  GetSmmCoreProtocolDatabase((IHANDLE *)SmmHandle);
-  Status = gSmst->SmmUninstallProtocolInterface(
-                    SmmHandle,
-                    &gEfiCallerIdGuid,
-                    NULL
-                    );
-  if (EFI_ERROR(Status)) {
-    goto Done;
-  }
   if (mSmmCoreHandleList == NULL) {
-    DEBUG((EFI_D_INFO, "SmmCore gHandleList is not found!\n"));
+    DEBUG ((EFI_D_INFO, "SmmCore gHandleList is not found!\n"));
     goto Done;
   }
+
   if (mSmmCoreProtocolDatabase == NULL) {
-    DEBUG((EFI_D_INFO, "SmmCore mProtocolDatabase is not found!\n"));
+    DEBUG ((EFI_D_INFO, "SmmCore mProtocolDatabase is not found!\n"));
   }
 
   //
   // Dump handle list
   //
-  DEBUG((EFI_D_INFO, "###################\n"));
-  DEBUG((EFI_D_INFO, "# HANDLE DATABASE #\n"));
-  DEBUG((EFI_D_INFO, "###################\n"));
-  DumpHandleList();
-  DEBUG((EFI_D_INFO, "\n"));
+  DEBUG ((EFI_D_INFO, "###################\n"));
+  DEBUG ((EFI_D_INFO, "# HANDLE DATABASE #\n"));
+  DEBUG ((EFI_D_INFO, "###################\n"));
+  DumpHandleList ();
+  DEBUG ((EFI_D_INFO, "\n"));
 
   //
   // Dump protocol database
   //
-  DEBUG((EFI_D_INFO, "#####################\n"));
-  DEBUG((EFI_D_INFO, "# PROTOCOL DATABASE #\n"));
-  DEBUG((EFI_D_INFO, "#####################\n"));
-  DumpProtocolDatabase();
-  DEBUG((EFI_D_INFO, "\n"));
+  DEBUG ((EFI_D_INFO, "#####################\n"));
+  DEBUG ((EFI_D_INFO, "# PROTOCOL DATABASE #\n"));
+  DEBUG ((EFI_D_INFO, "#####################\n"));
+  DumpProtocolDatabase ();
+  DEBUG ((EFI_D_INFO, "\n"));
 
   //
   // Dump SMI Handler
   //
-  DEBUG((EFI_D_INFO, "########################\n"));
-  DEBUG((EFI_D_INFO, "# SMI Handler DATABASE #\n"));
-  DEBUG((EFI_D_INFO, "########################\n"));
-  DEBUG((EFI_D_INFO, "# 1. GUID SMI Handler #\n"));
+  DEBUG ((EFI_D_INFO, "########################\n"));
+  DEBUG ((EFI_D_INFO, "# SMI Handler DATABASE #\n"));
+  DEBUG ((EFI_D_INFO, "########################\n"));
+  DEBUG ((EFI_D_INFO, "# 1. GUID SMI Handler #\n"));
   SmiHandle = NULL;
-  Status = gSmst->SmiHandlerRegister(
-                    DummyHandler,
-                    &gEfiCallerIdGuid,
-                    &SmiHandle
-                    );
-  DEBUG((EFI_D_INFO, "\n"));
-  if (!EFI_ERROR(Status)) {
-    GetSmmCoreSmiEntryList((SMI_HANDLER *)SmiHandle);
-    gSmst->SmiHandlerUnRegister(SmiHandle);
+  Status    = gSmst->SmiHandlerRegister (
+                       DummyHandler,
+                       &gEfiCallerIdGuid,
+                       &SmiHandle
+                       );
+  DEBUG ((EFI_D_INFO, "\n"));
+  if (!EFI_ERROR (Status)) {
+    GetSmmCoreSmiEntryList ((SMI_HANDLER *)SmiHandle);
+    gSmst->SmiHandlerUnRegister (SmiHandle);
     if (mSmmCoreSmiEntryList != NULL) {
-      DumpSmiEntryList();
+      DumpSmiEntryList ();
     }
   }
-  DEBUG((EFI_D_INFO, "# 2. ROOT SMI Handler #\n"));
-  SmiHandle = NULL;
-  Status = gSmst->SmiHandlerRegister(
-                    DummyHandler,
-                    NULL,
-                    &SmiHandle
-                    );
-  if (!EFI_ERROR(Status)) {
-    GetSmmCoreRootSmiHandlerList((SMI_HANDLER *)SmiHandle);
-    gSmst->SmiHandlerUnRegister(SmiHandle);
-    if (mSmmCoreRootSmiHandlerList != NULL) {
-      DumpRootSmiHandlerList();
-    }
-  }
-  DEBUG((EFI_D_INFO, "\n"));
 
-  DEBUG((EFI_D_INFO, "SmmChildDump ...\n"));
-  SmmChildDump();
+  DEBUG ((EFI_D_INFO, "# 2. ROOT SMI Handler #\n"));
+  SmiHandle = NULL;
+  Status    = gSmst->SmiHandlerRegister (
+                       DummyHandler,
+                       NULL,
+                       &SmiHandle
+                       );
+  if (!EFI_ERROR (Status)) {
+    GetSmmCoreRootSmiHandlerList ((SMI_HANDLER *)SmiHandle);
+    gSmst->SmiHandlerUnRegister (SmiHandle);
+    if (mSmmCoreRootSmiHandlerList != NULL) {
+      DumpRootSmiHandlerList ();
+    }
+  }
+
+  DEBUG ((EFI_D_INFO, "\n"));
+
+  DEBUG ((EFI_D_INFO, "SmmChildDump ...\n"));
+  SmmChildDump ();
 
   // BUGBUG: Filter myself
-  RegisterSmmCoreDumpHandler();
+  RegisterSmmCoreDumpHandler ();
 
 Done:
   if (mImageStruct != NULL) {
-    FreePool(mImageStruct);
+    FreePool (mImageStruct);
   }
 
   return EFI_SUCCESS;
@@ -1146,15 +1204,15 @@ SmmReadyToLockInSmmCoreDump (
   IN EFI_HANDLE      Handle
   )
 {
-  SmmCoreDump();
+  SmmCoreDump ();
   return EFI_SUCCESS;
 }
 
 EFI_STATUS
 EFIAPI
-SmmCoreDumpEntrypoint(
-  IN EFI_HANDLE           ImageHandle,
-  IN EFI_SYSTEM_TABLE     *SystemTable
+SmmCoreDumpEntrypoint (
+  IN EFI_HANDLE        ImageHandle,
+  IN EFI_SYSTEM_TABLE  *SystemTable
   )
 {
   EFI_STATUS  Status;
@@ -1167,8 +1225,8 @@ SmmCoreDumpEntrypoint(
                     );
   ASSERT_EFI_ERROR (Status);
 
-  DEBUG((EFI_D_INFO, "SmmChildInit ...\n"));
-  SmmChildInit();
+  DEBUG ((EFI_D_INFO, "SmmChildInit ...\n"));
+  SmmChildInit ();
 
   return EFI_SUCCESS;
 }

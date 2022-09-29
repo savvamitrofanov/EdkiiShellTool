@@ -17,43 +17,43 @@ WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
 #define UNKNOWN_NAME  L"???"
 
 EFI_GUID *
-ProtocolTypeToGuid(
-  IN INT32         ProtocolType
+ProtocolTypeToGuid (
+  IN INT32  ProtocolType
   );
 
 UINTN
-SmmChildHandlerStructureSizeByGuid(
+SmmChildHandlerStructureSizeByGuid (
   IN EFI_GUID  *Guid
   );
 
 CHAR8 *
-SxTypeToName(
-  IN EFI_SLEEP_TYPE Type
+SxTypeToName (
+  IN EFI_SLEEP_TYPE  Type
   );
 
 CHAR8 *
-SxPhaseToName(
-  IN EFI_SLEEP_PHASE Phase
+SxPhaseToName (
+  IN EFI_SLEEP_PHASE  Phase
   );
 
 CHAR8 *
-UsbTypeToName(
-  IN EFI_USB_SMI_TYPE Type
+UsbTypeToName (
+  IN EFI_USB_SMI_TYPE  Type
   );
 
 CHAR8 *
-StandbyButtonPhaseToName(
-  IN EFI_STANDBY_BUTTON_PHASE Phase
+StandbyButtonPhaseToName (
+  IN EFI_STANDBY_BUTTON_PHASE  Phase
   );
 
 CHAR8 *
-PowerButtonPhaseToName(
-  IN EFI_POWER_BUTTON_PHASE Phase
+PowerButtonPhaseToName (
+  IN EFI_POWER_BUTTON_PHASE  Phase
   );
 
 CHAR8 *
-IoTrapTypeToName(
-  IN EFI_SMM_IO_TRAP_DISPATCH_TYPE Type
+IoTrapTypeToName (
+  IN EFI_SMM_IO_TRAP_DISPATCH_TYPE  Type
   );
 
 #endif

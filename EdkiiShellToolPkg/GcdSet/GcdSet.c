@@ -21,8 +21,8 @@ WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
 #include <Library/DebugLib.h>
 #include <Protocol/ShellParameters.h>
 
-UINTN  Argc;
-CHAR16 **Argv;
+UINTN   Argc;
+CHAR16  **Argv;
 
 /**
 
@@ -35,15 +35,15 @@ GetArg (
   VOID
   )
 {
-  EFI_STATUS                    Status;
-  EFI_SHELL_PARAMETERS_PROTOCOL *ShellParameters;
+  EFI_STATUS                     Status;
+  EFI_SHELL_PARAMETERS_PROTOCOL  *ShellParameters;
 
   Status = gBS->HandleProtocol (
                   gImageHandle,
                   &gEfiShellParametersProtocolGuid,
-                  (VOID**)&ShellParameters
+                  (VOID **)&ShellParameters
                   );
-  if (EFI_ERROR(Status)) {
+  if (EFI_ERROR (Status)) {
     return Status;
   }
 
@@ -63,16 +63,17 @@ PrintHelp (
 EFI_STATUS
 EFIAPI
 InitializeGcd (
-  IN EFI_HANDLE           ImageHandle,
-  IN EFI_SYSTEM_TABLE     *SystemTable
+  IN EFI_HANDLE        ImageHandle,
+  IN EFI_SYSTEM_TABLE  *SystemTable
   )
+
 /*++
 
 Routine Description:
   Test GCD Services
 
 Arguments:
-  ImageHandle     The image handle. 
+  ImageHandle     The image handle.
   SystemTable     The system table.
 
 Returns:
@@ -94,18 +95,18 @@ Returns:
     return EFI_SUCCESS;
   }
 
-  BaseAddress = StrHexToUint64(Argv[3]);
+  BaseAddress = StrHexToUint64 (Argv[3]);
   Print (L"BaseAddress - 0x%lx\n", BaseAddress);
-  Length = StrHexToUint64(Argv[4]);
+  Length = StrHexToUint64 (Argv[4]);
   Print (L"Length - 0x%lx\n", Length);
 
   Status = gDS->GetMemorySpaceDescriptor (BaseAddress, &Descriptor);
-  if (EFI_ERROR(Status)) {
+  if (EFI_ERROR (Status)) {
     Print (L"GetMemorySpaceDescriptor - %r\n", Status);
     return EFI_SUCCESS;
   }
 
-  Attributes = StrHexToUint64(Argv[5]);
+  Attributes = StrHexToUint64 (Argv[5]);
   Print (L"Attributes - 0x%lx\n", Attributes);
   if (StrCmp (Argv[1], L"CAP") == 0) {
     if (StrCmp (Argv[2], L"SET") == 0) {
@@ -117,6 +118,7 @@ Returns:
       Print (L"Unknown Sub-Operation - %s\n", Argv[2]);
       return EFI_SUCCESS;
     }
+
     Print (L"Final Attributes - 0x%lx\n", Attributes);
     Status = gDS->SetMemorySpaceCapabilities (
                     BaseAddress,
@@ -134,6 +136,7 @@ Returns:
       Print (L"Unknown Sub-Operation - %s\n", Argv[2]);
       return EFI_SUCCESS;
     }
+
     Print (L"Final Attributes - 0x%lx\n", Attributes);
     Status = gDS->SetMemorySpaceAttributes (
                     BaseAddress,
@@ -144,5 +147,6 @@ Returns:
   } else {
     Print (L"Unknown Operation - %s\n", Argv[1]);
   }
+
   return EFI_SUCCESS;
 }

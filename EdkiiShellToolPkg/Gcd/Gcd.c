@@ -20,7 +20,7 @@ WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
 #include <Library/UefiLib.h>
 #include <Library/DebugLib.h>
 
-CHAR16 *mGcdMemoryTypeShortName[] = {
+CHAR16  *mGcdMemoryTypeShortName[] = {
   L" NE   ",
   L" RSVD ",
   L" SYS  ",
@@ -29,35 +29,34 @@ CHAR16 *mGcdMemoryTypeShortName[] = {
   L" RELI ",
 };
 
-CHAR16 mUnknownStr[11];
+CHAR16  mUnknownStr[11];
 
 CHAR16 *
-ShortNameOfGcdMemoryType(
-  IN UINT32 Type
+ShortNameOfGcdMemoryType (
+  IN UINT32  Type
   )
 {
-  if (Type < sizeof(mGcdMemoryTypeShortName) / sizeof(mGcdMemoryTypeShortName[0])) {
+  if (Type < sizeof (mGcdMemoryTypeShortName) / sizeof (mGcdMemoryTypeShortName[0])) {
     return mGcdMemoryTypeShortName[Type];
   } else {
     return L" ???? ";
   }
 }
 
-CHAR16 *mGcdIoTypeShortName[] = {
+CHAR16  *mGcdIoTypeShortName[] = {
   L" NE   ",
   L" RSVD ",
   L" SYS  ",
 };
 
 CHAR16 *
-ShortNameOfGcdIoType(
-  IN UINT32 Type
+ShortNameOfGcdIoType (
+  IN UINT32  Type
   )
 {
-  if (Type < sizeof(mGcdIoTypeShortName) / sizeof(mGcdIoTypeShortName[0])) {
+  if (Type < sizeof (mGcdIoTypeShortName) / sizeof (mGcdIoTypeShortName[0])) {
     return mGcdIoTypeShortName[Type];
-  }
-  else {
+  } else {
     return L" ???? ";
   }
 }
@@ -65,10 +64,10 @@ ShortNameOfGcdIoType(
 CHAR16
 EFIAPI
 InternalAsciiToUpper (
-  IN      CHAR16                     Chr
+  IN      CHAR16  Chr
   )
 {
-  return (UINT16) ((Chr >= L'a' && Chr <= L'z') ? Chr - (L'a' - L'A') : Chr);
+  return (UINT16)((Chr >= L'a' && Chr <= L'z') ? Chr - (L'a' - L'A') : Chr);
 }
 
 /**
@@ -103,8 +102,8 @@ InternalAsciiToUpper (
 INTN
 EFIAPI
 StriCmp (
-  IN      CONST CHAR16               *FirstString,
-  IN      CONST CHAR16               *SecondString
+  IN      CONST CHAR16  *FirstString,
+  IN      CONST CHAR16  *SecondString
   )
 {
   CHAR16  UpperFirstString;
@@ -126,6 +125,7 @@ EFI_GCD_ALLOCATE_TYPE
 ParseAllocateType (
   IN CHAR16  *String
   )
+
 /*++
 
 Routine Description:
@@ -145,8 +145,8 @@ Returns:
   CHAR16  *Ptr;
 
   for (Ptr = String; *Ptr != 0; Ptr++) {
-    if (*Ptr >= L'a' && *Ptr <= L'z') {
-      *Ptr = (CHAR16) (*Ptr - L'a' + L'A');
+    if ((*Ptr >= L'a') && (*Ptr <= L'z')) {
+      *Ptr = (CHAR16)(*Ptr - L'a' + L'A');
     }
   }
 
@@ -169,6 +169,7 @@ EFI_GCD_MEMORY_TYPE
 ParseGcdMemoryType (
   IN CHAR16  *String
   )
+
 /*++
 
 Routine Description:
@@ -188,8 +189,8 @@ Returns:
   CHAR16  *Ptr;
 
   for (Ptr = String; *Ptr != 0; Ptr++) {
-    if (*Ptr >= L'a' && *Ptr <= L'z') {
-      *Ptr = (CHAR16) (*Ptr - L'a' + L'A');
+    if ((*Ptr >= L'a') && (*Ptr <= L'z')) {
+      *Ptr = (CHAR16)(*Ptr - L'a' + L'A');
     }
   }
 
@@ -214,6 +215,7 @@ EFI_GCD_IO_TYPE
 ParseGcdIoType (
   IN CHAR16  *String
   )
+
 /*++
 
 Routine Description:
@@ -233,8 +235,8 @@ Returns:
   CHAR16  *Ptr;
 
   for (Ptr = String; *Ptr != 0; Ptr++) {
-    if (*Ptr >= L'a' && *Ptr <= L'z') {
-      *Ptr = (CHAR16) (*Ptr - L'a' + L'A');
+    if ((*Ptr >= L'a') && (*Ptr <= L'z')) {
+      *Ptr = (CHAR16)(*Ptr - L'a' + L'A');
     }
   }
 
@@ -251,10 +253,11 @@ Returns:
 
 VOID
 PrintBitMask (
-  IN UINT64 Bit,
-  IN UINT64 Capabilities,
-  IN UINT64 Attributes
+  IN UINT64  Bit,
+  IN UINT64  Capabilities,
+  IN UINT64  Attributes
   )
+
 /*++
 
 Routine Description:
@@ -288,6 +291,7 @@ VOID
 PrintMemoryDescriptorHeader (
   VOID
   )
+
 /*++
 
 Routine Description:
@@ -304,7 +308,7 @@ Returns:
 
 --*/
 {
-  if (sizeof(UINT64) == sizeof(UINTN)) {
+  if (sizeof (UINT64) == sizeof (UINTN)) {
     Print (L"                                              U                                      \n");
     Print (L"                                       RRMNXRWCWWWU                                  \n");
     Print (L"Base Address     End Address      Type TORVPPPEBTCC Image            Device          \n");
@@ -321,6 +325,7 @@ VOID
 PrintMemoryDescriptor (
   EFI_GCD_MEMORY_SPACE_DESCRIPTOR  *MemoryDescriptor
   )
+
 /*++
 
 Routine Description:
@@ -343,7 +348,7 @@ Returns:
     MemoryDescriptor->BaseAddress + MemoryDescriptor->Length - 1
     );
 
-  Print (ShortNameOfGcdMemoryType(MemoryDescriptor->GcdMemoryType));
+  Print (ShortNameOfGcdMemoryType (MemoryDescriptor->GcdMemoryType));
 
   if (MemoryDescriptor->GcdMemoryType != EfiGcdMemoryTypeNonExistent) {
     PrintBitMask (EFI_MEMORY_RUNTIME, MemoryDescriptor->Capabilities, MemoryDescriptor->Attributes);
@@ -362,7 +367,7 @@ Returns:
     Print (L"            ");
   }
 
-  if (sizeof(UINT64) == sizeof(UINTN)) {
+  if (sizeof (UINT64) == sizeof (UINTN)) {
     if (MemoryDescriptor->ImageHandle != NULL) {
       Print (L" %016lx", (UINT64)(UINTN)MemoryDescriptor->ImageHandle);
       if (MemoryDescriptor->DeviceHandle != NULL) {
@@ -385,6 +390,7 @@ VOID
 PrintIoDescriptorHeader (
   VOID
   )
+
 /*++
 
 Routine Description:
@@ -409,6 +415,7 @@ VOID
 PrintIoDescriptor (
   EFI_GCD_IO_SPACE_DESCRIPTOR  *IoDescriptor
   )
+
 /*++
 
 Routine Description:
@@ -446,16 +453,17 @@ Returns:
 EFI_STATUS
 EFIAPI
 InitializeGcd (
-  IN EFI_HANDLE           ImageHandle,
-  IN EFI_SYSTEM_TABLE     *SystemTable
+  IN EFI_HANDLE        ImageHandle,
+  IN EFI_SYSTEM_TABLE  *SystemTable
   )
+
 /*++
 
 Routine Description:
   Test GCD Services
 
 Arguments:
-  ImageHandle     The image handle. 
+  ImageHandle     The image handle.
   SystemTable     The system table.
 
 Returns:
@@ -464,19 +472,19 @@ Returns:
 
 --*/
 {
-  EFI_STATUS                      Status;
-  EFI_GCD_MEMORY_SPACE_DESCRIPTOR *MemoryMap;
-  EFI_GCD_IO_SPACE_DESCRIPTOR     *IoMap;
-  UINTN                           NumberOfDescriptors;
-  UINTN                           Index;
+  EFI_STATUS                       Status;
+  EFI_GCD_MEMORY_SPACE_DESCRIPTOR  *MemoryMap;
+  EFI_GCD_IO_SPACE_DESCRIPTOR      *IoMap;
+  UINTN                            NumberOfDescriptors;
+  UINTN                            Index;
 
-  Print(L"GCD MEM:\n");
+  Print (L"GCD MEM:\n");
   NumberOfDescriptors = 0;
   MemoryMap           = NULL;
-  Status = gDS->GetMemorySpaceMap (
-                  &NumberOfDescriptors,
-                  &MemoryMap
-                  );
+  Status              = gDS->GetMemorySpaceMap (
+                               &NumberOfDescriptors,
+                               &MemoryMap
+                               );
   if (!EFI_ERROR (Status)) {
     PrintMemoryDescriptorHeader ();
     for (Index = 0; Index < NumberOfDescriptors; Index++) {
@@ -484,13 +492,13 @@ Returns:
     }
   }
 
-  Print(L"GCD IO:\n");
+  Print (L"GCD IO:\n");
   NumberOfDescriptors = 0;
   IoMap               = NULL;
-  Status = gDS->GetIoSpaceMap (
-                  &NumberOfDescriptors,
-                  &IoMap
-                  );
+  Status              = gDS->GetIoSpaceMap (
+                               &NumberOfDescriptors,
+                               &IoMap
+                               );
   if (!EFI_ERROR (Status)) {
     PrintIoDescriptorHeader ();
     for (Index = 0; Index < NumberOfDescriptors; Index++) {

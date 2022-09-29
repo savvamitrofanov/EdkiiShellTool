@@ -19,6 +19,7 @@ Abstract:
 
 
 **/
+
 #ifndef _WIN_NT_SMM_CHILD_DISPATCHER_SMM_H_
 #define _WIN_NT_SMM_CHILD_DISPATCHER_SMM_H_
 
@@ -36,32 +37,32 @@ Abstract:
 // "DATABASE" RECORD
 // Linked list data structures
 //
-#define DATABASE_RECORD_SIGNATURE SIGNATURE_32 ('D', 'B', 'R', 'C')
+#define DATABASE_RECORD_SIGNATURE  SIGNATURE_32 ('D', 'B', 'R', 'C')
 
 typedef struct {
-  UINT32                        Signature;
-  LIST_ENTRY                    Link;
+  UINT32                          Signature;
+  LIST_ENTRY                      Link;
 
   //
   // Register Context
   //
-  EFI_HANDLE                    DispatchHandle;
-  EFI_SMM_HANDLER_ENTRY_POINT2  DispatchFunction;
-  EFI_SMM_SW_REGISTER_CONTEXT   RegisterContext;
+  EFI_HANDLE                      DispatchHandle;
+  EFI_SMM_HANDLER_ENTRY_POINT2    DispatchFunction;
+  EFI_SMM_SW_REGISTER_CONTEXT     RegisterContext;
 } DATABASE_RECORD;
 
 #define DATABASE_RECORD_FROM_LINK(_record)  CR (_record, DATABASE_RECORD, Link, DATABASE_RECORD_SIGNATURE)
 
-#define  MAXIMUM_SWI_VALUE 0xFF
+#define  MAXIMUM_SWI_VALUE  0xFF
 
 //
 // Create private data for the protocols that we'll publish
 //
 typedef struct {
-  LIST_ENTRY                     CallbackDatabase;
-  EFI_HANDLE                     SmiHandle;
-  EFI_HANDLE                     SmmHandle;
-  EFI_SMM_SW_DISPATCH2_PROTOCOL  SmmSwDispatch2Protocols;
+  LIST_ENTRY                       CallbackDatabase;
+  EFI_HANDLE                       SmiHandle;
+  EFI_HANDLE                       SmmHandle;
+  EFI_SMM_SW_DISPATCH2_PROTOCOL    SmmSwDispatch2Protocols;
 } PRIVATE_DATA;
 
 #endif

@@ -37,13 +37,13 @@ WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
 #pragma pack(1)
 
 typedef struct {
-  EFI_ACPI_DESCRIPTION_HEADER  Header;
-  UINT32                       Entry;
+  EFI_ACPI_DESCRIPTION_HEADER    Header;
+  UINT32                         Entry;
 } RSDT_TABLE;
 
 typedef struct {
-  EFI_ACPI_DESCRIPTION_HEADER  Header;
-  UINT64                       Entry;
+  EFI_ACPI_DESCRIPTION_HEADER    Header;
+  UINT64                         Entry;
 } XSDT_TABLE;
 
 #pragma pack()
@@ -51,66 +51,66 @@ typedef struct {
 #define EXCEPTION_RECORD_SIGNATURE  SIGNATURE_32 ('E', 'X', 'C', 'P')
 
 typedef struct {
-  UINT32           Signature;
-  LIST_ENTRY       Link;
-  UINT16           Segment;
-  UINT8            Bus;
-  UINT8            Device;
-  UINT8            Function;
+  UINT32        Signature;
+  LIST_ENTRY    Link;
+  UINT16        Segment;
+  UINT8         Bus;
+  UINT8         Device;
+  UINT8         Function;
 } EXCEPTION_RECORD;
 
 #define RMRR_RECORD_SIGNATURE  SIGNATURE_32 ('R', 'M', 'R', 'S')
 
 typedef struct {
-  UINT32           Signature;
-  LIST_ENTRY       Link;
-  UINT16           Segment;
-  UINT8            Bus;
-  UINT8            Device;
-  UINT8            Function;
-  UINT64           Address;
-  UINT64           Length;
+  UINT32        Signature;
+  LIST_ENTRY    Link;
+  UINT16        Segment;
+  UINT8         Bus;
+  UINT8         Device;
+  UINT8         Function;
+  UINT64        Address;
+  UINT64        Length;
 } RMRR_RECORD;
 
-LIST_ENTRY                        gExceptionRecord = INITIALIZE_LIST_HEAD_VARIABLE(gExceptionRecord);
+LIST_ENTRY  gExceptionRecord = INITIALIZE_LIST_HEAD_VARIABLE (gExceptionRecord);
 
-LIST_ENTRY                        gRmrrRecord = INITIALIZE_LIST_HEAD_VARIABLE(gRmrrRecord);
+LIST_ENTRY  gRmrrRecord = INITIALIZE_LIST_HEAD_VARIABLE (gRmrrRecord);
 
-#define VTD_64BITS_ADDRESS(Lo, Hi) (LShiftU64 (Lo, 12) | LShiftU64 (Hi, 32))
+#define VTD_64BITS_ADDRESS(Lo, Hi)  (LShiftU64 (Lo, 12) | LShiftU64 (Hi, 32))
 
 //
 // This is the initial max PCI DATA number.
 // The number may be enlarged later.
 //
-#define MAX_VTD_PCI_DATA_NUMBER             0x100
+#define MAX_VTD_PCI_DATA_NUMBER  0x100
 
 typedef struct {
-  UINT8                            DeviceType;
-  VTD_SOURCE_ID                    PciSourceId;
-  EDKII_PLATFORM_VTD_PCI_DEVICE_ID PciDeviceId;
+  UINT8                               DeviceType;
+  VTD_SOURCE_ID                       PciSourceId;
+  EDKII_PLATFORM_VTD_PCI_DEVICE_ID    PciDeviceId;
   // for statistic analysis
-  UINTN                            AccessCount;
+  UINTN                               AccessCount;
 } PCI_DEVICE_DATA;
 
 typedef struct {
-  BOOLEAN                          IncludeAllFlag;
-  UINTN                            PciDeviceDataNumber;
-  UINTN                            PciDeviceDataMaxNumber;
-  PCI_DEVICE_DATA                  *PciDeviceData;
+  BOOLEAN            IncludeAllFlag;
+  UINTN              PciDeviceDataNumber;
+  UINTN              PciDeviceDataMaxNumber;
+  PCI_DEVICE_DATA    *PciDeviceData;
 } PCI_DEVICE_INFORMATION;
 
 typedef struct {
-  UINTN                            VtdUnitBaseAddress;
-  UINT16                           Segment;
-  VTD_CAP_REG                      CapReg;
-  VTD_ECAP_REG                     ECapReg;
-  PCI_DEVICE_INFORMATION           PciDeviceInfo;
+  UINTN                     VtdUnitBaseAddress;
+  UINT16                    Segment;
+  VTD_CAP_REG               CapReg;
+  VTD_ECAP_REG              ECapReg;
+  PCI_DEVICE_INFORMATION    PciDeviceInfo;
 } VTD_UNIT_INFORMATION;
 
-EFI_ACPI_DMAR_HEADER             *mAcpiDmarTable = NULL;
-UINTN                            mVtdUnitNumber = 0;
-VTD_UNIT_INFORMATION             *mVtdUnitInformation;
-BOOLEAN                          mHasError;
+EFI_ACPI_DMAR_HEADER  *mAcpiDmarTable = NULL;
+UINTN                 mVtdUnitNumber  = 0;
+VTD_UNIT_INFORMATION  *mVtdUnitInformation;
+BOOLEAN               mHasError;
 
 /**
   The scan bus callback function.
@@ -127,7 +127,7 @@ BOOLEAN                          mHasError;
 **/
 typedef
 EFI_STATUS
-(EFIAPI *SCAN_BUS_FUNC_CALLBACK_FUNC) (
+(EFIAPI *SCAN_BUS_FUNC_CALLBACK_FUNC)(
   IN VOID           *Context,
   IN UINT16         Segment,
   IN UINT8          Bus,
@@ -135,21 +135,22 @@ EFI_STATUS
   IN UINT8          Function
   );
 
-LIST_ENTRY                        *gMaps;
+LIST_ENTRY  *gMaps;
 
 VOID
 GetIoMmuMapList (
-  IN MAP_INFO *IMapping
+  IN MAP_INFO  *IMapping
   )
 {
-  LIST_ENTRY      *ListEntry;
-  MAP_INFO        *Mapping;
+  LIST_ENTRY  *ListEntry;
+  MAP_INFO    *Mapping;
 
   ListEntry = &IMapping->Link;
   for (ListEntry = ListEntry->ForwardLink;
        ListEntry != &IMapping->Link;
-       ListEntry = ListEntry->ForwardLink) {
-    Mapping = BASE_CR(ListEntry, MAP_INFO, Link);
+       ListEntry = ListEntry->ForwardLink)
+  {
+    Mapping = BASE_CR (ListEntry, MAP_INFO, Link);
     if (Mapping->Signature != MAP_INFO_SIGNATURE) {
       // BUGBUG: NT32 will load image to BS memory, but execute code in DLL.
       // Do not use LoadedImage->ImageBase/ImageSize
@@ -157,7 +158,8 @@ GetIoMmuMapList (
       break;
     }
   }
-  return ;
+
+  return;
 }
 
 VOID
@@ -181,8 +183,9 @@ DumpIoMmuMapList (
   ListEntry = gMaps;
   for (ListEntry = ListEntry->BackLink;
        ListEntry != gMaps;
-       ListEntry = ListEntry->BackLink) {
-    Mapping = CR(ListEntry, MAP_INFO, Link, MAP_INFO_SIGNATURE);
+       ListEntry = ListEntry->BackLink)
+  {
+    Mapping = CR (ListEntry, MAP_INFO, Link, MAP_INFO_SIGNATURE);
     DEBUG ((DEBUG_INFO, "IOMMU Mapping - 0x%x\n", Mapping));
     Print (L"IOMMU Mapping - 0x%x\n", Mapping);
     DEBUG ((DEBUG_INFO, "  Operation       - 0x%08x\n", Mapping->Operation));
@@ -199,16 +202,17 @@ DumpIoMmuMapList (
     MapHandleListEntry = &Mapping->HandleList;
     for (MapHandleListEntry = MapHandleListEntry->BackLink;
          MapHandleListEntry != &Mapping->HandleList;
-         MapHandleListEntry = MapHandleListEntry->BackLink) {
-      MapHandleInfo = CR(MapHandleListEntry, MAP_HANDLE_INFO, Link, MAP_HANDLE_INFO_SIGNATURE);
+         MapHandleListEntry = MapHandleListEntry->BackLink)
+    {
+      MapHandleInfo = CR (MapHandleListEntry, MAP_HANDLE_INFO, Link, MAP_HANDLE_INFO_SIGNATURE);
       DEBUG ((DEBUG_INFO, "  IOMMU Map Handle Info - 0x%x\n", MapHandleInfo));
       Print (L"  IOMMU Map Handle Info - 0x%x\n", MapHandleInfo);
       DEBUG ((DEBUG_INFO, "    Handle        - 0x%08x", MapHandleInfo->Handle));
       Print (L"    Handle        - 0x%08x", MapHandleInfo->Handle);
       Status = gBS->HandleProtocol (MapHandleInfo->Handle, &gEfiPciIoProtocolGuid, (VOID **)&PciIo);
-      if (!EFI_ERROR(Status)) {
+      if (!EFI_ERROR (Status)) {
         Status = PciIo->GetLocation (PciIo, &Segment, &Bus, &Device, &Function);
-        if (!EFI_ERROR(Status)) {
+        if (!EFI_ERROR (Status)) {
           DEBUG ((DEBUG_INFO, " (S%04xB%02xD%02xF%02x)", Segment, Bus, Device, Function));
           Print (L" (S%04xB%02xD%02xF%02x)", Segment, Bus, Device, Function);
         } else {
@@ -219,14 +223,16 @@ DumpIoMmuMapList (
         DEBUG ((DEBUG_INFO, " (Not PCI)"));
         Print (L" (Not PCI)");
       }
+
       Status = gBS->HandleProtocol (MapHandleInfo->Handle, &gEfiDevicePathProtocolGuid, (VOID **)&DevicePath);
-      if (!EFI_ERROR(Status)) {
-        PathStr = ConvertDevicePathToText(DevicePath, TRUE, TRUE);
+      if (!EFI_ERROR (Status)) {
+        PathStr = ConvertDevicePathToText (DevicePath, TRUE, TRUE);
         if (PathStr != NULL) {
           DEBUG ((DEBUG_INFO, " (%s)", PathStr));
           Print (L" (%s)", PathStr);
         }
       }
+
       DEBUG ((DEBUG_INFO, "\n"));
       Print (L"\n");
       DEBUG ((DEBUG_INFO, "    IoMmuAccess   - 0x%016lx\n", MapHandleInfo->IoMmuAccess));
@@ -248,82 +254,86 @@ DumpIoMmuMap (
   VOID                  *Mapping;
 
   Status = gBS->LocateProtocol (&gEdkiiIoMmuProtocolGuid, NULL, (VOID **)&IoMmu);
-  if (EFI_ERROR(Status)) {
+  if (EFI_ERROR (Status)) {
     Print (L"No IOMMU Protocol\n");
-    return ;
+    return;
   }
 
   Status = IoMmu->AllocateBuffer (IoMmu, 0, EfiBootServicesData, 1, &HostAddress, EDKII_IOMMU_ATTRIBUTE_DUAL_ADDRESS_CYCLE);
-  if (EFI_ERROR(Status)) {
+  if (EFI_ERROR (Status)) {
     Print (L"IoMmu->AllocateBuffer - %r\n", Status);
-    return ;
+    return;
   }
+
   NumberOfBytes = 1;
-  Status = IoMmu->Map (IoMmu, EdkiiIoMmuOperationBusMasterCommonBuffer64, HostAddress, &NumberOfBytes, &DeviceAddress, &Mapping);
-  if (EFI_ERROR(Status)) {
+  Status        = IoMmu->Map (IoMmu, EdkiiIoMmuOperationBusMasterCommonBuffer64, HostAddress, &NumberOfBytes, &DeviceAddress, &Mapping);
+  if (EFI_ERROR (Status)) {
     Print (L"IoMmu->Map - %r\n", Status);
     IoMmu->FreeBuffer (IoMmu, 1, HostAddress);
-    return ;
+    return;
   }
-  
-  GetIoMmuMapList((MAP_INFO *)Mapping);
+
+  GetIoMmuMapList ((MAP_INFO *)Mapping);
 
   IoMmu->Unmap (IoMmu, Mapping);
   IoMmu->FreeBuffer (IoMmu, 1, HostAddress);
 
   DumpIoMmuMapList ();
 
-  return ;
+  return;
 }
 
 BOOLEAN
 ExistInIoMmuMap (
-  IN UINTN                          Segment,
-  IN UINTN                          Bus,
-  IN UINTN                          Device,
-  IN UINTN                          Function,
-  IN UINT64                         Address,
-  IN UINT64                         IoMmuAccess
+  IN UINTN   Segment,
+  IN UINTN   Bus,
+  IN UINTN   Device,
+  IN UINTN   Function,
+  IN UINT64  Address,
+  IN UINT64  IoMmuAccess
   )
 {
-  LIST_ENTRY                *ListEntry;
-  MAP_INFO                  *Mapping;
-  LIST_ENTRY                *MapHandleListEntry;
-  MAP_HANDLE_INFO           *MapHandleInfo;
-  EFI_STATUS                Status;
-  EFI_PCI_IO_PROTOCOL       *PciIo;
-  UINTN                     MySegment;
-  UINTN                     MyBus;
-  UINTN                     MyDevice;
-  UINTN                     MyFunction;
+  LIST_ENTRY           *ListEntry;
+  MAP_INFO             *Mapping;
+  LIST_ENTRY           *MapHandleListEntry;
+  MAP_HANDLE_INFO      *MapHandleInfo;
+  EFI_STATUS           Status;
+  EFI_PCI_IO_PROTOCOL  *PciIo;
+  UINTN                MySegment;
+  UINTN                MyBus;
+  UINTN                MyDevice;
+  UINTN                MyFunction;
 
   ListEntry = gMaps;
   for (ListEntry = ListEntry->BackLink;
        ListEntry != gMaps;
-       ListEntry = ListEntry->BackLink) {
-    Mapping = CR(ListEntry, MAP_INFO, Link, MAP_INFO_SIGNATURE);
+       ListEntry = ListEntry->BackLink)
+  {
+    Mapping = CR (ListEntry, MAP_INFO, Link, MAP_INFO_SIGNATURE);
 
-    if ((Address < Mapping->DeviceAddress) && (Address >= Mapping->DeviceAddress + EFI_PAGES_TO_SIZE(Mapping->NumberOfPages))) {
+    if ((Address < Mapping->DeviceAddress) && (Address >= Mapping->DeviceAddress + EFI_PAGES_TO_SIZE (Mapping->NumberOfPages))) {
       continue;
     }
 
     MapHandleListEntry = &Mapping->HandleList;
     for (MapHandleListEntry = MapHandleListEntry->BackLink;
          MapHandleListEntry != &Mapping->HandleList;
-         MapHandleListEntry = MapHandleListEntry->BackLink) {
-      MapHandleInfo = CR(MapHandleListEntry, MAP_HANDLE_INFO, Link, MAP_HANDLE_INFO_SIGNATURE);
+         MapHandleListEntry = MapHandleListEntry->BackLink)
+    {
+      MapHandleInfo = CR (MapHandleListEntry, MAP_HANDLE_INFO, Link, MAP_HANDLE_INFO_SIGNATURE);
 
       if (MapHandleInfo->IoMmuAccess != IoMmuAccess) {
         continue;
       }
 
       Status = gBS->HandleProtocol (MapHandleInfo->Handle, &gEfiPciIoProtocolGuid, (VOID **)&PciIo);
-      if (!EFI_ERROR(Status)) {
+      if (!EFI_ERROR (Status)) {
         Status = PciIo->GetLocation (PciIo, &MySegment, &MyBus, &MyDevice, &MyFunction);
-        if (!EFI_ERROR(Status)) {
+        if (!EFI_ERROR (Status)) {
           if ((MySegment != Segment) || (MyBus != Bus) || (MyDevice != Device) || (MyFunction != Function)) {
             continue;
           }
+
           return TRUE;
         } else {
           return TRUE;
@@ -339,14 +349,14 @@ ExistInIoMmuMap (
 
 VOID
 AddExceptionDevice (
-  IN EDKII_PLATFORM_VTD_PCI_DEVICE_ID   *PciDeviceId
+  IN EDKII_PLATFORM_VTD_PCI_DEVICE_ID  *PciDeviceId
   )
 {
-  UINTN                            Index;
-  UINTN                            SubIndex;
-  PCI_DEVICE_INFORMATION           *PciDeviceInfo;
-  EXCEPTION_RECORD                 *ExceptionRecord;
-  PCI_DEVICE_DATA                  *PciDeviceData;
+  UINTN                   Index;
+  UINTN                   SubIndex;
+  PCI_DEVICE_INFORMATION  *PciDeviceInfo;
+  EXCEPTION_RECORD        *ExceptionRecord;
+  PCI_DEVICE_DATA         *PciDeviceData;
 
   DEBUG ((DEBUG_INFO, "GetPciDeviceData - 0x%04x:0x%04x\n", PciDeviceId->VendorId, PciDeviceId->DeviceId));
 
@@ -358,7 +368,8 @@ AddExceptionDevice (
           ((PciDeviceId->DeviceId == 0xFFFF) || (PciDeviceId->DeviceId == PciDeviceInfo->PciDeviceData[SubIndex].PciDeviceId.DeviceId)) &&
           ((PciDeviceId->RevisionId == 0xFF) || (PciDeviceId->RevisionId == PciDeviceInfo->PciDeviceData[SubIndex].PciDeviceId.RevisionId)) &&
           ((PciDeviceId->SubsystemVendorId == 0xFFFF) || (PciDeviceId->SubsystemVendorId == PciDeviceInfo->PciDeviceData[SubIndex].PciDeviceId.SubsystemVendorId)) &&
-          ((PciDeviceId->SubsystemDeviceId == 0xFFFF) || (PciDeviceId->SubsystemDeviceId == PciDeviceInfo->PciDeviceData[SubIndex].PciDeviceId.SubsystemDeviceId)) ) {
+          ((PciDeviceId->SubsystemDeviceId == 0xFFFF) || (PciDeviceId->SubsystemDeviceId == PciDeviceInfo->PciDeviceData[SubIndex].PciDeviceId.SubsystemDeviceId)))
+      {
         DEBUG ((DEBUG_INFO, "Found\n"));
         PciDeviceData = &PciDeviceInfo->PciDeviceData[SubIndex];
 
@@ -371,13 +382,12 @@ AddExceptionDevice (
           ExceptionRecord->Function  = PciDeviceData->PciSourceId.Bits.Function;
           InsertTailList (&gExceptionRecord, &ExceptionRecord->Link);
         }
-
       }
     }
   }
-  return ;
-}
 
+  return;
+}
 
 VOID
 DumpExceptionRecord (
@@ -397,15 +407,15 @@ DumpExceptionRecord (
   LIST_ENTRY                                *ListEntry;
 
   Status = gBS->LocateProtocol (&gEdkiiPlatformVTdPolicyProtocolGuid, NULL, (VOID **)&PlatformVtd);
-  if (EFI_ERROR(Status)) {
+  if (EFI_ERROR (Status)) {
     Print (L"No PlatformVtd Protocol\n");
-    return ;
+    return;
   }
 
   Status = PlatformVtd->GetExceptionDeviceList (PlatformVtd, &DeviceInfoCount, &DeviceInfo);
-  if (EFI_ERROR(Status)) {
+  if (EFI_ERROR (Status)) {
     Print (L"No ExceptionDeviceList from PlatformVtd\n");
-    return ;
+    return;
   }
 
   DEBUG ((DEBUG_INFO, "ExceptionDeviceList: (0x%x)\n", DeviceInfo));
@@ -415,20 +425,21 @@ DumpExceptionRecord (
     if (ThisDeviceInfo->Type == EDKII_PLATFORM_VTD_EXCEPTION_DEVICE_INFO_TYPE_END) {
       break;
     }
+
     switch (ThisDeviceInfo->Type) {
-    case EDKII_PLATFORM_VTD_EXCEPTION_DEVICE_INFO_TYPE_DEVICE_SCOPE:
-      DeviceScope = (VOID *)(ThisDeviceInfo + 1);
-      DEBUG ((DEBUG_INFO, "DeviceScope(%d):\n", Index, DeviceScope));
-      Print (L"DeviceScope(%d):\n", Index, DeviceScope);
-      DEBUG ((DEBUG_INFO, "  SegmentNumber - 0x%04x\n", DeviceScope->SegmentNumber));
-      Print (L"  SegmentNumber - 0x%04x\n", DeviceScope->SegmentNumber);
-      DEBUG ((DEBUG_INFO, "  StartBusNumber - 0x%04x\n", DeviceScope->DeviceScope.StartBusNumber));
-      Print (L"  StartBusNumber - 0x%04x\n", DeviceScope->DeviceScope.StartBusNumber);
-      PciPath = (VOID *)(DeviceScope + 1);
-      DEBUG ((DEBUG_INFO, "  Device   - 0x%04x\n", PciPath->Device));
-      Print (L"  Device   - 0x%04x\n", PciPath->Device);
-      DEBUG ((DEBUG_INFO, "  Function - 0x%04x\n", PciPath->Function));
-      Print (L"  Function - 0x%04x\n", PciPath->Function);
+      case EDKII_PLATFORM_VTD_EXCEPTION_DEVICE_INFO_TYPE_DEVICE_SCOPE:
+        DeviceScope = (VOID *)(ThisDeviceInfo + 1);
+        DEBUG ((DEBUG_INFO, "DeviceScope(%d):\n", Index, DeviceScope));
+        Print (L"DeviceScope(%d):\n", Index, DeviceScope);
+        DEBUG ((DEBUG_INFO, "  SegmentNumber - 0x%04x\n", DeviceScope->SegmentNumber));
+        Print (L"  SegmentNumber - 0x%04x\n", DeviceScope->SegmentNumber);
+        DEBUG ((DEBUG_INFO, "  StartBusNumber - 0x%04x\n", DeviceScope->DeviceScope.StartBusNumber));
+        Print (L"  StartBusNumber - 0x%04x\n", DeviceScope->DeviceScope.StartBusNumber);
+        PciPath = (VOID *)(DeviceScope + 1);
+        DEBUG ((DEBUG_INFO, "  Device   - 0x%04x\n", PciPath->Device));
+        Print (L"  Device   - 0x%04x\n", PciPath->Device);
+        DEBUG ((DEBUG_INFO, "  Function - 0x%04x\n", PciPath->Function));
+        Print (L"  Function - 0x%04x\n", PciPath->Function);
 
         ExceptionRecord = AllocatePool (sizeof (EXCEPTION_RECORD));
         if (ExceptionRecord != NULL) {
@@ -440,32 +451,34 @@ DumpExceptionRecord (
           InsertTailList (&gExceptionRecord, &ExceptionRecord->Link);
         }
 
-      break;
+        break;
 
-    case EDKII_PLATFORM_VTD_EXCEPTION_DEVICE_INFO_TYPE_PCI_DEVICE_ID:
-      PciDeviceId = (VOID *)(ThisDeviceInfo + 1);
-      DEBUG ((DEBUG_INFO, "PciDeviceId(%d):\n", Index, PciDeviceId));
-      Print (L"PciDeviceId(%d):\n", Index, PciDeviceId);
-      DEBUG ((DEBUG_INFO, "  VendorId          - 0x%04x\n", PciDeviceId->VendorId));
-      Print (L"  VendorId          - 0x%04x\n", PciDeviceId->VendorId);
-      DEBUG ((DEBUG_INFO, "  DeviceId          - 0x%04x\n", PciDeviceId->DeviceId));
-      Print (L"  DeviceId          - 0x%04x\n", PciDeviceId->DeviceId);
-      DEBUG ((DEBUG_INFO, "  RevisionId        - 0x%02x\n", PciDeviceId->RevisionId));
-      Print (L"  RevisionId        - 0x%02x\n", PciDeviceId->RevisionId);
-      DEBUG ((DEBUG_INFO, "  SubsystemVendorId - 0x%04x\n", PciDeviceId->SubsystemVendorId));
-      Print (L"  SubsystemVendorId - 0x%04x\n", PciDeviceId->SubsystemVendorId);
-      DEBUG ((DEBUG_INFO, "  SubsystemDeviceId - 0x%04x\n", PciDeviceId->SubsystemDeviceId));
-      Print (L"  SubsystemDeviceId - 0x%04x\n", PciDeviceId->SubsystemDeviceId);
+      case EDKII_PLATFORM_VTD_EXCEPTION_DEVICE_INFO_TYPE_PCI_DEVICE_ID:
+        PciDeviceId = (VOID *)(ThisDeviceInfo + 1);
+        DEBUG ((DEBUG_INFO, "PciDeviceId(%d):\n", Index, PciDeviceId));
+        Print (L"PciDeviceId(%d):\n", Index, PciDeviceId);
+        DEBUG ((DEBUG_INFO, "  VendorId          - 0x%04x\n", PciDeviceId->VendorId));
+        Print (L"  VendorId          - 0x%04x\n", PciDeviceId->VendorId);
+        DEBUG ((DEBUG_INFO, "  DeviceId          - 0x%04x\n", PciDeviceId->DeviceId));
+        Print (L"  DeviceId          - 0x%04x\n", PciDeviceId->DeviceId);
+        DEBUG ((DEBUG_INFO, "  RevisionId        - 0x%02x\n", PciDeviceId->RevisionId));
+        Print (L"  RevisionId        - 0x%02x\n", PciDeviceId->RevisionId);
+        DEBUG ((DEBUG_INFO, "  SubsystemVendorId - 0x%04x\n", PciDeviceId->SubsystemVendorId));
+        Print (L"  SubsystemVendorId - 0x%04x\n", PciDeviceId->SubsystemVendorId);
+        DEBUG ((DEBUG_INFO, "  SubsystemDeviceId - 0x%04x\n", PciDeviceId->SubsystemDeviceId));
+        Print (L"  SubsystemDeviceId - 0x%04x\n", PciDeviceId->SubsystemDeviceId);
 
-      AddExceptionDevice (PciDeviceId);
+        AddExceptionDevice (PciDeviceId);
 
-      break;
+        break;
 
-    default:
-      break;
+      default:
+        break;
     }
+
     ThisDeviceInfo = (VOID *)((UINTN)ThisDeviceInfo + ThisDeviceInfo->Length);
   }
+
   FreePool (DeviceInfo);
 
   //
@@ -476,8 +489,9 @@ DumpExceptionRecord (
   ListEntry = &gExceptionRecord;
   for (ListEntry = ListEntry->BackLink;
        ListEntry != &gExceptionRecord;
-       ListEntry = ListEntry->BackLink) {
-    ExceptionRecord = CR(ListEntry, EXCEPTION_RECORD, Link, EXCEPTION_RECORD_SIGNATURE);
+       ListEntry = ListEntry->BackLink)
+  {
+    ExceptionRecord = CR (ListEntry, EXCEPTION_RECORD, Link, EXCEPTION_RECORD_SIGNATURE);
     DEBUG ((DEBUG_INFO, "ExceptionRecord\n"));
     Print (L"ExceptionRecord\n");
     DEBUG ((DEBUG_INFO, "  Segment   - 0x%x\n", ExceptionRecord->Segment));
@@ -493,20 +507,21 @@ DumpExceptionRecord (
 
 BOOLEAN
 ExistInExceptionList (
-  IN UINTN                          Segment,
-  IN UINTN                          Bus,
-  IN UINTN                          Device,
-  IN UINTN                          Function
+  IN UINTN  Segment,
+  IN UINTN  Bus,
+  IN UINTN  Device,
+  IN UINTN  Function
   )
 {
-  LIST_ENTRY                *ListEntry;
-  EXCEPTION_RECORD          *ExceptionRecord;
+  LIST_ENTRY        *ListEntry;
+  EXCEPTION_RECORD  *ExceptionRecord;
 
   ListEntry = &gExceptionRecord;
   for (ListEntry = ListEntry->BackLink;
        ListEntry != &gExceptionRecord;
-       ListEntry = ListEntry->BackLink) {
-    ExceptionRecord = CR(ListEntry, EXCEPTION_RECORD, Link, EXCEPTION_RECORD_SIGNATURE);
+       ListEntry = ListEntry->BackLink)
+  {
+    ExceptionRecord = CR (ListEntry, EXCEPTION_RECORD, Link, EXCEPTION_RECORD_SIGNATURE);
 
     if ((ExceptionRecord->Segment == Segment) && (ExceptionRecord->Bus == Bus) && (ExceptionRecord->Device == Device) && (ExceptionRecord->Function == Function)) {
       return TRUE;
@@ -521,14 +536,15 @@ DumpRmrrRecord (
   VOID
   )
 {
-  LIST_ENTRY                *ListEntry;
-  RMRR_RECORD               *RmrrRecord;
+  LIST_ENTRY   *ListEntry;
+  RMRR_RECORD  *RmrrRecord;
 
   ListEntry = &gRmrrRecord;
   for (ListEntry = ListEntry->BackLink;
        ListEntry != &gRmrrRecord;
-       ListEntry = ListEntry->BackLink) {
-    RmrrRecord = CR(ListEntry, RMRR_RECORD, Link, RMRR_RECORD_SIGNATURE);
+       ListEntry = ListEntry->BackLink)
+  {
+    RmrrRecord = CR (ListEntry, RMRR_RECORD, Link, RMRR_RECORD_SIGNATURE);
     DEBUG ((DEBUG_INFO, "RmrrRecord\n"));
     Print (L"RmrrRecord\n");
     DEBUG ((DEBUG_INFO, "  Segment  - 0x%x\n", RmrrRecord->Segment));
@@ -548,22 +564,23 @@ DumpRmrrRecord (
 
 BOOLEAN
 ExistInRmrr (
-  IN UINTN                          Segment,
-  IN UINTN                          Bus,
-  IN UINTN                          Device,
-  IN UINTN                          Function,
-  IN UINT64                         Address,
-  IN UINT64                         IoMmuAccess
+  IN UINTN   Segment,
+  IN UINTN   Bus,
+  IN UINTN   Device,
+  IN UINTN   Function,
+  IN UINT64  Address,
+  IN UINT64  IoMmuAccess
   )
 {
-  LIST_ENTRY                *ListEntry;
-  RMRR_RECORD               *RmrrRecord;
+  LIST_ENTRY   *ListEntry;
+  RMRR_RECORD  *RmrrRecord;
 
   ListEntry = &gRmrrRecord;
   for (ListEntry = ListEntry->BackLink;
        ListEntry != &gRmrrRecord;
-       ListEntry = ListEntry->BackLink) {
-    RmrrRecord = CR(ListEntry, RMRR_RECORD, Link, RMRR_RECORD_SIGNATURE);
+       ListEntry = ListEntry->BackLink)
+  {
+    RmrrRecord = CR (ListEntry, RMRR_RECORD, Link, RMRR_RECORD_SIGNATURE);
 
     if ((Address < RmrrRecord->Address) && (Address >= RmrrRecord->Address + RmrrRecord->Length)) {
       continue;
@@ -592,70 +609,74 @@ CheckPtEntry (
   UINT64   IoMmuAccess;
   UINTN    Index;
 
-  if (PtEntry->Bits.Read == 0 && PtEntry->Bits.Write == 0) {
-    return ;
+  if ((PtEntry->Bits.Read == 0) && (PtEntry->Bits.Write == 0)) {
+    return;
   }
+
   IoMmuAccess = 0;
   if (PtEntry->Bits.Read != 0) {
     IoMmuAccess |= EDKII_IOMMU_ACCESS_READ;
   }
+
   if (PtEntry->Bits.Write != 0) {
     IoMmuAccess |= EDKII_IOMMU_ACCESS_WRITE;
   }
 
-  Address = VTD_64BITS_ADDRESS(PtEntry->Bits.AddressLo, PtEntry->Bits.AddressHi);
+  Address = VTD_64BITS_ADDRESS (PtEntry->Bits.AddressLo, PtEntry->Bits.AddressHi);
 
   Exist = FALSE;
   switch (Size) {
-  case SIZE_4KB:
-    Exist = ExistInExceptionList (Segment, Bus, Device, Function);
-    if (Exist) {
-      return ;
-    }
-    Exist = ExistInRmrr (Segment, Bus, Device, Function, Address, IoMmuAccess);
-    if (Exist) {
-      return ;
-    }
-
-    DEBUG ((DEBUG_INFO, "CheckPtEntry - 0x%lx(0x%lx) S%04xB%02xD%02xF%02x\n", Address, Size, Segment, Bus, Device, Function));
-    Exist = ExistInIoMmuMap (Segment, Bus, Device, Function, Address, IoMmuAccess);
-    if (!Exist) {
-      DEBUG ((DEBUG_INFO, "-- ERROR: Address (0x%lx) is not in Map entry\n", Address));
-      Print (L"-- ERROR: Address (0x%lx) is not in Map entry\n", Address);
-      mHasError = TRUE;
-    } else {
-      //Print (L"-- PASS : Address (0x%lx) is in Map entry\n", Address);
-    }
-    break;
-  case SIZE_2MB:
-    for (Index = 0; Index < SIZE_2MB/SIZE_4KB; Index++) {
+    case SIZE_4KB:
       Exist = ExistInExceptionList (Segment, Bus, Device, Function);
       if (Exist) {
-        return ;
+        return;
       }
-      Exist = ExistInRmrr (Segment, Bus, Device, Function, Address + Index * SIZE_4KB, IoMmuAccess);
+
+      Exist = ExistInRmrr (Segment, Bus, Device, Function, Address, IoMmuAccess);
       if (Exist) {
-        return ;
+        return;
       }
 
-    DEBUG ((DEBUG_INFO, "CheckPtEntry - 0x%lx(0x%lx) S%04xB%02xD%02xF%02x\n", Address, Size, Segment, Bus, Device, Function));
-    Exist = ExistInIoMmuMap (Segment, Bus, Device, Function, Address + Index * SIZE_4KB, IoMmuAccess);
+      DEBUG ((DEBUG_INFO, "CheckPtEntry - 0x%lx(0x%lx) S%04xB%02xD%02xF%02x\n", Address, Size, Segment, Bus, Device, Function));
+      Exist = ExistInIoMmuMap (Segment, Bus, Device, Function, Address, IoMmuAccess);
       if (!Exist) {
-        DEBUG ((DEBUG_INFO, "-- ERROR: Address (0x%lx) is not in Map entry\n", Address + Index * SIZE_4KB));
-        Print (L"-- ERROR: Address (0x%lx) is not in Map entry\n", Address + Index * SIZE_4KB);
+        DEBUG ((DEBUG_INFO, "-- ERROR: Address (0x%lx) is not in Map entry\n", Address));
+        Print (L"-- ERROR: Address (0x%lx) is not in Map entry\n", Address);
+        mHasError = TRUE;
       } else {
-        //Print (L"-- PASS : Address (0x%lx) is in Map entry\n", Address + Index * SIZE_4KB);
+        // Print (L"-- PASS : Address (0x%lx) is in Map entry\n", Address);
       }
-    }
-    break;
-  default:
-    Print (L"-- ERROR: Invalid configuration (0x%lx-0x%lx)\n", Address, Size);
-    ASSERT(FALSE);
-    return ;
+
+      break;
+    case SIZE_2MB:
+      for (Index = 0; Index < SIZE_2MB/SIZE_4KB; Index++) {
+        Exist = ExistInExceptionList (Segment, Bus, Device, Function);
+        if (Exist) {
+          return;
+        }
+
+        Exist = ExistInRmrr (Segment, Bus, Device, Function, Address + Index * SIZE_4KB, IoMmuAccess);
+        if (Exist) {
+          return;
+        }
+
+        DEBUG ((DEBUG_INFO, "CheckPtEntry - 0x%lx(0x%lx) S%04xB%02xD%02xF%02x\n", Address, Size, Segment, Bus, Device, Function));
+        Exist = ExistInIoMmuMap (Segment, Bus, Device, Function, Address + Index * SIZE_4KB, IoMmuAccess);
+        if (!Exist) {
+          DEBUG ((DEBUG_INFO, "-- ERROR: Address (0x%lx) is not in Map entry\n", Address + Index * SIZE_4KB));
+          Print (L"-- ERROR: Address (0x%lx) is not in Map entry\n", Address + Index * SIZE_4KB);
+        } else {
+          // Print (L"-- PASS : Address (0x%lx) is in Map entry\n", Address + Index * SIZE_4KB);
+        }
+      }
+
+      break;
+    default:
+      Print (L"-- ERROR: Invalid configuration (0x%lx-0x%lx)\n", Address, Size);
+      ASSERT (FALSE);
+      return;
   }
-
 }
-
 
 /**
   Dump DMAR second level paging entry.
@@ -664,11 +685,11 @@ CheckPtEntry (
 **/
 VOID
 DumpSecondLevelPagingEntry (
-  IN UINTN   Segment,
-  IN UINTN   Bus,
-  IN UINTN   Device,
-  IN UINTN   Function,
-  IN VOID    *SecondLevelPagingEntry
+  IN UINTN  Segment,
+  IN UINTN  Bus,
+  IN UINTN  Device,
+  IN UINTN  Function,
+  IN VOID   *SecondLevelPagingEntry
   )
 {
   UINTN                          Index4;
@@ -688,36 +709,41 @@ DumpSecondLevelPagingEntry (
   DEBUG ((DEBUG_INFO, "SecondLevelPagingEntry Base - 0x%x\n", SecondLevelPagingEntry));
   Print (L"SecondLevelPagingEntry Base - 0x%x\n", SecondLevelPagingEntry);
   Lvl4PtEntry = (VTD_SECOND_LEVEL_PAGING_ENTRY *)SecondLevelPagingEntry;
-  for (Index4 = 0; Index4 < SIZE_4KB/sizeof(VTD_SECOND_LEVEL_PAGING_ENTRY); Index4++) {
+  for (Index4 = 0; Index4 < SIZE_4KB/sizeof (VTD_SECOND_LEVEL_PAGING_ENTRY); Index4++) {
     if (Lvl4PtEntry[Index4].Uint64 != 0) {
       DEBUG ((DEBUG_INFO, "  Lvl4Pt Entry(0x%03x) - 0x%016lx\n", Index4, Lvl4PtEntry[Index4].Uint64));
       Print (L"  Lvl4Pt Entry(0x%03x) - 0x%016lx\n", Index4, Lvl4PtEntry[Index4].Uint64);
     }
+
     if (Lvl4PtEntry[Index4].Uint64 == 0) {
       continue;
     }
-    Lvl3PtEntry = (VTD_SECOND_LEVEL_PAGING_ENTRY *)(UINTN)VTD_64BITS_ADDRESS(Lvl4PtEntry[Index4].Bits.AddressLo, Lvl4PtEntry[Index4].Bits.AddressHi);
-    for (Index3 = 0; Index3 < SIZE_4KB/sizeof(VTD_SECOND_LEVEL_PAGING_ENTRY); Index3++) {
+
+    Lvl3PtEntry = (VTD_SECOND_LEVEL_PAGING_ENTRY *)(UINTN)VTD_64BITS_ADDRESS (Lvl4PtEntry[Index4].Bits.AddressLo, Lvl4PtEntry[Index4].Bits.AddressHi);
+    for (Index3 = 0; Index3 < SIZE_4KB/sizeof (VTD_SECOND_LEVEL_PAGING_ENTRY); Index3++) {
       if (Lvl3PtEntry[Index3].Uint64 != 0) {
         DEBUG ((DEBUG_INFO, "    Lvl3Pt Entry(0x%03x) - 0x%016lx\n", Index3, Lvl3PtEntry[Index3].Uint64));
         Print (L"    Lvl3Pt Entry(0x%03x) - 0x%016lx\n", Index3, Lvl3PtEntry[Index3].Uint64);
       }
+
       if (Lvl3PtEntry[Index3].Uint64 == 0) {
         continue;
       }
 
-      Lvl2PtEntry = (VTD_SECOND_LEVEL_PAGING_ENTRY *)(UINTN)VTD_64BITS_ADDRESS(Lvl3PtEntry[Index3].Bits.AddressLo, Lvl3PtEntry[Index3].Bits.AddressHi);
-      for (Index2 = 0; Index2 < SIZE_4KB/sizeof(VTD_SECOND_LEVEL_PAGING_ENTRY); Index2++) {
+      Lvl2PtEntry = (VTD_SECOND_LEVEL_PAGING_ENTRY *)(UINTN)VTD_64BITS_ADDRESS (Lvl3PtEntry[Index3].Bits.AddressLo, Lvl3PtEntry[Index3].Bits.AddressHi);
+      for (Index2 = 0; Index2 < SIZE_4KB/sizeof (VTD_SECOND_LEVEL_PAGING_ENTRY); Index2++) {
         if (Lvl2PtEntry[Index2].Uint64 != 0) {
           DEBUG ((DEBUG_INFO, "      Lvl2Pt Entry(0x%03x) - 0x%016lx\n", Index2, Lvl2PtEntry[Index2].Uint64));
           Print (L"      Lvl2Pt Entry(0x%03x) - 0x%016lx\n", Index2, Lvl2PtEntry[Index2].Uint64);
         }
+
         if (Lvl2PtEntry[Index2].Uint64 == 0) {
           continue;
         }
+
         if (Lvl2PtEntry[Index2].Bits.PageSize == 0) {
-          Lvl1PtEntry = (VTD_SECOND_LEVEL_PAGING_ENTRY *)(UINTN)VTD_64BITS_ADDRESS(Lvl2PtEntry[Index2].Bits.AddressLo, Lvl2PtEntry[Index2].Bits.AddressHi);
-          for (Index1 = 0; Index1 < SIZE_4KB/sizeof(VTD_SECOND_LEVEL_PAGING_ENTRY); Index1++) {
+          Lvl1PtEntry = (VTD_SECOND_LEVEL_PAGING_ENTRY *)(UINTN)VTD_64BITS_ADDRESS (Lvl2PtEntry[Index2].Bits.AddressLo, Lvl2PtEntry[Index2].Bits.AddressHi);
+          for (Index1 = 0; Index1 < SIZE_4KB/sizeof (VTD_SECOND_LEVEL_PAGING_ENTRY); Index1++) {
             if (Lvl1PtEntry[Index1].Uint64 != 0) {
               DEBUG ((DEBUG_INFO, "        Lvl1Pt Entry(0x%03x) - 0x%016lx\n", Index1, Lvl1PtEntry[Index1].Uint64));
               Print (L"        Lvl1Pt Entry(0x%03x) - 0x%016lx\n", Index1, Lvl1PtEntry[Index1].Uint64);
@@ -730,6 +756,7 @@ DumpSecondLevelPagingEntry (
       }
     }
   }
+
   DEBUG ((DEBUG_INFO, "================\n"));
   Print (L"================\n");
 }
@@ -741,13 +768,13 @@ DumpSecondLevelPagingEntry (
 **/
 VOID
 DumpDmarContextEntryTable (
-  IN UINTN          Segment,
-  IN VTD_ROOT_ENTRY *RootEntry
+  IN UINTN           Segment,
+  IN VTD_ROOT_ENTRY  *RootEntry
   )
 {
-  UINTN                 Index;
-  UINTN                 Index2;
-  VTD_CONTEXT_ENTRY     *ContextEntry;
+  UINTN              Index;
+  UINTN              Index2;
+  VTD_CONTEXT_ENTRY  *ContextEntry;
 
   DEBUG ((DEBUG_INFO, "=========================\n"));
   Print (L"=========================\n");
@@ -759,29 +786,63 @@ DumpDmarContextEntryTable (
 
   for (Index = 0; Index < VTD_ROOT_ENTRY_NUMBER; Index++) {
     if ((RootEntry[Index].Uint128.Uint64Lo != 0) || (RootEntry[Index].Uint128.Uint64Hi != 0)) {
-      DEBUG ((DEBUG_INFO, "  RootEntry(0x%02x) B%02x - 0x%016lx %016lx\n",
-        Index, Index, RootEntry[Index].Uint128.Uint64Hi, RootEntry[Index].Uint128.Uint64Lo));
-      Print (L"  RootEntry(0x%02x) B%02x - 0x%016lx %016lx\n",
-        Index, Index, RootEntry[Index].Uint128.Uint64Hi, RootEntry[Index].Uint128.Uint64Lo);
+      DEBUG ((
+        DEBUG_INFO,
+        "  RootEntry(0x%02x) B%02x - 0x%016lx %016lx\n",
+        Index,
+        Index,
+        RootEntry[Index].Uint128.Uint64Hi,
+        RootEntry[Index].Uint128.Uint64Lo
+        ));
+      Print (
+        L"  RootEntry(0x%02x) B%02x - 0x%016lx %016lx\n",
+        Index,
+        Index,
+        RootEntry[Index].Uint128.Uint64Hi,
+        RootEntry[Index].Uint128.Uint64Lo
+        );
     }
+
     if (RootEntry[Index].Bits.Present == 0) {
       continue;
     }
-    ContextEntry = (VTD_CONTEXT_ENTRY *)(UINTN)VTD_64BITS_ADDRESS(RootEntry[Index].Bits.ContextTablePointerLo, RootEntry[Index].Bits.ContextTablePointerHi);
+
+    ContextEntry = (VTD_CONTEXT_ENTRY *)(UINTN)VTD_64BITS_ADDRESS (RootEntry[Index].Bits.ContextTablePointerLo, RootEntry[Index].Bits.ContextTablePointerHi);
     for (Index2 = 0; Index2 < VTD_CONTEXT_ENTRY_NUMBER; Index2++) {
       if ((ContextEntry[Index2].Uint128.Uint64Lo != 0) || (ContextEntry[Index2].Uint128.Uint64Hi != 0)) {
-        DEBUG ((DEBUG_INFO, "    ContextEntry(0x%02x) D%02xF%02x - 0x%016lx %016lx\n",
-          Index2, Index2 >> 3, Index2 & 0x7, ContextEntry[Index2].Uint128.Uint64Hi, ContextEntry[Index2].Uint128.Uint64Lo));
-        Print (L"    ContextEntry(0x%02x) D%02xF%02x - 0x%016lx %016lx\n",
-          Index2, Index2 >> 3, Index2 & 0x7, ContextEntry[Index2].Uint128.Uint64Hi, ContextEntry[Index2].Uint128.Uint64Lo);
+        DEBUG ((
+          DEBUG_INFO,
+          "    ContextEntry(0x%02x) D%02xF%02x - 0x%016lx %016lx\n",
+          Index2,
+          Index2 >> 3,
+          Index2 & 0x7,
+          ContextEntry[Index2].Uint128.Uint64Hi,
+          ContextEntry[Index2].Uint128.Uint64Lo
+          ));
+        Print (
+          L"    ContextEntry(0x%02x) D%02xF%02x - 0x%016lx %016lx\n",
+          Index2,
+          Index2 >> 3,
+          Index2 & 0x7,
+          ContextEntry[Index2].Uint128.Uint64Hi,
+          ContextEntry[Index2].Uint128.Uint64Lo
+          );
       }
+
       if (ContextEntry[Index2].Bits.Present == 0) {
         continue;
       }
-      DumpSecondLevelPagingEntry (Segment, Index, Index2 >> 3, Index2 & 0x7,
-        (VOID *)(UINTN)VTD_64BITS_ADDRESS(ContextEntry[Index2].Bits.SecondLevelPageTranslationPointerLo, ContextEntry[Index2].Bits.SecondLevelPageTranslationPointerHi));
+
+      DumpSecondLevelPagingEntry (
+        Segment,
+        Index,
+        Index2 >> 3,
+        Index2 & 0x7,
+        (VOID *)(UINTN)VTD_64BITS_ADDRESS (ContextEntry[Index2].Bits.SecondLevelPageTranslationPointerLo, ContextEntry[Index2].Bits.SecondLevelPageTranslationPointerHi)
+        );
     }
   }
+
   DEBUG ((DEBUG_INFO, "=========================\n"));
   Print (L"=========================\n");
 }
@@ -793,13 +854,13 @@ DumpDmarContextEntryTable (
 **/
 VOID
 DumpDmarExtContextEntryTable (
-  IN UINTN              Segment,
-  IN VTD_EXT_ROOT_ENTRY *ExtRootEntry
+  IN UINTN               Segment,
+  IN VTD_EXT_ROOT_ENTRY  *ExtRootEntry
   )
 {
-  UINTN                 Index;
-  UINTN                 Index2;
-  VTD_EXT_CONTEXT_ENTRY *ExtContextEntry;
+  UINTN                  Index;
+  UINTN                  Index2;
+  VTD_EXT_CONTEXT_ENTRY  *ExtContextEntry;
 
   DEBUG ((DEBUG_INFO, "=========================\n"));
   Print (L"=========================\n");
@@ -811,51 +872,109 @@ DumpDmarExtContextEntryTable (
 
   for (Index = 0; Index < VTD_ROOT_ENTRY_NUMBER; Index++) {
     if ((ExtRootEntry[Index].Uint128.Uint64Lo != 0) || (ExtRootEntry[Index].Uint128.Uint64Hi != 0)) {
-      DEBUG ((DEBUG_INFO, "  ExtRootEntry(0x%02x) B%02x - 0x%016lx %016lx\n",
-        Index, Index, ExtRootEntry[Index].Uint128.Uint64Hi, ExtRootEntry[Index].Uint128.Uint64Lo));
-      Print (L"  ExtRootEntry(0x%02x) B%02x - 0x%016lx %016lx\n",
-        Index, Index, ExtRootEntry[Index].Uint128.Uint64Hi, ExtRootEntry[Index].Uint128.Uint64Lo);
+      DEBUG ((
+        DEBUG_INFO,
+        "  ExtRootEntry(0x%02x) B%02x - 0x%016lx %016lx\n",
+        Index,
+        Index,
+        ExtRootEntry[Index].Uint128.Uint64Hi,
+        ExtRootEntry[Index].Uint128.Uint64Lo
+        ));
+      Print (
+        L"  ExtRootEntry(0x%02x) B%02x - 0x%016lx %016lx\n",
+        Index,
+        Index,
+        ExtRootEntry[Index].Uint128.Uint64Hi,
+        ExtRootEntry[Index].Uint128.Uint64Lo
+        );
     }
+
     if (ExtRootEntry[Index].Bits.LowerPresent == 0) {
       continue;
     }
-    ExtContextEntry = (VTD_EXT_CONTEXT_ENTRY *)(UINTN)VTD_64BITS_ADDRESS(ExtRootEntry[Index].Bits.LowerContextTablePointerLo, ExtRootEntry[Index].Bits.LowerContextTablePointerHi);
+
+    ExtContextEntry = (VTD_EXT_CONTEXT_ENTRY *)(UINTN)VTD_64BITS_ADDRESS (ExtRootEntry[Index].Bits.LowerContextTablePointerLo, ExtRootEntry[Index].Bits.LowerContextTablePointerHi);
     for (Index2 = 0; Index2 < VTD_CONTEXT_ENTRY_NUMBER/2; Index2++) {
       if ((ExtContextEntry[Index2].Uint256.Uint64_1 != 0) || (ExtContextEntry[Index2].Uint256.Uint64_2 != 0) ||
-          (ExtContextEntry[Index2].Uint256.Uint64_3 != 0) || (ExtContextEntry[Index2].Uint256.Uint64_4 != 0)) {
-        DEBUG ((DEBUG_INFO, "    ExtContextEntryLower(0x%02x) D%02xF%02x - 0x%016lx %016lx %016lx %016lx\n",
-          Index2, Index2 >> 3, Index2 & 0x7, ExtContextEntry[Index2].Uint256.Uint64_4, ExtContextEntry[Index2].Uint256.Uint64_3, ExtContextEntry[Index2].Uint256.Uint64_2, ExtContextEntry[Index2].Uint256.Uint64_1));
-        Print (L"    ExtContextEntryLower(0x%02x) D%02xF%02x - 0x%016lx %016lx %016lx %016lx\n",
-          Index2, Index2 >> 3, Index2 & 0x7, ExtContextEntry[Index2].Uint256.Uint64_4, ExtContextEntry[Index2].Uint256.Uint64_3, ExtContextEntry[Index2].Uint256.Uint64_2, ExtContextEntry[Index2].Uint256.Uint64_1);
+          (ExtContextEntry[Index2].Uint256.Uint64_3 != 0) || (ExtContextEntry[Index2].Uint256.Uint64_4 != 0))
+      {
+        DEBUG ((
+          DEBUG_INFO,
+          "    ExtContextEntryLower(0x%02x) D%02xF%02x - 0x%016lx %016lx %016lx %016lx\n",
+          Index2,
+          Index2 >> 3,
+          Index2 & 0x7,
+          ExtContextEntry[Index2].Uint256.Uint64_4,
+          ExtContextEntry[Index2].Uint256.Uint64_3,
+          ExtContextEntry[Index2].Uint256.Uint64_2,
+          ExtContextEntry[Index2].Uint256.Uint64_1
+          ));
+        Print (
+          L"    ExtContextEntryLower(0x%02x) D%02xF%02x - 0x%016lx %016lx %016lx %016lx\n",
+          Index2,
+          Index2 >> 3,
+          Index2 & 0x7,
+          ExtContextEntry[Index2].Uint256.Uint64_4,
+          ExtContextEntry[Index2].Uint256.Uint64_3,
+          ExtContextEntry[Index2].Uint256.Uint64_2,
+          ExtContextEntry[Index2].Uint256.Uint64_1
+          );
       }
+
       if (ExtContextEntry[Index2].Bits.Present == 0) {
         continue;
       }
-      DumpSecondLevelPagingEntry (Segment, Index, Index2 >> 3, Index2 & 0x7,
-        (VOID *)(UINTN)VTD_64BITS_ADDRESS(ExtContextEntry[Index2].Bits.SecondLevelPageTranslationPointerLo, ExtContextEntry[Index2].Bits.SecondLevelPageTranslationPointerHi));
+
+      DumpSecondLevelPagingEntry (
+        Segment,
+        Index,
+        Index2 >> 3,
+        Index2 & 0x7,
+        (VOID *)(UINTN)VTD_64BITS_ADDRESS (ExtContextEntry[Index2].Bits.SecondLevelPageTranslationPointerLo, ExtContextEntry[Index2].Bits.SecondLevelPageTranslationPointerHi)
+        );
     }
 
     if (ExtRootEntry[Index].Bits.UpperPresent == 0) {
       continue;
     }
-    ExtContextEntry = (VTD_EXT_CONTEXT_ENTRY *)(UINTN)VTD_64BITS_ADDRESS(ExtRootEntry[Index].Bits.UpperContextTablePointerLo, ExtRootEntry[Index].Bits.UpperContextTablePointerHi);
+
+    ExtContextEntry = (VTD_EXT_CONTEXT_ENTRY *)(UINTN)VTD_64BITS_ADDRESS (ExtRootEntry[Index].Bits.UpperContextTablePointerLo, ExtRootEntry[Index].Bits.UpperContextTablePointerHi);
     for (Index2 = 0; Index2 < VTD_CONTEXT_ENTRY_NUMBER/2; Index2++) {
       if ((ExtContextEntry[Index2].Uint256.Uint64_1 != 0) || (ExtContextEntry[Index2].Uint256.Uint64_2 != 0) ||
-          (ExtContextEntry[Index2].Uint256.Uint64_3 != 0) || (ExtContextEntry[Index2].Uint256.Uint64_4 != 0)) {
-        DEBUG ((DEBUG_INFO, "    ExtContextEntryUpper(0x%02x) D%02xF%02x - 0x%016lx %016lx %016lx %016lx\n",
-          Index2, (Index2 + 128) >> 3, (Index2 + 128) & 0x7, ExtContextEntry[Index2].Uint256.Uint64_4, ExtContextEntry[Index2].Uint256.Uint64_3, ExtContextEntry[Index2].Uint256.Uint64_2, ExtContextEntry[Index2].Uint256.Uint64_1));
-        Print (L"    ExtContextEntryUpper(0x%02x) D%02xF%02x - 0x%016lx %016lx %016lx %016lx\n",
-          Index2, (Index2 + 128) >> 3, (Index2 + 128) & 0x7, ExtContextEntry[Index2].Uint256.Uint64_4, ExtContextEntry[Index2].Uint256.Uint64_3, ExtContextEntry[Index2].Uint256.Uint64_2, ExtContextEntry[Index2].Uint256.Uint64_1);
+          (ExtContextEntry[Index2].Uint256.Uint64_3 != 0) || (ExtContextEntry[Index2].Uint256.Uint64_4 != 0))
+      {
+        DEBUG ((
+          DEBUG_INFO,
+          "    ExtContextEntryUpper(0x%02x) D%02xF%02x - 0x%016lx %016lx %016lx %016lx\n",
+          Index2,
+          (Index2 + 128) >> 3,
+          (Index2 + 128) & 0x7,
+          ExtContextEntry[Index2].Uint256.Uint64_4,
+          ExtContextEntry[Index2].Uint256.Uint64_3,
+          ExtContextEntry[Index2].Uint256.Uint64_2,
+          ExtContextEntry[Index2].Uint256.Uint64_1
+          ));
+        Print (
+          L"    ExtContextEntryUpper(0x%02x) D%02xF%02x - 0x%016lx %016lx %016lx %016lx\n",
+          Index2,
+          (Index2 + 128) >> 3,
+          (Index2 + 128) & 0x7,
+          ExtContextEntry[Index2].Uint256.Uint64_4,
+          ExtContextEntry[Index2].Uint256.Uint64_3,
+          ExtContextEntry[Index2].Uint256.Uint64_2,
+          ExtContextEntry[Index2].Uint256.Uint64_1
+          );
       }
+
       if (ExtContextEntry[Index2].Bits.Present == 0) {
         continue;
       }
     }
   }
+
   DEBUG ((DEBUG_INFO, "=========================\n"));
   Print (L"=========================\n");
 }
-
 
 /**
   Dump DMAR DeviceScopeEntry.
@@ -864,42 +983,47 @@ DumpDmarExtContextEntryTable (
 **/
 VOID
 DumpDmarDeviceScopeEntry (
-  IN EFI_ACPI_DMAR_DEVICE_SCOPE_STRUCTURE_HEADER     *DmarDeviceScopeEntry
+  IN EFI_ACPI_DMAR_DEVICE_SCOPE_STRUCTURE_HEADER  *DmarDeviceScopeEntry
   )
 {
-  UINTN   PciPathNumber;
-  UINTN   PciPathIndex;
+  UINTN                   PciPathNumber;
+  UINTN                   PciPathIndex;
   EFI_ACPI_DMAR_PCI_PATH  *PciPath;
 
   if (DmarDeviceScopeEntry == NULL) {
     return;
   }
 
-  DEBUG ((DEBUG_INFO,
+  DEBUG ((
+    DEBUG_INFO,
     "    *************************************************************************\n"
     ));
   Print (L"    *************************************************************************\n");
-  DEBUG ((DEBUG_INFO,
+  DEBUG ((
+    DEBUG_INFO,
     "    *       DMA-Remapping Device Scope Entry Structure                      *\n"
     ));
   Print (L"    *       DMA-Remapping Device Scope Entry Structure                      *\n");
-  DEBUG ((DEBUG_INFO,
+  DEBUG ((
+    DEBUG_INFO,
     "    *************************************************************************\n"
     ));
   Print (L"    *************************************************************************\n");
-  DEBUG ((DEBUG_INFO,
-    (sizeof(UINTN) == sizeof(UINT64)) ?
+  DEBUG ((
+    DEBUG_INFO,
+    (sizeof (UINTN) == sizeof (UINT64)) ?
     "    DMAR Device Scope Entry address ...................... 0x%016lx\n" :
     "    DMAR Device Scope Entry address ...................... 0x%08x\n",
     DmarDeviceScopeEntry
     ));
   Print (
-    (sizeof(UINTN) == sizeof(UINT64)) ?
+    (sizeof (UINTN) == sizeof (UINT64)) ?
     L"    DMAR Device Scope Entry address ...................... 0x%016lx\n" :
     L"    DMAR Device Scope Entry address ...................... 0x%08x\n",
     DmarDeviceScopeEntry
     );
-  DEBUG ((DEBUG_INFO,
+  DEBUG ((
+    DEBUG_INFO,
     "      Device Scope Entry Type ............................ 0x%02x\n",
     DmarDeviceScopeEntry->Type
     ));
@@ -908,50 +1032,57 @@ DumpDmarDeviceScopeEntry (
     DmarDeviceScopeEntry->Type
     );
   switch (DmarDeviceScopeEntry->Type) {
-  case EFI_ACPI_DEVICE_SCOPE_ENTRY_TYPE_PCI_ENDPOINT:
-    DEBUG ((DEBUG_INFO,
-      "        PCI Endpoint Device\n"
-      ));
-    Print (
-      L"        PCI Endpoint Device\n"
-      );
-    break;
-  case EFI_ACPI_DEVICE_SCOPE_ENTRY_TYPE_PCI_BRIDGE:
-    DEBUG ((DEBUG_INFO,
-      "        PCI Sub-hierachy\n"
-      ));
-    Print (
-      L"        PCI Sub-hierachy\n"
-      );
-    break;
-  case EFI_ACPI_DEVICE_SCOPE_ENTRY_TYPE_IOAPIC:
-    DEBUG ((DEBUG_INFO,
-      "        IOAPIC\n"
-      ));
-    Print (
-      L"        IOAPIC\n"
-      );
-    break;
-  case EFI_ACPI_DEVICE_SCOPE_ENTRY_TYPE_MSI_CAPABLE_HPET:
-    DEBUG ((DEBUG_INFO,
-      "        MSI Capable HPET\n"
-      ));
-    Print (
-      L"        MSI Capable HPET\n"
-      );
-    break;
-  case EFI_ACPI_DEVICE_SCOPE_ENTRY_TYPE_ACPI_NAMESPACE_DEVICE:
-    DEBUG ((DEBUG_INFO,
-      "        ACPI Namespace Device\n"
-      ));
-    Print (
-      L"        ACPI Namespace Device\n"
-      );
-    break;
-  default:
-    break;
+    case EFI_ACPI_DEVICE_SCOPE_ENTRY_TYPE_PCI_ENDPOINT:
+      DEBUG ((
+        DEBUG_INFO,
+        "        PCI Endpoint Device\n"
+        ));
+      Print (
+        L"        PCI Endpoint Device\n"
+        );
+      break;
+    case EFI_ACPI_DEVICE_SCOPE_ENTRY_TYPE_PCI_BRIDGE:
+      DEBUG ((
+        DEBUG_INFO,
+        "        PCI Sub-hierachy\n"
+        ));
+      Print (
+        L"        PCI Sub-hierachy\n"
+        );
+      break;
+    case EFI_ACPI_DEVICE_SCOPE_ENTRY_TYPE_IOAPIC:
+      DEBUG ((
+        DEBUG_INFO,
+        "        IOAPIC\n"
+        ));
+      Print (
+        L"        IOAPIC\n"
+        );
+      break;
+    case EFI_ACPI_DEVICE_SCOPE_ENTRY_TYPE_MSI_CAPABLE_HPET:
+      DEBUG ((
+        DEBUG_INFO,
+        "        MSI Capable HPET\n"
+        ));
+      Print (
+        L"        MSI Capable HPET\n"
+        );
+      break;
+    case EFI_ACPI_DEVICE_SCOPE_ENTRY_TYPE_ACPI_NAMESPACE_DEVICE:
+      DEBUG ((
+        DEBUG_INFO,
+        "        ACPI Namespace Device\n"
+        ));
+      Print (
+        L"        ACPI Namespace Device\n"
+        );
+      break;
+    default:
+      break;
   }
-  DEBUG ((DEBUG_INFO,
+
+  DEBUG ((
+    DEBUG_INFO,
     "      Length ............................................. 0x%02x\n",
     DmarDeviceScopeEntry->Length
     ));
@@ -959,7 +1090,8 @@ DumpDmarDeviceScopeEntry (
     L"      Length ............................................. 0x%02x\n",
     DmarDeviceScopeEntry->Length
     );
-  DEBUG ((DEBUG_INFO,
+  DEBUG ((
+    DEBUG_INFO,
     "      Enumeration ID ..................................... 0x%02x\n",
     DmarDeviceScopeEntry->EnumerationId
     ));
@@ -967,7 +1099,8 @@ DumpDmarDeviceScopeEntry (
     L"      Enumeration ID ..................................... 0x%02x\n",
     DmarDeviceScopeEntry->EnumerationId
     );
-  DEBUG ((DEBUG_INFO,
+  DEBUG ((
+    DEBUG_INFO,
     "      Starting Bus Number ................................ 0x%02x\n",
     DmarDeviceScopeEntry->StartBusNumber
     ));
@@ -976,10 +1109,11 @@ DumpDmarDeviceScopeEntry (
     DmarDeviceScopeEntry->StartBusNumber
     );
 
-  PciPathNumber = (DmarDeviceScopeEntry->Length - sizeof(EFI_ACPI_DMAR_DEVICE_SCOPE_STRUCTURE_HEADER)) / sizeof(EFI_ACPI_DMAR_PCI_PATH);
-  PciPath = (EFI_ACPI_DMAR_PCI_PATH *)(DmarDeviceScopeEntry + 1);
+  PciPathNumber = (DmarDeviceScopeEntry->Length - sizeof (EFI_ACPI_DMAR_DEVICE_SCOPE_STRUCTURE_HEADER)) / sizeof (EFI_ACPI_DMAR_PCI_PATH);
+  PciPath       = (EFI_ACPI_DMAR_PCI_PATH *)(DmarDeviceScopeEntry + 1);
   for (PciPathIndex = 0; PciPathIndex < PciPathNumber; PciPathIndex++) {
-    DEBUG ((DEBUG_INFO,
+    DEBUG ((
+      DEBUG_INFO,
       "      Device ............................................. 0x%02x\n",
       PciPath[PciPathIndex].Device
       ));
@@ -987,7 +1121,8 @@ DumpDmarDeviceScopeEntry (
       L"      Device ............................................. 0x%02x\n",
       PciPath[PciPathIndex].Device
       );
-    DEBUG ((DEBUG_INFO,
+    DEBUG ((
+      DEBUG_INFO,
       "      Function ........................................... 0x%02x\n",
       PciPath[PciPathIndex].Function
       ));
@@ -997,7 +1132,8 @@ DumpDmarDeviceScopeEntry (
       );
   }
 
-  DEBUG ((DEBUG_INFO,
+  DEBUG ((
+    DEBUG_INFO,
     "    *************************************************************************\n\n"
     ));
   Print (L"    *************************************************************************\n\n");
@@ -1012,38 +1148,43 @@ DumpDmarDeviceScopeEntry (
 **/
 VOID
 DumpDmarAndd (
-  IN EFI_ACPI_DMAR_ANDD_HEADER *Andd
+  IN EFI_ACPI_DMAR_ANDD_HEADER  *Andd
   )
 {
   if (Andd == NULL) {
     return;
   }
 
-  DEBUG ((DEBUG_INFO,
+  DEBUG ((
+    DEBUG_INFO,
     "  ***************************************************************************\n"
     ));
   Print (L"  ***************************************************************************\n");
-  DEBUG ((DEBUG_INFO,
+  DEBUG ((
+    DEBUG_INFO,
     "  *       ACPI Name-space Device Declaration Structure                      *\n"
     ));
   Print (L"  *       ACPI Name-space Device Declaration Structure                      *\n");
-  DEBUG ((DEBUG_INFO,
+  DEBUG ((
+    DEBUG_INFO,
     "  ***************************************************************************\n"
     ));
   Print (L"  ***************************************************************************\n");
-  DEBUG ((DEBUG_INFO,
-    (sizeof(UINTN) == sizeof(UINT64)) ?
+  DEBUG ((
+    DEBUG_INFO,
+    (sizeof (UINTN) == sizeof (UINT64)) ?
     "  ANDD address ........................................... 0x%016lx\n" :
     "  ANDD address ........................................... 0x%08x\n",
     Andd
     ));
   Print (
-    (sizeof(UINTN) == sizeof(UINT64)) ?
+    (sizeof (UINTN) == sizeof (UINT64)) ?
     L"  ANDD address ........................................... 0x%016lx\n" :
     L"  ANDD address ........................................... 0x%08x\n",
     Andd
     );
-  DEBUG ((DEBUG_INFO,
+  DEBUG ((
+    DEBUG_INFO,
     "    Type ................................................. 0x%04x\n",
     Andd->Header.Type
     ));
@@ -1051,7 +1192,8 @@ DumpDmarAndd (
     L"    Type ................................................. 0x%04x\n",
     Andd->Header.Type
     );
-  DEBUG ((DEBUG_INFO,
+  DEBUG ((
+    DEBUG_INFO,
     "    Length ............................................... 0x%04x\n",
     Andd->Header.Length
     ));
@@ -1059,7 +1201,8 @@ DumpDmarAndd (
     L"    Length ............................................... 0x%04x\n",
     Andd->Header.Length
     );
-  DEBUG ((DEBUG_INFO,
+  DEBUG ((
+    DEBUG_INFO,
     "    ACPI Device Number ................................... 0x%02x\n",
     Andd->AcpiDeviceNumber
     ));
@@ -1067,7 +1210,8 @@ DumpDmarAndd (
     L"    ACPI Device Number ................................... 0x%02x\n",
     Andd->AcpiDeviceNumber
     );
-  DEBUG ((DEBUG_INFO,
+  DEBUG ((
+    DEBUG_INFO,
     "    ACPI Object Name ..................................... '%a'\n",
     (Andd + 1)
     ));
@@ -1076,7 +1220,8 @@ DumpDmarAndd (
     (Andd + 1)
     );
 
-  DEBUG ((DEBUG_INFO,
+  DEBUG ((
+    DEBUG_INFO,
     "  ***************************************************************************\n\n"
     ));
   Print (L"  ***************************************************************************\n\n");
@@ -1091,38 +1236,43 @@ DumpDmarAndd (
 **/
 VOID
 DumpDmarRhsa (
-  IN EFI_ACPI_DMAR_RHSA_HEADER *Rhsa
+  IN EFI_ACPI_DMAR_RHSA_HEADER  *Rhsa
   )
 {
   if (Rhsa == NULL) {
     return;
   }
 
-  DEBUG ((DEBUG_INFO,
+  DEBUG ((
+    DEBUG_INFO,
     "  ***************************************************************************\n"
     ));
   Print (L"  ***************************************************************************\n");
-  DEBUG ((DEBUG_INFO,
+  DEBUG ((
+    DEBUG_INFO,
     "  *       Remapping Hardware Status Affinity Structure                      *\n"
     ));
   Print (L"  *       Remapping Hardware Status Affinity Structure                      *\n");
-  DEBUG ((DEBUG_INFO,
+  DEBUG ((
+    DEBUG_INFO,
     "  ***************************************************************************\n"
     ));
   Print (L"  ***************************************************************************\n");
-  DEBUG ((DEBUG_INFO,
-    (sizeof(UINTN) == sizeof(UINT64)) ?
+  DEBUG ((
+    DEBUG_INFO,
+    (sizeof (UINTN) == sizeof (UINT64)) ?
     "  RHSA address ........................................... 0x%016lx\n" :
     "  RHSA address ........................................... 0x%08x\n",
     Rhsa
     ));
   Print (
-    (sizeof(UINTN) == sizeof(UINT64)) ?
+    (sizeof (UINTN) == sizeof (UINT64)) ?
     L"  RHSA address ........................................... 0x%016lx\n" :
     L"  RHSA address ........................................... 0x%08x\n",
     Rhsa
     );
-  DEBUG ((DEBUG_INFO,
+  DEBUG ((
+    DEBUG_INFO,
     "    Type ................................................. 0x%04x\n",
     Rhsa->Header.Type
     ));
@@ -1130,7 +1280,8 @@ DumpDmarRhsa (
     L"    Type ................................................. 0x%04x\n",
     Rhsa->Header.Type
     );
-  DEBUG ((DEBUG_INFO,
+  DEBUG ((
+    DEBUG_INFO,
     "    Length ............................................... 0x%04x\n",
     Rhsa->Header.Length
     ));
@@ -1138,7 +1289,8 @@ DumpDmarRhsa (
     L"    Length ............................................... 0x%04x\n",
     Rhsa->Header.Length
     );
-  DEBUG ((DEBUG_INFO,
+  DEBUG ((
+    DEBUG_INFO,
     "    Register Base Address ................................ 0x%016lx\n",
     Rhsa->RegisterBaseAddress
     ));
@@ -1146,7 +1298,8 @@ DumpDmarRhsa (
     L"    Register Base Address ................................ 0x%016lx\n",
     Rhsa->RegisterBaseAddress
     );
-  DEBUG ((DEBUG_INFO,
+  DEBUG ((
+    DEBUG_INFO,
     "    Proximity Domain ..................................... 0x%08x\n",
     Rhsa->ProximityDomain
     ));
@@ -1155,7 +1308,8 @@ DumpDmarRhsa (
     Rhsa->ProximityDomain
     );
 
-  DEBUG ((DEBUG_INFO,
+  DEBUG ((
+    DEBUG_INFO,
     "  ***************************************************************************\n\n"
     ));
   Print (L"  ***************************************************************************\n\n");
@@ -1170,41 +1324,46 @@ DumpDmarRhsa (
 **/
 VOID
 DumpDmarAtsr (
-  IN EFI_ACPI_DMAR_ATSR_HEADER *Atsr
+  IN EFI_ACPI_DMAR_ATSR_HEADER  *Atsr
   )
 {
-  EFI_ACPI_DMAR_DEVICE_SCOPE_STRUCTURE_HEADER       *DmarDeviceScopeEntry;
-  INTN                                    AtsrLen;
+  EFI_ACPI_DMAR_DEVICE_SCOPE_STRUCTURE_HEADER  *DmarDeviceScopeEntry;
+  INTN                                         AtsrLen;
 
   if (Atsr == NULL) {
     return;
   }
 
-  DEBUG ((DEBUG_INFO,
+  DEBUG ((
+    DEBUG_INFO,
     "  ***************************************************************************\n"
     ));
   Print (L"  ***************************************************************************\n");
-  DEBUG ((DEBUG_INFO,
+  DEBUG ((
+    DEBUG_INFO,
     "  *       Root Port ATS Capability Reporting Structure                      *\n"
     ));
   Print (L"  *       Root Port ATS Capability Reporting Structure                      *\n");
-  DEBUG ((DEBUG_INFO,
+  DEBUG ((
+    DEBUG_INFO,
     "  ***************************************************************************\n"
     ));
   Print (L"  ***************************************************************************\n");
-  DEBUG ((DEBUG_INFO,
-    (sizeof(UINTN) == sizeof(UINT64)) ?
+  DEBUG ((
+    DEBUG_INFO,
+    (sizeof (UINTN) == sizeof (UINT64)) ?
     "  ATSR address ........................................... 0x%016lx\n" :
     "  ATSR address ........................................... 0x%08x\n",
     Atsr
     ));
   Print (
-    (sizeof(UINTN) == sizeof(UINT64)) ?
+    (sizeof (UINTN) == sizeof (UINT64)) ?
     L"  ATSR address ........................................... 0x%016lx\n" :
     L"  ATSR address ........................................... 0x%08x\n",
     Atsr
     );
-  DEBUG ((DEBUG_INFO,
+  DEBUG ((
+    DEBUG_INFO,
     "    Type ................................................. 0x%04x\n",
     Atsr->Header.Type
     ));
@@ -1212,7 +1371,8 @@ DumpDmarAtsr (
     L"    Type ................................................. 0x%04x\n",
     Atsr->Header.Type
     );
-  DEBUG ((DEBUG_INFO,
+  DEBUG ((
+    DEBUG_INFO,
     "    Length ............................................... 0x%04x\n",
     Atsr->Header.Length
     ));
@@ -1220,7 +1380,8 @@ DumpDmarAtsr (
     L"    Length ............................................... 0x%04x\n",
     Atsr->Header.Length
     );
-  DEBUG ((DEBUG_INFO,
+  DEBUG ((
+    DEBUG_INFO,
     "    Flags ................................................ 0x%02x\n",
     Atsr->Flags
     ));
@@ -1232,11 +1393,13 @@ DumpDmarAtsr (
     L"      ALL_PORTS .......................................... 0x%02x\n",
     Atsr->Flags & EFI_ACPI_DMAR_ATSR_FLAGS_ALL_PORTS
     );
-  DEBUG ((DEBUG_INFO,
+  DEBUG ((
+    DEBUG_INFO,
     "      ALL_PORTS .......................................... 0x%02x\n",
     Atsr->Flags & EFI_ACPI_DMAR_ATSR_FLAGS_ALL_PORTS
     ));
-  DEBUG ((DEBUG_INFO,
+  DEBUG ((
+    DEBUG_INFO,
     "    Segment Number ....................................... 0x%04x\n",
     Atsr->SegmentNumber
     ));
@@ -1245,15 +1408,16 @@ DumpDmarAtsr (
     Atsr->SegmentNumber
     );
 
-  AtsrLen  = Atsr->Header.Length - sizeof(EFI_ACPI_DMAR_ATSR_HEADER);
+  AtsrLen              = Atsr->Header.Length - sizeof (EFI_ACPI_DMAR_ATSR_HEADER);
   DmarDeviceScopeEntry = (EFI_ACPI_DMAR_DEVICE_SCOPE_STRUCTURE_HEADER *)(Atsr + 1);
   while (AtsrLen > 0) {
     DumpDmarDeviceScopeEntry (DmarDeviceScopeEntry);
-    AtsrLen -= DmarDeviceScopeEntry->Length;
+    AtsrLen             -= DmarDeviceScopeEntry->Length;
     DmarDeviceScopeEntry = (EFI_ACPI_DMAR_DEVICE_SCOPE_STRUCTURE_HEADER *)((UINTN)DmarDeviceScopeEntry + DmarDeviceScopeEntry->Length);
   }
 
-  DEBUG ((DEBUG_INFO,
+  DEBUG ((
+    DEBUG_INFO,
     "  ***************************************************************************\n\n"
     ));
   Print (L"  ***************************************************************************\n\n");
@@ -1268,41 +1432,46 @@ DumpDmarAtsr (
 **/
 VOID
 DumpDmarRmrr (
-  IN EFI_ACPI_DMAR_RMRR_HEADER *Rmrr
+  IN EFI_ACPI_DMAR_RMRR_HEADER  *Rmrr
   )
 {
-  EFI_ACPI_DMAR_DEVICE_SCOPE_STRUCTURE_HEADER       *DmarDeviceScopeEntry;
-  INTN                                    RmrrLen;
+  EFI_ACPI_DMAR_DEVICE_SCOPE_STRUCTURE_HEADER  *DmarDeviceScopeEntry;
+  INTN                                         RmrrLen;
 
   if (Rmrr == NULL) {
     return;
   }
 
-  DEBUG ((DEBUG_INFO,
+  DEBUG ((
+    DEBUG_INFO,
     "  ***************************************************************************\n"
     ));
   Print (L"  ***************************************************************************\n");
-  DEBUG ((DEBUG_INFO,
+  DEBUG ((
+    DEBUG_INFO,
     "  *       Reserved Memory Region Reporting Structure                        *\n"
     ));
   Print (L"  *       Reserved Memory Region Reporting Structure                        *\n");
-  DEBUG ((DEBUG_INFO,
+  DEBUG ((
+    DEBUG_INFO,
     "  ***************************************************************************\n"
     ));
   Print (L"  ***************************************************************************\n");
-  DEBUG ((DEBUG_INFO,
-    (sizeof(UINTN) == sizeof(UINT64)) ?
+  DEBUG ((
+    DEBUG_INFO,
+    (sizeof (UINTN) == sizeof (UINT64)) ?
     "  RMRR address ........................................... 0x%016lx\n" :
     "  RMRR address ........................................... 0x%08x\n",
     Rmrr
     ));
   Print (
-    (sizeof(UINTN) == sizeof(UINT64)) ?
+    (sizeof (UINTN) == sizeof (UINT64)) ?
     L"  RMRR address ........................................... 0x%016lx\n" :
     L"  RMRR address ........................................... 0x%08x\n",
     Rmrr
     );
-  DEBUG ((DEBUG_INFO,
+  DEBUG ((
+    DEBUG_INFO,
     "    Type ................................................. 0x%04x\n",
     Rmrr->Header.Type
     ));
@@ -1310,7 +1479,8 @@ DumpDmarRmrr (
     L"    Type ................................................. 0x%04x\n",
     Rmrr->Header.Type
     );
-  DEBUG ((DEBUG_INFO,
+  DEBUG ((
+    DEBUG_INFO,
     "    Length ............................................... 0x%04x\n",
     Rmrr->Header.Length
     ));
@@ -1318,7 +1488,8 @@ DumpDmarRmrr (
     L"    Length ............................................... 0x%04x\n",
     Rmrr->Header.Length
     );
-  DEBUG ((DEBUG_INFO,
+  DEBUG ((
+    DEBUG_INFO,
     "    Segment Number ....................................... 0x%04x\n",
     Rmrr->SegmentNumber
     ));
@@ -1326,7 +1497,8 @@ DumpDmarRmrr (
     L"    Segment Number ....................................... 0x%04x\n",
     Rmrr->SegmentNumber
     );
-  DEBUG ((DEBUG_INFO,
+  DEBUG ((
+    DEBUG_INFO,
     "    Reserved Memory Region Base Address .................. 0x%016lx\n",
     Rmrr->ReservedMemoryRegionBaseAddress
     ));
@@ -1334,7 +1506,8 @@ DumpDmarRmrr (
     L"    Reserved Memory Region Base Address .................. 0x%016lx\n",
     Rmrr->ReservedMemoryRegionBaseAddress
     );
-  DEBUG ((DEBUG_INFO,
+  DEBUG ((
+    DEBUG_INFO,
     "    Reserved Memory Region Limit Address ................. 0x%016lx\n",
     Rmrr->ReservedMemoryRegionLimitAddress
     ));
@@ -1343,15 +1516,16 @@ DumpDmarRmrr (
     Rmrr->ReservedMemoryRegionLimitAddress
     );
 
-  RmrrLen  = Rmrr->Header.Length - sizeof(EFI_ACPI_DMAR_RMRR_HEADER);
+  RmrrLen              = Rmrr->Header.Length - sizeof (EFI_ACPI_DMAR_RMRR_HEADER);
   DmarDeviceScopeEntry = (EFI_ACPI_DMAR_DEVICE_SCOPE_STRUCTURE_HEADER *)(Rmrr + 1);
   while (RmrrLen > 0) {
     DumpDmarDeviceScopeEntry (DmarDeviceScopeEntry);
-    RmrrLen -= DmarDeviceScopeEntry->Length;
+    RmrrLen             -= DmarDeviceScopeEntry->Length;
     DmarDeviceScopeEntry = (EFI_ACPI_DMAR_DEVICE_SCOPE_STRUCTURE_HEADER *)((UINTN)DmarDeviceScopeEntry + DmarDeviceScopeEntry->Length);
   }
 
-  DEBUG ((DEBUG_INFO,
+  DEBUG ((
+    DEBUG_INFO,
     "  ***************************************************************************\n\n"
     ));
   Print (L"  ***************************************************************************\n\n");
@@ -1366,41 +1540,46 @@ DumpDmarRmrr (
 **/
 VOID
 DumpDmarDrhd (
-  IN EFI_ACPI_DMAR_DRHD_HEADER *Drhd
+  IN EFI_ACPI_DMAR_DRHD_HEADER  *Drhd
   )
 {
-  EFI_ACPI_DMAR_DEVICE_SCOPE_STRUCTURE_HEADER       *DmarDeviceScopeEntry;
-  INTN                                    DrhdLen;
+  EFI_ACPI_DMAR_DEVICE_SCOPE_STRUCTURE_HEADER  *DmarDeviceScopeEntry;
+  INTN                                         DrhdLen;
 
   if (Drhd == NULL) {
     return;
   }
 
-  DEBUG ((DEBUG_INFO,
+  DEBUG ((
+    DEBUG_INFO,
     "  ***************************************************************************\n"
     ));
   Print (L"  ***************************************************************************\n");
-  DEBUG ((DEBUG_INFO,
+  DEBUG ((
+    DEBUG_INFO,
     "  *       DMA-Remapping Hardware Definition Structure                       *\n"
     ));
   Print (L"  *       DMA-Remapping Hardware Definition Structure                       *\n");
-  DEBUG ((DEBUG_INFO,
+  DEBUG ((
+    DEBUG_INFO,
     "  ***************************************************************************\n"
     ));
   Print (L"  ***************************************************************************\n");
-  DEBUG ((DEBUG_INFO,
-    (sizeof(UINTN) == sizeof(UINT64)) ?
+  DEBUG ((
+    DEBUG_INFO,
+    (sizeof (UINTN) == sizeof (UINT64)) ?
     "  DRHD address ........................................... 0x%016lx\n" :
     "  DRHD address ........................................... 0x%08x\n",
     Drhd
     ));
   Print (
-    (sizeof(UINTN) == sizeof(UINT64)) ?
+    (sizeof (UINTN) == sizeof (UINT64)) ?
     L"  DRHD address ........................................... 0x%016lx\n" :
     L"  DRHD address ........................................... 0x%08x\n",
     Drhd
     );
-  DEBUG ((DEBUG_INFO,
+  DEBUG ((
+    DEBUG_INFO,
     "    Type ................................................. 0x%04x\n",
     Drhd->Header.Type
     ));
@@ -1408,7 +1587,8 @@ DumpDmarDrhd (
     L"    Type ................................................. 0x%04x\n",
     Drhd->Header.Type
     );
-  DEBUG ((DEBUG_INFO,
+  DEBUG ((
+    DEBUG_INFO,
     "    Length ............................................... 0x%04x\n",
     Drhd->Header.Length
     ));
@@ -1416,7 +1596,8 @@ DumpDmarDrhd (
     L"    Length ............................................... 0x%04x\n",
     Drhd->Header.Length
     );
-  DEBUG ((DEBUG_INFO,
+  DEBUG ((
+    DEBUG_INFO,
     "    Flags ................................................ 0x%02x\n",
     Drhd->Flags
     ));
@@ -1424,7 +1605,8 @@ DumpDmarDrhd (
     L"    Flags ................................................ 0x%02x\n",
     Drhd->Flags
     );
-  DEBUG ((DEBUG_INFO,
+  DEBUG ((
+    DEBUG_INFO,
     "      INCLUDE_PCI_ALL .................................... 0x%02x\n",
     Drhd->Flags & EFI_ACPI_DMAR_DRHD_FLAGS_INCLUDE_PCI_ALL
     ));
@@ -1432,7 +1614,8 @@ DumpDmarDrhd (
     L"      INCLUDE_PCI_ALL .................................... 0x%02x\n",
     Drhd->Flags & EFI_ACPI_DMAR_DRHD_FLAGS_INCLUDE_PCI_ALL
     );
-  DEBUG ((DEBUG_INFO,
+  DEBUG ((
+    DEBUG_INFO,
     "    Segment Number ....................................... 0x%04x\n",
     Drhd->SegmentNumber
     ));
@@ -1440,7 +1623,8 @@ DumpDmarDrhd (
     L"    Segment Number ....................................... 0x%04x\n",
     Drhd->SegmentNumber
     );
-  DEBUG ((DEBUG_INFO,
+  DEBUG ((
+    DEBUG_INFO,
     "    Register Base Address ................................ 0x%016lx\n",
     Drhd->RegisterBaseAddress
     ));
@@ -1449,15 +1633,16 @@ DumpDmarDrhd (
     Drhd->RegisterBaseAddress
     );
 
-  DrhdLen  = Drhd->Header.Length - sizeof(EFI_ACPI_DMAR_DRHD_HEADER);
+  DrhdLen              = Drhd->Header.Length - sizeof (EFI_ACPI_DMAR_DRHD_HEADER);
   DmarDeviceScopeEntry = (EFI_ACPI_DMAR_DEVICE_SCOPE_STRUCTURE_HEADER *)(Drhd + 1);
   while (DrhdLen > 0) {
     DumpDmarDeviceScopeEntry (DmarDeviceScopeEntry);
-    DrhdLen -= DmarDeviceScopeEntry->Length;
+    DrhdLen             -= DmarDeviceScopeEntry->Length;
     DmarDeviceScopeEntry = (EFI_ACPI_DMAR_DEVICE_SCOPE_STRUCTURE_HEADER *)((UINTN)DmarDeviceScopeEntry + DmarDeviceScopeEntry->Length);
   }
 
-  DEBUG ((DEBUG_INFO,
+  DEBUG ((
+    DEBUG_INFO,
     "  ***************************************************************************\n\n"
     ));
   Print (L"  ***************************************************************************\n\n");
@@ -1475,8 +1660,8 @@ DumpAcpiDMAR (
   IN EFI_ACPI_DMAR_HEADER  *Dmar
   )
 {
-  EFI_ACPI_DMAR_STRUCTURE_HEADER *DmarHeader;
-  INTN                  DmarLen;
+  EFI_ACPI_DMAR_STRUCTURE_HEADER  *DmarHeader;
+  INTN                            DmarLen;
 
   if (Dmar == NULL) {
     return;
@@ -1485,39 +1670,45 @@ DumpAcpiDMAR (
   //
   // Dump Dmar table
   //
-  DEBUG ((DEBUG_INFO,
+  DEBUG ((
+    DEBUG_INFO,
     "*****************************************************************************\n"
     ));
   Print (L"*****************************************************************************\n");
-  DEBUG ((DEBUG_INFO,
+  DEBUG ((
+    DEBUG_INFO,
     "*         DMAR Table                                                        *\n"
     ));
   Print (L"*         DMAR Table                                                        *\n");
-  DEBUG ((DEBUG_INFO,
+  DEBUG ((
+    DEBUG_INFO,
     "*****************************************************************************\n"
     ));
   Print (L"*****************************************************************************\n");
 
-  DEBUG ((DEBUG_INFO,
-    (sizeof(UINTN) == sizeof(UINT64)) ?
+  DEBUG ((
+    DEBUG_INFO,
+    (sizeof (UINTN) == sizeof (UINT64)) ?
     "DMAR address ............................................. 0x%016lx\n" :
     "DMAR address ............................................. 0x%08x\n",
     Dmar
     ));
   Print (
-    (sizeof(UINTN) == sizeof(UINT64)) ?
+    (sizeof (UINTN) == sizeof (UINT64)) ?
     L"DMAR address ............................................. 0x%016lx\n" :
     L"DMAR address ............................................. 0x%08x\n",
     Dmar
     );
 
-  DEBUG ((DEBUG_INFO,
+  DEBUG ((
+    DEBUG_INFO,
     "  Table Contents:\n"
     ));
   Print (
     L"  Table Contents:\n"
     );
-  DEBUG ((DEBUG_INFO,
+  DEBUG ((
+    DEBUG_INFO,
     "    Host Address Width ................................... 0x%02x\n",
     Dmar->HostAddressWidth
     ));
@@ -1525,7 +1716,8 @@ DumpAcpiDMAR (
     L"    Host Address Width ................................... 0x%02x\n",
     Dmar->HostAddressWidth
     );
-  DEBUG ((DEBUG_INFO,
+  DEBUG ((
+    DEBUG_INFO,
     "    Flags ................................................ 0x%02x\n",
     Dmar->Flags
     ));
@@ -1533,7 +1725,8 @@ DumpAcpiDMAR (
     L"    Flags ................................................ 0x%02x\n",
     Dmar->Flags
     );
-  DEBUG ((DEBUG_INFO,
+  DEBUG ((
+    DEBUG_INFO,
     "      INTR_REMAP ......................................... 0x%02x\n",
     Dmar->Flags & EFI_ACPI_DMAR_FLAGS_INTR_REMAP
     ));
@@ -1541,7 +1734,8 @@ DumpAcpiDMAR (
     L"      INTR_REMAP ......................................... 0x%02x\n",
     Dmar->Flags & EFI_ACPI_DMAR_FLAGS_INTR_REMAP
     );
-  DEBUG ((DEBUG_INFO,
+  DEBUG ((
+    DEBUG_INFO,
     "      X2APIC_OPT_OUT_SET ................................. 0x%02x\n",
     Dmar->Flags & EFI_ACPI_DMAR_FLAGS_X2APIC_OPT_OUT
     ));
@@ -1549,7 +1743,8 @@ DumpAcpiDMAR (
     L"      X2APIC_OPT_OUT_SET ................................. 0x%02x\n",
     Dmar->Flags & EFI_ACPI_DMAR_FLAGS_X2APIC_OPT_OUT
     );
-  DEBUG ((DEBUG_INFO,
+  DEBUG ((
+    DEBUG_INFO,
     "      DMA_CTRL_PLATFORM_OPT_IN_FLAG ...................... 0x%02x\n",
     Dmar->Flags & EFI_ACPI_DMAR_FLAGS_DMA_CTRL_PLATFORM_OPT_IN_FLAG
     ));
@@ -1558,33 +1753,35 @@ DumpAcpiDMAR (
     Dmar->Flags & EFI_ACPI_DMAR_FLAGS_DMA_CTRL_PLATFORM_OPT_IN_FLAG
     );
 
-  DmarLen  = Dmar->Header.Length - sizeof(EFI_ACPI_DMAR_HEADER);
+  DmarLen    = Dmar->Header.Length - sizeof (EFI_ACPI_DMAR_HEADER);
   DmarHeader = (EFI_ACPI_DMAR_STRUCTURE_HEADER *)(Dmar + 1);
   while (DmarLen > 0) {
     switch (DmarHeader->Type) {
-    case EFI_ACPI_DMAR_TYPE_DRHD:
-      DumpDmarDrhd ((EFI_ACPI_DMAR_DRHD_HEADER *)DmarHeader);
-      break;
-    case EFI_ACPI_DMAR_TYPE_RMRR:
-      DumpDmarRmrr ((EFI_ACPI_DMAR_RMRR_HEADER *)DmarHeader);
-      break;
-    case EFI_ACPI_DMAR_TYPE_ATSR:
-      DumpDmarAtsr ((EFI_ACPI_DMAR_ATSR_HEADER *)DmarHeader);
-      break;
-    case EFI_ACPI_DMAR_TYPE_RHSA:
-      DumpDmarRhsa ((EFI_ACPI_DMAR_RHSA_HEADER *)DmarHeader);
-      break;
-    case EFI_ACPI_DMAR_TYPE_ANDD:
-      DumpDmarAndd ((EFI_ACPI_DMAR_ANDD_HEADER *)DmarHeader);
-      break;
-    default:
-      break;
+      case EFI_ACPI_DMAR_TYPE_DRHD:
+        DumpDmarDrhd ((EFI_ACPI_DMAR_DRHD_HEADER *)DmarHeader);
+        break;
+      case EFI_ACPI_DMAR_TYPE_RMRR:
+        DumpDmarRmrr ((EFI_ACPI_DMAR_RMRR_HEADER *)DmarHeader);
+        break;
+      case EFI_ACPI_DMAR_TYPE_ATSR:
+        DumpDmarAtsr ((EFI_ACPI_DMAR_ATSR_HEADER *)DmarHeader);
+        break;
+      case EFI_ACPI_DMAR_TYPE_RHSA:
+        DumpDmarRhsa ((EFI_ACPI_DMAR_RHSA_HEADER *)DmarHeader);
+        break;
+      case EFI_ACPI_DMAR_TYPE_ANDD:
+        DumpDmarAndd ((EFI_ACPI_DMAR_ANDD_HEADER *)DmarHeader);
+        break;
+      default:
+        break;
     }
-    DmarLen -= DmarHeader->Length;
+
+    DmarLen   -= DmarHeader->Length;
     DmarHeader = (EFI_ACPI_DMAR_STRUCTURE_HEADER *)((UINTN)DmarHeader + DmarHeader->Length);
   }
 
-  DEBUG ((DEBUG_INFO,
+  DEBUG ((
+    DEBUG_INFO,
     "*****************************************************************************\n\n"
     ));
   Print (L"*****************************************************************************\n\n");
@@ -1613,20 +1810,20 @@ VtdDumpDmarTable (
 **/
 VOID *
 ScanTableInRSDT (
-  IN RSDT_TABLE                   *Rsdt,
-  IN UINT32                       Signature
+  IN RSDT_TABLE  *Rsdt,
+  IN UINT32      Signature
   )
 {
-  UINTN                         Index;
-  UINT32                        EntryCount;
-  UINT32                        *EntryPtr;
-  EFI_ACPI_DESCRIPTION_HEADER   *Table;
+  UINTN                        Index;
+  UINT32                       EntryCount;
+  UINT32                       *EntryPtr;
+  EFI_ACPI_DESCRIPTION_HEADER  *Table;
 
-  EntryCount = (Rsdt->Header.Length - sizeof (EFI_ACPI_DESCRIPTION_HEADER)) / sizeof(UINT32);
+  EntryCount = (Rsdt->Header.Length - sizeof (EFI_ACPI_DESCRIPTION_HEADER)) / sizeof (UINT32);
 
   EntryPtr = &Rsdt->Entry;
-  for (Index = 0; Index < EntryCount; Index ++, EntryPtr ++) {
-    Table = (EFI_ACPI_DESCRIPTION_HEADER*)((UINTN)(*EntryPtr));
+  for (Index = 0; Index < EntryCount; Index++, EntryPtr++) {
+    Table = (EFI_ACPI_DESCRIPTION_HEADER *)((UINTN)(*EntryPtr));
     if ((Table != NULL) && (Table->Signature == Signature)) {
       return Table;
     }
@@ -1645,8 +1842,8 @@ ScanTableInRSDT (
 **/
 VOID *
 ScanTableInXSDT (
-  IN XSDT_TABLE                   *Xsdt,
-  IN UINT32                       Signature
+  IN XSDT_TABLE  *Xsdt,
+  IN UINT32      Signature
   )
 {
   UINTN                        Index;
@@ -1655,12 +1852,12 @@ ScanTableInXSDT (
   UINTN                        BasePtr;
   EFI_ACPI_DESCRIPTION_HEADER  *Table;
 
-  EntryCount = (Xsdt->Header.Length - sizeof (EFI_ACPI_DESCRIPTION_HEADER)) / sizeof(UINT64);
+  EntryCount = (Xsdt->Header.Length - sizeof (EFI_ACPI_DESCRIPTION_HEADER)) / sizeof (UINT64);
 
   BasePtr = (UINTN)(&(Xsdt->Entry));
-  for (Index = 0; Index < EntryCount; Index ++) {
-    CopyMem (&EntryPtr, (VOID *)(BasePtr + Index * sizeof(UINT64)), sizeof(UINT64));
-    Table = (EFI_ACPI_DESCRIPTION_HEADER*)((UINTN)(EntryPtr));
+  for (Index = 0; Index < EntryCount; Index++) {
+    CopyMem (&EntryPtr, (VOID *)(BasePtr + Index * sizeof (UINT64)), sizeof (UINT64));
+    Table = (EFI_ACPI_DESCRIPTION_HEADER *)((UINTN)(EntryPtr));
     if ((Table != NULL) && (Table->Signature == Signature)) {
       return Table;
     }
@@ -1679,13 +1876,13 @@ ScanTableInXSDT (
 **/
 VOID *
 FindAcpiPtr (
-  IN EFI_ACPI_2_0_ROOT_SYSTEM_DESCRIPTION_POINTER *Rsdp,
-  IN UINT32                                       Signature
+  IN EFI_ACPI_2_0_ROOT_SYSTEM_DESCRIPTION_POINTER  *Rsdp,
+  IN UINT32                                        Signature
   )
 {
-  EFI_ACPI_DESCRIPTION_HEADER                    *AcpiTable;
-  RSDT_TABLE                                     *Rsdt;
-  XSDT_TABLE                                     *Xsdt;
+  EFI_ACPI_DESCRIPTION_HEADER  *AcpiTable;
+  RSDT_TABLE                   *Rsdt;
+  XSDT_TABLE                   *Xsdt;
 
   AcpiTable = NULL;
 
@@ -1697,12 +1894,14 @@ FindAcpiPtr (
   if ((Rsdp->Revision >= 2) && (Rsdp->XsdtAddress < (UINT64)(UINTN)-1)) {
     Xsdt = (XSDT_TABLE *)(UINTN)Rsdp->XsdtAddress;
   }
+
   //
   // Check Xsdt
   //
   if (Xsdt != NULL) {
     AcpiTable = ScanTableInXSDT (Xsdt, Signature);
   }
+
   //
   // Check Rsdt
   //
@@ -1725,34 +1924,37 @@ GetDmarAcpiTable (
   VOID
   )
 {
-  VOID                              *AcpiTable;
-  EFI_STATUS                        Status;
+  VOID        *AcpiTable;
+  EFI_STATUS  Status;
 
   AcpiTable = NULL;
-  Status = EfiGetSystemConfigurationTable (
-             &gEfiAcpi20TableGuid,
-             &AcpiTable
-             );
+  Status    = EfiGetSystemConfigurationTable (
+                &gEfiAcpi20TableGuid,
+                &AcpiTable
+                );
   if (EFI_ERROR (Status)) {
     Status = EfiGetSystemConfigurationTable (
                &gEfiAcpi10TableGuid,
                &AcpiTable
                );
   }
+
   if (EFI_ERROR (Status)) {
     return EFI_NOT_FOUND;
   }
+
   ASSERT (AcpiTable != NULL);
 
   mAcpiDmarTable = FindAcpiPtr (
-                      (EFI_ACPI_2_0_ROOT_SYSTEM_DESCRIPTION_POINTER *)AcpiTable,
-                      EFI_ACPI_4_0_DMA_REMAPPING_TABLE_SIGNATURE
-                      );
+                     (EFI_ACPI_2_0_ROOT_SYSTEM_DESCRIPTION_POINTER *)AcpiTable,
+                     EFI_ACPI_4_0_DMA_REMAPPING_TABLE_SIGNATURE
+                     );
   if (mAcpiDmarTable == NULL) {
     return EFI_NOT_FOUND;
   }
+
   Print (L"\nDMAR Table - 0x%08x\n", mAcpiDmarTable);
-  VtdDumpDmarTable();
+  VtdDumpDmarTable ();
 
   return EFI_SUCCESS;
 }
@@ -1765,22 +1967,24 @@ GetVtdEngineNumber (
   VOID
   )
 {
-  EFI_ACPI_DMAR_STRUCTURE_HEADER                    *DmarHeader;
-  UINTN                                             VtdIndex;
+  EFI_ACPI_DMAR_STRUCTURE_HEADER  *DmarHeader;
+  UINTN                           VtdIndex;
 
-  VtdIndex = 0;
+  VtdIndex   = 0;
   DmarHeader = (EFI_ACPI_DMAR_STRUCTURE_HEADER *)((UINTN)(mAcpiDmarTable + 1));
   while ((UINTN)DmarHeader < (UINTN)mAcpiDmarTable + mAcpiDmarTable->Header.Length) {
     switch (DmarHeader->Type) {
-    case EFI_ACPI_DMAR_TYPE_DRHD:
-      VtdIndex++;
-      break;
-    default:
-      break;
+      case EFI_ACPI_DMAR_TYPE_DRHD:
+        VtdIndex++;
+        break;
+      default:
+        break;
     }
+
     DmarHeader = (EFI_ACPI_DMAR_STRUCTURE_HEADER *)((UINTN)DmarHeader + DmarHeader->Length);
   }
-  return VtdIndex ;
+
+  return VtdIndex;
 }
 
 /**
@@ -1811,7 +2015,8 @@ GetPciDataIndex (
     PciSourceId = &mVtdUnitInformation[VtdIndex].PciDeviceInfo.PciDeviceData[Index].PciSourceId;
     if ((PciSourceId->Bits.Bus == SourceId.Bits.Bus) &&
         (PciSourceId->Bits.Device == SourceId.Bits.Device) &&
-        (PciSourceId->Bits.Function == SourceId.Bits.Function) ) {
+        (PciSourceId->Bits.Function == SourceId.Bits.Function))
+    {
       return Index;
     }
   }
@@ -1842,12 +2047,12 @@ RegisterPciDevice (
   IN BOOLEAN        CheckExist
   )
 {
-  PCI_DEVICE_INFORMATION           *PciDeviceInfo;
-  VTD_SOURCE_ID                    *PciSourceId;
-  UINTN                            PciDataIndex;
-  UINTN                            Index;
-  PCI_DEVICE_DATA                  *NewPciDeviceData;
-  EDKII_PLATFORM_VTD_PCI_DEVICE_ID *PciDeviceId;
+  PCI_DEVICE_INFORMATION            *PciDeviceInfo;
+  VTD_SOURCE_ID                     *PciSourceId;
+  UINTN                             PciDataIndex;
+  UINTN                             Index;
+  PCI_DEVICE_DATA                   *NewPciDeviceData;
+  EDKII_PLATFORM_VTD_PCI_DEVICE_ID  *PciDeviceId;
 
   PciDeviceInfo = &mVtdUnitInformation[VtdIndex].PciDeviceInfo;
 
@@ -1875,23 +2080,25 @@ RegisterPciDevice (
       //
       // Reallocate
       //
-      NewPciDeviceData = AllocateZeroPool (sizeof(*NewPciDeviceData) * (PciDeviceInfo->PciDeviceDataMaxNumber + MAX_VTD_PCI_DATA_NUMBER));
+      NewPciDeviceData = AllocateZeroPool (sizeof (*NewPciDeviceData) * (PciDeviceInfo->PciDeviceDataMaxNumber + MAX_VTD_PCI_DATA_NUMBER));
       if (NewPciDeviceData == NULL) {
         return EFI_OUT_OF_RESOURCES;
       }
+
       PciDeviceInfo->PciDeviceDataMaxNumber += MAX_VTD_PCI_DATA_NUMBER;
       if (PciDeviceInfo->PciDeviceData != NULL) {
-        CopyMem (NewPciDeviceData, PciDeviceInfo->PciDeviceData, sizeof(*NewPciDeviceData) * PciDeviceInfo->PciDeviceDataNumber);
+        CopyMem (NewPciDeviceData, PciDeviceInfo->PciDeviceData, sizeof (*NewPciDeviceData) * PciDeviceInfo->PciDeviceDataNumber);
         FreePool (PciDeviceInfo->PciDeviceData);
       }
+
       PciDeviceInfo->PciDeviceData = NewPciDeviceData;
     }
 
     ASSERT (PciDeviceInfo->PciDeviceDataNumber < PciDeviceInfo->PciDeviceDataMaxNumber);
 
-    PciSourceId = &PciDeviceInfo->PciDeviceData[PciDeviceInfo->PciDeviceDataNumber].PciSourceId;
-    PciSourceId->Bits.Bus = SourceId.Bits.Bus;
-    PciSourceId->Bits.Device = SourceId.Bits.Device;
+    PciSourceId                = &PciDeviceInfo->PciDeviceData[PciDeviceInfo->PciDeviceDataNumber].PciSourceId;
+    PciSourceId->Bits.Bus      = SourceId.Bits.Bus;
+    PciSourceId->Bits.Device   = SourceId.Bits.Device;
     PciSourceId->Bits.Function = SourceId.Bits.Function;
 
     DEBUG ((DEBUG_INFO, "  RegisterPciDevice: PCI S%04x B%02x D%02x F%02x", Segment, SourceId.Bits.Bus, SourceId.Bits.Device, SourceId.Bits.Function));
@@ -1899,20 +2106,22 @@ RegisterPciDevice (
 
     PciDeviceId = &PciDeviceInfo->PciDeviceData[PciDeviceInfo->PciDeviceDataNumber].PciDeviceId;
     if ((DeviceType == EFI_ACPI_DEVICE_SCOPE_ENTRY_TYPE_PCI_ENDPOINT) ||
-        (DeviceType == EFI_ACPI_DEVICE_SCOPE_ENTRY_TYPE_PCI_BRIDGE)) {
-      PciDeviceId->VendorId   = PciSegmentRead16 (PCI_SEGMENT_LIB_ADDRESS(Segment, SourceId.Bits.Bus, SourceId.Bits.Device, SourceId.Bits.Function, PCI_VENDOR_ID_OFFSET));
-      PciDeviceId->DeviceId   = PciSegmentRead16 (PCI_SEGMENT_LIB_ADDRESS(Segment, SourceId.Bits.Bus, SourceId.Bits.Device, SourceId.Bits.Function, PCI_DEVICE_ID_OFFSET));
-      PciDeviceId->RevisionId = PciSegmentRead8 (PCI_SEGMENT_LIB_ADDRESS(Segment, SourceId.Bits.Bus, SourceId.Bits.Device, SourceId.Bits.Function, PCI_REVISION_ID_OFFSET));
+        (DeviceType == EFI_ACPI_DEVICE_SCOPE_ENTRY_TYPE_PCI_BRIDGE))
+    {
+      PciDeviceId->VendorId   = PciSegmentRead16 (PCI_SEGMENT_LIB_ADDRESS (Segment, SourceId.Bits.Bus, SourceId.Bits.Device, SourceId.Bits.Function, PCI_VENDOR_ID_OFFSET));
+      PciDeviceId->DeviceId   = PciSegmentRead16 (PCI_SEGMENT_LIB_ADDRESS (Segment, SourceId.Bits.Bus, SourceId.Bits.Device, SourceId.Bits.Function, PCI_DEVICE_ID_OFFSET));
+      PciDeviceId->RevisionId = PciSegmentRead8 (PCI_SEGMENT_LIB_ADDRESS (Segment, SourceId.Bits.Bus, SourceId.Bits.Device, SourceId.Bits.Function, PCI_REVISION_ID_OFFSET));
 
       DEBUG ((DEBUG_INFO, " (%04x:%04x:%02x", PciDeviceId->VendorId, PciDeviceId->DeviceId, PciDeviceId->RevisionId));
       Print (L" (%04x:%04x:%02x", PciDeviceId->VendorId, PciDeviceId->DeviceId, PciDeviceId->RevisionId);
 
       if (DeviceType == EFI_ACPI_DEVICE_SCOPE_ENTRY_TYPE_PCI_ENDPOINT) {
-        PciDeviceId->SubsystemVendorId = PciSegmentRead16 (PCI_SEGMENT_LIB_ADDRESS(Segment, SourceId.Bits.Bus, SourceId.Bits.Device, SourceId.Bits.Function, PCI_SUBSYSTEM_VENDOR_ID_OFFSET));
-        PciDeviceId->SubsystemDeviceId = PciSegmentRead16 (PCI_SEGMENT_LIB_ADDRESS(Segment, SourceId.Bits.Bus, SourceId.Bits.Device, SourceId.Bits.Function, PCI_SUBSYSTEM_ID_OFFSET));
+        PciDeviceId->SubsystemVendorId = PciSegmentRead16 (PCI_SEGMENT_LIB_ADDRESS (Segment, SourceId.Bits.Bus, SourceId.Bits.Device, SourceId.Bits.Function, PCI_SUBSYSTEM_VENDOR_ID_OFFSET));
+        PciDeviceId->SubsystemDeviceId = PciSegmentRead16 (PCI_SEGMENT_LIB_ADDRESS (Segment, SourceId.Bits.Bus, SourceId.Bits.Device, SourceId.Bits.Function, PCI_SUBSYSTEM_ID_OFFSET));
         DEBUG ((DEBUG_INFO, ":%04x:%04x", PciDeviceId->SubsystemVendorId, PciDeviceId->SubsystemDeviceId));
         Print (L":%04x:%04x", PciDeviceId->SubsystemVendorId, PciDeviceId->SubsystemDeviceId);
       }
+
       DEBUG ((DEBUG_INFO, ")"));
       Print (L")");
     }
@@ -1920,10 +2129,12 @@ RegisterPciDevice (
     PciDeviceInfo->PciDeviceData[PciDeviceInfo->PciDeviceDataNumber].DeviceType = DeviceType;
 
     if ((DeviceType != EFI_ACPI_DEVICE_SCOPE_ENTRY_TYPE_PCI_ENDPOINT) &&
-        (DeviceType != EFI_ACPI_DEVICE_SCOPE_ENTRY_TYPE_PCI_BRIDGE)) {
+        (DeviceType != EFI_ACPI_DEVICE_SCOPE_ENTRY_TYPE_PCI_BRIDGE))
+    {
       DEBUG ((DEBUG_INFO, " (*)"));
       Print (L" (*)");
     }
+
     DEBUG ((DEBUG_INFO, "\n"));
     Print (L"\n");
 
@@ -1953,29 +2164,29 @@ RegisterPciDevice (
 EFI_STATUS
 EFIAPI
 ScanBusCallbackRegisterPciDevice (
-  IN VOID           *Context,
-  IN UINT16         Segment,
-  IN UINT8          Bus,
-  IN UINT8          Device,
-  IN UINT8          Function
+  IN VOID    *Context,
+  IN UINT16  Segment,
+  IN UINT8   Bus,
+  IN UINT8   Device,
+  IN UINT8   Function
   )
 {
-  VTD_SOURCE_ID           SourceId;
-  UINTN                   VtdIndex;
-  UINT8                   BaseClass;
-  UINT8                   SubClass;
-  UINT8                   DeviceType;
-  EFI_STATUS              Status;
+  VTD_SOURCE_ID  SourceId;
+  UINTN          VtdIndex;
+  UINT8          BaseClass;
+  UINT8          SubClass;
+  UINT8          DeviceType;
+  EFI_STATUS     Status;
 
-  VtdIndex = (UINTN)Context;
-  SourceId.Bits.Bus = Bus;
-  SourceId.Bits.Device = Device;
+  VtdIndex               = (UINTN)Context;
+  SourceId.Bits.Bus      = Bus;
+  SourceId.Bits.Device   = Device;
   SourceId.Bits.Function = Function;
 
   DeviceType = EFI_ACPI_DEVICE_SCOPE_ENTRY_TYPE_PCI_ENDPOINT;
-  BaseClass = PciSegmentRead8 (PCI_SEGMENT_LIB_ADDRESS(Segment, Bus, Device, Function, PCI_CLASSCODE_OFFSET + 2));
+  BaseClass  = PciSegmentRead8 (PCI_SEGMENT_LIB_ADDRESS (Segment, Bus, Device, Function, PCI_CLASSCODE_OFFSET + 2));
   if (BaseClass == PCI_CLASS_BRIDGE) {
-    SubClass = PciSegmentRead8 (PCI_SEGMENT_LIB_ADDRESS(Segment, Bus, Device, Function, PCI_CLASSCODE_OFFSET + 1));
+    SubClass = PciSegmentRead8 (PCI_SEGMENT_LIB_ADDRESS (Segment, Bus, Device, Function, PCI_CLASSCODE_OFFSET + 1));
     if (SubClass == PCI_CLASS_BRIDGE_P2P) {
       DeviceType = EFI_ACPI_DEVICE_SCOPE_ENTRY_TYPE_PCI_BRIDGE;
     }
@@ -2003,28 +2214,29 @@ ScanPciBus (
   IN SCAN_BUS_FUNC_CALLBACK_FUNC  Callback
   )
 {
-  UINT8                   Device;
-  UINT8                   Function;
-  UINT8                   SecondaryBusNumber;
-  UINT8                   HeaderType;
-  UINT8                   BaseClass;
-  UINT8                   SubClass;
-  UINT32                  MaxFunction;
-  UINT16                  VendorID;
-  UINT16                  DeviceID;
-  EFI_STATUS              Status;
+  UINT8       Device;
+  UINT8       Function;
+  UINT8       SecondaryBusNumber;
+  UINT8       HeaderType;
+  UINT8       BaseClass;
+  UINT8       SubClass;
+  UINT32      MaxFunction;
+  UINT16      VendorID;
+  UINT16      DeviceID;
+  EFI_STATUS  Status;
 
   // Scan the PCI bus for devices
   for (Device = 0; Device < PCI_MAX_DEVICE + 1; Device++) {
-    HeaderType = PciSegmentRead8 (PCI_SEGMENT_LIB_ADDRESS(Segment, Bus, Device, 0, PCI_HEADER_TYPE_OFFSET));
+    HeaderType  = PciSegmentRead8 (PCI_SEGMENT_LIB_ADDRESS (Segment, Bus, Device, 0, PCI_HEADER_TYPE_OFFSET));
     MaxFunction = PCI_MAX_FUNC + 1;
     if ((HeaderType & HEADER_TYPE_MULTI_FUNCTION) == 0x00) {
       MaxFunction = 1;
     }
+
     for (Function = 0; Function < MaxFunction; Function++) {
-      VendorID  = PciSegmentRead16 (PCI_SEGMENT_LIB_ADDRESS(Segment, Bus, Device, Function, PCI_VENDOR_ID_OFFSET));
-      DeviceID  = PciSegmentRead16 (PCI_SEGMENT_LIB_ADDRESS(Segment, Bus, Device, Function, PCI_DEVICE_ID_OFFSET));
-      if (VendorID == 0xFFFF && DeviceID == 0xFFFF) {
+      VendorID = PciSegmentRead16 (PCI_SEGMENT_LIB_ADDRESS (Segment, Bus, Device, Function, PCI_VENDOR_ID_OFFSET));
+      DeviceID = PciSegmentRead16 (PCI_SEGMENT_LIB_ADDRESS (Segment, Bus, Device, Function, PCI_DEVICE_ID_OFFSET));
+      if ((VendorID == 0xFFFF) && (DeviceID == 0xFFFF)) {
         continue;
       }
 
@@ -2033,12 +2245,12 @@ ScanPciBus (
         return Status;
       }
 
-      BaseClass = PciSegmentRead8 (PCI_SEGMENT_LIB_ADDRESS(Segment, Bus, Device, Function, PCI_CLASSCODE_OFFSET + 2));
+      BaseClass = PciSegmentRead8 (PCI_SEGMENT_LIB_ADDRESS (Segment, Bus, Device, Function, PCI_CLASSCODE_OFFSET + 2));
       if (BaseClass == PCI_CLASS_BRIDGE) {
-        SubClass = PciSegmentRead8 (PCI_SEGMENT_LIB_ADDRESS(Segment, Bus, Device, Function, PCI_CLASSCODE_OFFSET + 1));
+        SubClass = PciSegmentRead8 (PCI_SEGMENT_LIB_ADDRESS (Segment, Bus, Device, Function, PCI_CLASSCODE_OFFSET + 1));
         if (SubClass == PCI_CLASS_BRIDGE_P2P) {
-          SecondaryBusNumber = PciSegmentRead8 (PCI_SEGMENT_LIB_ADDRESS(Segment, Bus, Device, Function, PCI_BRIDGE_SECONDARY_BUS_REGISTER_OFFSET));
-          DEBUG ((DEBUG_INFO,"  ScanPciBus: PCI bridge S%04x B%02x D%02x F%02x (SecondBus:%02x)\n", Segment, Bus, Device, Function, SecondaryBusNumber));
+          SecondaryBusNumber = PciSegmentRead8 (PCI_SEGMENT_LIB_ADDRESS (Segment, Bus, Device, Function, PCI_BRIDGE_SECONDARY_BUS_REGISTER_OFFSET));
+          DEBUG ((DEBUG_INFO, "  ScanPciBus: PCI bridge S%04x B%02x D%02x F%02x (SecondBus:%02x)\n", Segment, Bus, Device, Function, SecondaryBusNumber));
           Print (L"  ScanPciBus: PCI bridge S%04x B%02x D%02x F%02x (SecondBus:%02x)\n", Segment, Bus, Device, Function, SecondaryBusNumber);
           if (SecondaryBusNumber != 0) {
             Status = ScanPciBus (Context, Segment, SecondaryBusNumber, Callback);
@@ -2066,22 +2278,28 @@ DumpPciDeviceInfo (
 {
   UINTN  Index;
 
-  DEBUG ((DEBUG_INFO,"PCI Device Information (Number 0x%x, IncludeAll - %d):\n",
+  DEBUG ((
+    DEBUG_INFO,
+    "PCI Device Information (Number 0x%x, IncludeAll - %d):\n",
     mVtdUnitInformation[VtdIndex].PciDeviceInfo.PciDeviceDataNumber,
     mVtdUnitInformation[VtdIndex].PciDeviceInfo.IncludeAllFlag
     ));
-  Print (L"PCI Device Information (Number 0x%x, IncludeAll - %d):\n",
+  Print (
+    L"PCI Device Information (Number 0x%x, IncludeAll - %d):\n",
     mVtdUnitInformation[VtdIndex].PciDeviceInfo.PciDeviceDataNumber,
     mVtdUnitInformation[VtdIndex].PciDeviceInfo.IncludeAllFlag
     );
   for (Index = 0; Index < mVtdUnitInformation[VtdIndex].PciDeviceInfo.PciDeviceDataNumber; Index++) {
-    DEBUG ((DEBUG_INFO,"  S%04x B%02x D%02x F%02x\n",
+    DEBUG ((
+      DEBUG_INFO,
+      "  S%04x B%02x D%02x F%02x\n",
       mVtdUnitInformation[VtdIndex].Segment,
       mVtdUnitInformation[VtdIndex].PciDeviceInfo.PciDeviceData[Index].PciSourceId.Bits.Bus,
       mVtdUnitInformation[VtdIndex].PciDeviceInfo.PciDeviceData[Index].PciSourceId.Bits.Device,
       mVtdUnitInformation[VtdIndex].PciDeviceInfo.PciDeviceData[Index].PciSourceId.Bits.Function
       ));
-    Print (L"  S%04x B%02x D%02x F%02x\n",
+    Print (
+      L"  S%04x B%02x D%02x F%02x\n",
       mVtdUnitInformation[VtdIndex].Segment,
       mVtdUnitInformation[VtdIndex].PciDeviceInfo.PciDeviceData[Index].PciSourceId.Bits.Bus,
       mVtdUnitInformation[VtdIndex].PciDeviceInfo.PciDeviceData[Index].PciSourceId.Bits.Device,
@@ -2103,41 +2321,42 @@ DumpPciDeviceInfo (
 **/
 EFI_STATUS
 GetPciBusDeviceFunction (
-  IN  UINT16                                      Segment,
-  IN  EFI_ACPI_DMAR_DEVICE_SCOPE_STRUCTURE_HEADER *DmarDevScopeEntry,
-  OUT UINT8                                       *Bus,
-  OUT UINT8                                       *Device,
-  OUT UINT8                                       *Function
+  IN  UINT16                                       Segment,
+  IN  EFI_ACPI_DMAR_DEVICE_SCOPE_STRUCTURE_HEADER  *DmarDevScopeEntry,
+  OUT UINT8                                        *Bus,
+  OUT UINT8                                        *Device,
+  OUT UINT8                                        *Function
   )
 {
-  EFI_ACPI_DMAR_PCI_PATH                     *DmarPciPath;
-  UINT8                                      MyBus;
-  UINT8                                      MyDevice;
-  UINT8                                      MyFunction;
+  EFI_ACPI_DMAR_PCI_PATH  *DmarPciPath;
+  UINT8                   MyBus;
+  UINT8                   MyDevice;
+  UINT8                   MyFunction;
 
   DmarPciPath = (EFI_ACPI_DMAR_PCI_PATH *)((UINTN)(DmarDevScopeEntry + 1));
-  MyBus = DmarDevScopeEntry->StartBusNumber;
-  MyDevice = DmarPciPath->Device;
-  MyFunction = DmarPciPath->Function;
+  MyBus       = DmarDevScopeEntry->StartBusNumber;
+  MyDevice    = DmarPciPath->Device;
+  MyFunction  = DmarPciPath->Function;
 
   switch (DmarDevScopeEntry->Type) {
-  case EFI_ACPI_DEVICE_SCOPE_ENTRY_TYPE_PCI_ENDPOINT:
-  case EFI_ACPI_DEVICE_SCOPE_ENTRY_TYPE_PCI_BRIDGE:
-    while ((UINTN)DmarPciPath + sizeof(EFI_ACPI_DMAR_PCI_PATH) < (UINTN)DmarDevScopeEntry + DmarDevScopeEntry->Length) {
-      MyBus = PciSegmentRead8 (PCI_SEGMENT_LIB_ADDRESS(Segment, MyBus, MyDevice, MyFunction, PCI_BRIDGE_SECONDARY_BUS_REGISTER_OFFSET));
-      DmarPciPath ++;
-      MyDevice = DmarPciPath->Device;
-      MyFunction = DmarPciPath->Function;
-    }
-    break;
-  case EFI_ACPI_DEVICE_SCOPE_ENTRY_TYPE_IOAPIC:
-  case EFI_ACPI_DEVICE_SCOPE_ENTRY_TYPE_MSI_CAPABLE_HPET:
-  case EFI_ACPI_DEVICE_SCOPE_ENTRY_TYPE_ACPI_NAMESPACE_DEVICE:
-    break;
+    case EFI_ACPI_DEVICE_SCOPE_ENTRY_TYPE_PCI_ENDPOINT:
+    case EFI_ACPI_DEVICE_SCOPE_ENTRY_TYPE_PCI_BRIDGE:
+      while ((UINTN)DmarPciPath + sizeof (EFI_ACPI_DMAR_PCI_PATH) < (UINTN)DmarDevScopeEntry + DmarDevScopeEntry->Length) {
+        MyBus = PciSegmentRead8 (PCI_SEGMENT_LIB_ADDRESS (Segment, MyBus, MyDevice, MyFunction, PCI_BRIDGE_SECONDARY_BUS_REGISTER_OFFSET));
+        DmarPciPath++;
+        MyDevice   = DmarPciPath->Device;
+        MyFunction = DmarPciPath->Function;
+      }
+
+      break;
+    case EFI_ACPI_DEVICE_SCOPE_ENTRY_TYPE_IOAPIC:
+    case EFI_ACPI_DEVICE_SCOPE_ENTRY_TYPE_MSI_CAPABLE_HPET:
+    case EFI_ACPI_DEVICE_SCOPE_ENTRY_TYPE_ACPI_NAMESPACE_DEVICE:
+      break;
   }
 
-  *Bus = MyBus;
-  *Device = MyDevice;
+  *Bus      = MyBus;
+  *Device   = MyDevice;
   *Function = MyFunction;
 
   return EFI_SUCCESS;
@@ -2157,72 +2376,72 @@ ProcessDhrd (
   IN EFI_ACPI_DMAR_DRHD_HEADER  *DmarDrhd
   )
 {
-  EFI_ACPI_DMAR_DEVICE_SCOPE_STRUCTURE_HEADER       *DmarDevScopeEntry;
-  UINT8                                             Bus;
-  UINT8                                             Device;
-  UINT8                                             Function;
-  UINT8                                             SecondaryBusNumber;
-  EFI_STATUS                                        Status;
-  VTD_SOURCE_ID                                     SourceId;
+  EFI_ACPI_DMAR_DEVICE_SCOPE_STRUCTURE_HEADER  *DmarDevScopeEntry;
+  UINT8                                        Bus;
+  UINT8                                        Device;
+  UINT8                                        Function;
+  UINT8                                        SecondaryBusNumber;
+  EFI_STATUS                                   Status;
+  VTD_SOURCE_ID                                SourceId;
 
   mVtdUnitInformation[VtdIndex].VtdUnitBaseAddress = (UINTN)DmarDrhd->RegisterBaseAddress;
-  DEBUG ((DEBUG_INFO,"  VTD (%d) BaseAddress -  0x%016lx\n", VtdIndex, DmarDrhd->RegisterBaseAddress));
+  DEBUG ((DEBUG_INFO, "  VTD (%d) BaseAddress -  0x%016lx\n", VtdIndex, DmarDrhd->RegisterBaseAddress));
   Print (L"  VTD (%d) BaseAddress -  0x%016lx\n", VtdIndex, DmarDrhd->RegisterBaseAddress);
 
   mVtdUnitInformation[VtdIndex].Segment = DmarDrhd->SegmentNumber;
 
   if ((DmarDrhd->Flags & EFI_ACPI_DMAR_DRHD_FLAGS_INCLUDE_PCI_ALL) != 0) {
     mVtdUnitInformation[VtdIndex].PciDeviceInfo.IncludeAllFlag = TRUE;
-    DEBUG ((DEBUG_INFO,"  ProcessDhrd: with INCLUDE ALL\n"));
+    DEBUG ((DEBUG_INFO, "  ProcessDhrd: with INCLUDE ALL\n"));
     Print (L"  ProcessDhrd: with INCLUDE ALL\n");
 
-    Status = ScanPciBus((VOID *)VtdIndex, DmarDrhd->SegmentNumber, 0, ScanBusCallbackRegisterPciDevice);
+    Status = ScanPciBus ((VOID *)VtdIndex, DmarDrhd->SegmentNumber, 0, ScanBusCallbackRegisterPciDevice);
     if (EFI_ERROR (Status)) {
       return Status;
     }
   } else {
     mVtdUnitInformation[VtdIndex].PciDeviceInfo.IncludeAllFlag = FALSE;
-    DEBUG ((DEBUG_INFO,"  ProcessDhrd: without INCLUDE ALL\n"));
+    DEBUG ((DEBUG_INFO, "  ProcessDhrd: without INCLUDE ALL\n"));
     Print (L"  ProcessDhrd: without INCLUDE ALL\n");
   }
 
   DmarDevScopeEntry = (EFI_ACPI_DMAR_DEVICE_SCOPE_STRUCTURE_HEADER *)((UINTN)(DmarDrhd + 1));
   while ((UINTN)DmarDevScopeEntry < (UINTN)DmarDrhd + DmarDrhd->Header.Length) {
-
     Status = GetPciBusDeviceFunction (DmarDrhd->SegmentNumber, DmarDevScopeEntry, &Bus, &Device, &Function);
     if (EFI_ERROR (Status)) {
       return Status;
     }
 
-    DEBUG ((DEBUG_INFO,"  ProcessDhrd: "));
+    DEBUG ((DEBUG_INFO, "  ProcessDhrd: "));
     Print (L"  ProcessDhrd: ");
     switch (DmarDevScopeEntry->Type) {
-    case EFI_ACPI_DEVICE_SCOPE_ENTRY_TYPE_PCI_ENDPOINT:
-      DEBUG ((DEBUG_INFO,"PCI Endpoint"));
-      Print (L"PCI Endpoint");
-      break;
-    case EFI_ACPI_DEVICE_SCOPE_ENTRY_TYPE_PCI_BRIDGE:
-      DEBUG ((DEBUG_INFO,"PCI-PCI bridge"));
-      Print (L"PCI-PCI bridge");
-      break;
-    case EFI_ACPI_DEVICE_SCOPE_ENTRY_TYPE_IOAPIC:
-      DEBUG ((DEBUG_INFO,"IOAPIC"));
-      Print (L"IOAPIC");
-      break;
-    case EFI_ACPI_DEVICE_SCOPE_ENTRY_TYPE_MSI_CAPABLE_HPET:
-      DEBUG ((DEBUG_INFO,"MSI Capable HPET"));
-      Print (L"MSI Capable HPET");
-      break;
-    case EFI_ACPI_DEVICE_SCOPE_ENTRY_TYPE_ACPI_NAMESPACE_DEVICE:
-      DEBUG ((DEBUG_INFO,"ACPI Namespace Device"));
-      Print (L"ACPI Namespace Device");
-      break;
+      case EFI_ACPI_DEVICE_SCOPE_ENTRY_TYPE_PCI_ENDPOINT:
+        DEBUG ((DEBUG_INFO, "PCI Endpoint"));
+        Print (L"PCI Endpoint");
+        break;
+      case EFI_ACPI_DEVICE_SCOPE_ENTRY_TYPE_PCI_BRIDGE:
+        DEBUG ((DEBUG_INFO, "PCI-PCI bridge"));
+        Print (L"PCI-PCI bridge");
+        break;
+      case EFI_ACPI_DEVICE_SCOPE_ENTRY_TYPE_IOAPIC:
+        DEBUG ((DEBUG_INFO, "IOAPIC"));
+        Print (L"IOAPIC");
+        break;
+      case EFI_ACPI_DEVICE_SCOPE_ENTRY_TYPE_MSI_CAPABLE_HPET:
+        DEBUG ((DEBUG_INFO, "MSI Capable HPET"));
+        Print (L"MSI Capable HPET");
+        break;
+      case EFI_ACPI_DEVICE_SCOPE_ENTRY_TYPE_ACPI_NAMESPACE_DEVICE:
+        DEBUG ((DEBUG_INFO, "ACPI Namespace Device"));
+        Print (L"ACPI Namespace Device");
+        break;
     }
-    DEBUG ((DEBUG_INFO," S%04x B%02x D%02x F%02x\n", DmarDrhd->SegmentNumber, Bus, Device, Function));
+
+    DEBUG ((DEBUG_INFO, " S%04x B%02x D%02x F%02x\n", DmarDrhd->SegmentNumber, Bus, Device, Function));
     Print (L" S%04x B%02x D%02x F%02x\n", DmarDrhd->SegmentNumber, Bus, Device, Function);
 
-    SourceId.Bits.Bus = Bus;
-    SourceId.Bits.Device = Device;
+    SourceId.Bits.Bus      = Bus;
+    SourceId.Bits.Device   = Device;
     SourceId.Bits.Function = Function;
 
     Status = RegisterPciDevice (VtdIndex, DmarDrhd->SegmentNumber, SourceId, DmarDevScopeEntry->Type, TRUE);
@@ -2231,22 +2450,23 @@ ProcessDhrd (
       // There might be duplication for special device other than standard PCI device.
       //
       switch (DmarDevScopeEntry->Type) {
-      case EFI_ACPI_DEVICE_SCOPE_ENTRY_TYPE_PCI_ENDPOINT:
-      case EFI_ACPI_DEVICE_SCOPE_ENTRY_TYPE_PCI_BRIDGE:
-        return Status;
+        case EFI_ACPI_DEVICE_SCOPE_ENTRY_TYPE_PCI_ENDPOINT:
+        case EFI_ACPI_DEVICE_SCOPE_ENTRY_TYPE_PCI_BRIDGE:
+          return Status;
       }
     }
 
     switch (DmarDevScopeEntry->Type) {
-    case EFI_ACPI_DEVICE_SCOPE_ENTRY_TYPE_PCI_BRIDGE:
-      SecondaryBusNumber = PciSegmentRead8 (PCI_SEGMENT_LIB_ADDRESS(DmarDrhd->SegmentNumber, Bus, Device, Function, PCI_BRIDGE_SECONDARY_BUS_REGISTER_OFFSET));
-      Status = ScanPciBus ((VOID *)VtdIndex, DmarDrhd->SegmentNumber, SecondaryBusNumber, ScanBusCallbackRegisterPciDevice);
-      if (EFI_ERROR (Status)) {
-        return Status;
-      }
-      break;
-    default:
-      break;
+      case EFI_ACPI_DEVICE_SCOPE_ENTRY_TYPE_PCI_BRIDGE:
+        SecondaryBusNumber = PciSegmentRead8 (PCI_SEGMENT_LIB_ADDRESS (DmarDrhd->SegmentNumber, Bus, Device, Function, PCI_BRIDGE_SECONDARY_BUS_REGISTER_OFFSET));
+        Status             = ScanPciBus ((VOID *)VtdIndex, DmarDrhd->SegmentNumber, SecondaryBusNumber, ScanBusCallbackRegisterPciDevice);
+        if (EFI_ERROR (Status)) {
+          return Status;
+        }
+
+        break;
+      default:
+        break;
     }
 
     DmarDevScopeEntry = (EFI_ACPI_DMAR_DEVICE_SCOPE_STRUCTURE_HEADER *)((UINTN)DmarDevScopeEntry + DmarDevScopeEntry->Length);
@@ -2267,20 +2487,20 @@ ProcessRmrr (
   IN EFI_ACPI_DMAR_RMRR_HEADER  *DmarRmrr
   )
 {
-  EFI_ACPI_DMAR_DEVICE_SCOPE_STRUCTURE_HEADER       *DmarDevScopeEntry;
-  UINT8                                             Bus;
-  UINT8                                             Device;
-  UINT8                                             Function;
-  EFI_STATUS                                        Status;
-  RMRR_RECORD                                       *RmrrRecord;
+  EFI_ACPI_DMAR_DEVICE_SCOPE_STRUCTURE_HEADER  *DmarDevScopeEntry;
+  UINT8                                        Bus;
+  UINT8                                        Device;
+  UINT8                                        Function;
+  EFI_STATUS                                   Status;
+  RMRR_RECORD                                  *RmrrRecord;
 
-  DEBUG ((DEBUG_INFO,"  RMRR (Base 0x%016lx, Limit 0x%016lx)\n", DmarRmrr->ReservedMemoryRegionBaseAddress, DmarRmrr->ReservedMemoryRegionLimitAddress));
+  DEBUG ((DEBUG_INFO, "  RMRR (Base 0x%016lx, Limit 0x%016lx)\n", DmarRmrr->ReservedMemoryRegionBaseAddress, DmarRmrr->ReservedMemoryRegionLimitAddress));
   Print (L"  RMRR (Base 0x%016lx, Limit 0x%016lx)\n", DmarRmrr->ReservedMemoryRegionBaseAddress, DmarRmrr->ReservedMemoryRegionLimitAddress);
 
   DmarDevScopeEntry = (EFI_ACPI_DMAR_DEVICE_SCOPE_STRUCTURE_HEADER *)((UINTN)(DmarRmrr + 1));
   while ((UINTN)DmarDevScopeEntry < (UINTN)DmarRmrr + DmarRmrr->Header.Length) {
     if (DmarDevScopeEntry->Type != EFI_ACPI_DEVICE_SCOPE_ENTRY_TYPE_PCI_ENDPOINT) {
-      DEBUG ((DEBUG_INFO,"RMRR DevScopeEntryType is not endpoint, type[0x%x] \n", DmarDevScopeEntry->Type));
+      DEBUG ((DEBUG_INFO, "RMRR DevScopeEntryType is not endpoint, type[0x%x] \n", DmarDevScopeEntry->Type));
       Print (L"RMRR DevScopeEntryType is not endpoint, type[0x%x] \n", DmarDevScopeEntry->Type);
       return EFI_DEVICE_ERROR;
     }
@@ -2290,7 +2510,7 @@ ProcessRmrr (
       return Status;
     }
 
-    DEBUG ((DEBUG_INFO,"RMRR S%04x B%02x D%02x F%02x\n", DmarRmrr->SegmentNumber, Bus, Device, Function));
+    DEBUG ((DEBUG_INFO, "RMRR S%04x B%02x D%02x F%02x\n", DmarRmrr->SegmentNumber, Bus, Device, Function));
     Print (L"RMRR S%04x B%02x D%02x F%02x\n", DmarRmrr->SegmentNumber, Bus, Device, Function);
 
     RmrrRecord = AllocatePool (sizeof (RMRR_RECORD));
@@ -2321,49 +2541,53 @@ ParseDmarAcpiTableDrhd (
   VOID
   )
 {
-  EFI_ACPI_DMAR_STRUCTURE_HEADER                    *DmarHeader;
-  EFI_STATUS                                        Status;
-  UINTN                                             VtdIndex;
+  EFI_ACPI_DMAR_STRUCTURE_HEADER  *DmarHeader;
+  EFI_STATUS                      Status;
+  UINTN                           VtdIndex;
 
   mVtdUnitNumber = GetVtdEngineNumber ();
-  DEBUG ((DEBUG_INFO,"  VtdUnitNumber - %d\n", mVtdUnitNumber));
+  DEBUG ((DEBUG_INFO, "  VtdUnitNumber - %d\n", mVtdUnitNumber));
   Print (L"  VtdUnitNumber - %d\n", mVtdUnitNumber);
   ASSERT (mVtdUnitNumber > 0);
   if (mVtdUnitNumber == 0) {
     return EFI_DEVICE_ERROR;
   }
 
-  mVtdUnitInformation = AllocateZeroPool (sizeof(*mVtdUnitInformation) * mVtdUnitNumber);
+  mVtdUnitInformation = AllocateZeroPool (sizeof (*mVtdUnitInformation) * mVtdUnitNumber);
   ASSERT (mVtdUnitInformation != NULL);
   if (mVtdUnitInformation == NULL) {
     return EFI_OUT_OF_RESOURCES;
   }
 
-  VtdIndex = 0;
+  VtdIndex   = 0;
   DmarHeader = (EFI_ACPI_DMAR_STRUCTURE_HEADER *)((UINTN)(mAcpiDmarTable + 1));
   while ((UINTN)DmarHeader < (UINTN)mAcpiDmarTable + mAcpiDmarTable->Header.Length) {
     switch (DmarHeader->Type) {
-    case EFI_ACPI_DMAR_TYPE_DRHD:
-      ASSERT (VtdIndex < mVtdUnitNumber);
-      Status = ProcessDhrd (VtdIndex, (EFI_ACPI_DMAR_DRHD_HEADER *)DmarHeader);
-      if (EFI_ERROR (Status)) {
-        return Status;
-      }
-      VtdIndex++;
+      case EFI_ACPI_DMAR_TYPE_DRHD:
+        ASSERT (VtdIndex < mVtdUnitNumber);
+        Status = ProcessDhrd (VtdIndex, (EFI_ACPI_DMAR_DRHD_HEADER *)DmarHeader);
+        if (EFI_ERROR (Status)) {
+          return Status;
+        }
 
-      break;
+        VtdIndex++;
 
-    default:
-      break;
+        break;
+
+      default:
+        break;
     }
+
     DmarHeader = (EFI_ACPI_DMAR_STRUCTURE_HEADER *)((UINTN)DmarHeader + DmarHeader->Length);
   }
+
   ASSERT (VtdIndex == mVtdUnitNumber);
 
   for (VtdIndex = 0; VtdIndex < mVtdUnitNumber; VtdIndex++) {
     DumpPciDeviceInfo (VtdIndex);
   }
-  return EFI_SUCCESS ;
+
+  return EFI_SUCCESS;
 }
 
 /**
@@ -2376,24 +2600,27 @@ ParseDmarAcpiTableRmrr (
   VOID
   )
 {
-  EFI_ACPI_DMAR_STRUCTURE_HEADER                    *DmarHeader;
-  EFI_STATUS                                        Status;
+  EFI_ACPI_DMAR_STRUCTURE_HEADER  *DmarHeader;
+  EFI_STATUS                      Status;
 
   DmarHeader = (EFI_ACPI_DMAR_STRUCTURE_HEADER *)((UINTN)(mAcpiDmarTable + 1));
   while ((UINTN)DmarHeader < (UINTN)mAcpiDmarTable + mAcpiDmarTable->Header.Length) {
     switch (DmarHeader->Type) {
-    case EFI_ACPI_DMAR_TYPE_RMRR:
-      Status = ProcessRmrr ((EFI_ACPI_DMAR_RMRR_HEADER *)DmarHeader);
-      if (EFI_ERROR (Status)) {
-        return Status;
-      }
-      break;
-    default:
-      break;
+      case EFI_ACPI_DMAR_TYPE_RMRR:
+        Status = ProcessRmrr ((EFI_ACPI_DMAR_RMRR_HEADER *)DmarHeader);
+        if (EFI_ERROR (Status)) {
+          return Status;
+        }
+
+        break;
+      default:
+        break;
     }
+
     DmarHeader = (EFI_ACPI_DMAR_STRUCTURE_HEADER *)((UINTN)DmarHeader + DmarHeader->Length);
   }
-  return EFI_SUCCESS ;
+
+  return EFI_SUCCESS;
 }
 
 VOID
@@ -2404,10 +2631,10 @@ DumpVtdAcpi (
   EFI_STATUS  Status;
 
   Status = GetDmarAcpiTable ();
-  if (EFI_ERROR(Status)) {
+  if (EFI_ERROR (Status)) {
     DEBUG ((DEBUG_INFO, "DMAR table not found\n"));
     Print (L"DMAR table not found\n");
-    return ;
+    return;
   }
 
   ParseDmarAcpiTableDrhd ();
@@ -2420,16 +2647,16 @@ DumpVtdTranslation (
   VOID
   )
 {
-  UINTN                            Index;
-  UINT64                           Address;
-  UINT64                           RootEntryTableAddress;
+  UINTN   Index;
+  UINT64  Address;
+  UINT64  RootEntryTableAddress;
 
   for (Index = 0; Index < mVtdUnitNumber; Index++) {
     DEBUG ((DEBUG_INFO, "\nVTD engine (%d) - Base:0x%08x\n", Index, mVtdUnitInformation[Index].VtdUnitBaseAddress));
     Print (L"\nVTD engine (%d) - Base:0x%08x\n", Index, mVtdUnitInformation[Index].VtdUnitBaseAddress);
-    Address = MmioRead64 (mVtdUnitInformation[Index].VtdUnitBaseAddress + R_RTADDR_REG);
+    Address               = MmioRead64 (mVtdUnitInformation[Index].VtdUnitBaseAddress + R_RTADDR_REG);
     RootEntryTableAddress = Address & ~0xFFF;
-    
+
     if ((Address & BIT11) != 0) {
       DumpDmarExtContextEntryTable (mVtdUnitInformation[Index].Segment, (VTD_EXT_ROOT_ENTRY *)(UINTN)RootEntryTableAddress);
     } else {
@@ -2438,12 +2665,11 @@ DumpVtdTranslation (
   }
 }
 
-
 EFI_STATUS
 EFIAPI
 VtdDumpEntrypoint (
-  IN EFI_HANDLE           ImageHandle,
-  IN EFI_SYSTEM_TABLE     *SystemTable
+  IN EFI_HANDLE        ImageHandle,
+  IN EFI_SYSTEM_TABLE  *SystemTable
   )
 {
   DumpIoMmuMap ();

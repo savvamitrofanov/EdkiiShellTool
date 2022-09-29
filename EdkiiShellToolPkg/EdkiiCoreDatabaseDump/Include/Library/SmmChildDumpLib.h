@@ -20,25 +20,25 @@ WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
 
 EFI_STATUS
 EFIAPI
-SmmChildInit(
+SmmChildInit (
   VOID
   );
 
 EFI_STATUS
 EFIAPI
-SmmChildDump(
+SmmChildDump (
   VOID
   );
 
 EFI_STATUS
 EFIAPI
-SmmChildGetDataSize(
+SmmChildGetDataSize (
   OUT UINTN  *Size
   );
 
 EFI_STATUS
 EFIAPI
-SmmChildGetData(
+SmmChildGetData (
   IN     UINTN  Size,
   IN OUT VOID   *Data
   );
@@ -49,9 +49,9 @@ SmmChildGetData(
 
 VOID
 EFIAPI
-DumpSmmChildHandler(
-  IN VOID  *Data,
-  IN UINTN Size
+DumpSmmChildHandler (
+  IN VOID   *Data,
+  IN UINTN  Size
   );
 
 //
@@ -59,12 +59,12 @@ DumpSmmChildHandler(
 //
 
 CHAR16 *
-AddressToImageName(
-  IN UINTN Address
+AddressToImageName (
+  IN UINTN  Address
   );
 
 UINTN
-AddressToImageRef(
+AddressToImageRef (
   IN UINTN  Address
   );
 
@@ -73,13 +73,13 @@ AddressToImageRef(
 //
 
 CHAR16 *
-GetImageRefName(
-  IN UINTN ImageRef
+GetImageRefName (
+  IN UINTN  ImageRef
   );
 
 CHAR8 *
-GuidToName(
-  IN EFI_GUID *Guid
+GuidToName (
+  IN EFI_GUID  *Guid
   );
 
 #endif

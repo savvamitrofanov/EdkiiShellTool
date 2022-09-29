@@ -40,11 +40,11 @@
 EFI_STATUS
 EFIAPI
 InitSerialEntryPoint (
-  IN EFI_HANDLE                   ImageHandle,
-  IN EFI_SYSTEM_TABLE             *SystemTable
+  IN EFI_HANDLE        ImageHandle,
+  IN EFI_SYSTEM_TABLE  *SystemTable
   )
 {
   SerialPortInitialize ();
-  SerialPortWrite ((UINT8 *)"Test Serial\n", sizeof("Test Serial\n"));
+  SerialPortWrite ((UINT8 *)"Test Serial\n", sizeof ("Test Serial\n"));
   return EFI_SUCCESS;
 }

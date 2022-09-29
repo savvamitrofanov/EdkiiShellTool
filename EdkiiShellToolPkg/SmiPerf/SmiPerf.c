@@ -22,30 +22,31 @@ WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
 #include <Library/IoLib.h>
 #include <Guid/Performance.h>
 
-#define COUNT 1000
+#define COUNT  1000
 
 EFI_STATUS
 EFIAPI
 InitializeSmiPerf (
-  IN EFI_HANDLE           ImageHandle,
-  IN EFI_SYSTEM_TABLE     *SystemTable
+  IN EFI_HANDLE        ImageHandle,
+  IN EFI_SYSTEM_TABLE  *SystemTable
   )
 {
-  UINT64                    StartTsc;
-  UINT64                    EndTsc;
-  UINTN                     Index;
-  PERFORMANCE_PROPERTY      *PerformanceProperty;
-  EFI_STATUS                Status;
-  EFI_TPL                   OldTpl;
+  UINT64                StartTsc;
+  UINT64                EndTsc;
+  UINTN                 Index;
+  PERFORMANCE_PROPERTY  *PerformanceProperty;
+  EFI_STATUS            Status;
+  EFI_TPL               OldTpl;
 
-  OldTpl = gBS->RaiseTPL (TPL_HIGH_LEVEL);
+  OldTpl   = gBS->RaiseTPL (TPL_HIGH_LEVEL);
   StartTsc = AsmReadTsc ();
   for (Index = 0; Index < COUNT; Index++) {
     IoWrite8 (0xB2, 0xFF);
   }
+
   EndTsc = AsmReadTsc ();
   gBS->RestoreTPL (OldTpl);
-  
+
   Status = EfiGetSystemConfigurationTable (&gPerformanceProtocolGuid, (VOID **)&PerformanceProperty);
   if (EFI_ERROR (Status)) {
     Print (L"PERFORMANCE_PROPERTY not found!\n");
@@ -63,7 +64,7 @@ InitializeSmiPerf (
   // 1 SMI = (EndTsc - StartTsc)/COUNT * 1000 * 1000 / Frequency uS
   //       = 341115 * 1000 * 1000 / 1616844000
   //
-  Print (L"SMI - %ld us\n", DivU64x64Remainder (MultU64x64 (DivU64x32(EndTsc - StartTsc, COUNT), 1000 * 1000), PerformanceProperty->Frequency, NULL));
+  Print (L"SMI - %ld us\n", DivU64x64Remainder (MultU64x64 (DivU64x32 (EndTsc - StartTsc, COUNT), 1000 * 1000), PerformanceProperty->Frequency, NULL));
 
   return EFI_SUCCESS;
 }

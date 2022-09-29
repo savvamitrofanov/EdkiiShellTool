@@ -17,26 +17,23 @@ WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
 
 //
 // Name of  Variable for Non-FMP ESRT Repository
-// 
-#define EFI_ESRT_NONFMP_VARIABLE_NAME    L"EsrtNonFmp"
+//
+#define EFI_ESRT_NONFMP_VARIABLE_NAME  L"EsrtNonFmp"
 
 //
 // Name of Variable for FMP
-// 
-#define EFI_ESRT_FMP_VARIABLE_NAME       L"EsrtFmp"
+//
+#define EFI_ESRT_FMP_VARIABLE_NAME  L"EsrtFmp"
 
 //
 // Attribute of Cached ESRT entry
 //
-#define ESRT_FROM_FMP                    0x00000001
-#define ESRT_FROM_NONFMP                 0x00000002
-
+#define ESRT_FROM_FMP     0x00000001
+#define ESRT_FROM_NONFMP  0x00000002
 
 //
 // Driver GUID
 //
 #define ESRT_DXE_DRIVER_GUID  { 0x999BD818, 0x7DF7, 0x4A9A,{ 0xA5, 0x02, 0x9B, 0x75, 0x03, 0x3E, 0x6A, 0x0F } }
 
-
 #endif // #ifndef _EFI_ESRT_IMPL_H_
-

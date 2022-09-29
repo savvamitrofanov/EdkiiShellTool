@@ -22,7 +22,7 @@ WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
 
 #include <Guid/MemoryAttributesTable.h>
 
-CHAR16 *mMemoryTypeShortName[] = {
+CHAR16  *mMemoryTypeShortName[] = {
   L"Reserved",
   L"LoaderCode",
   L"LoaderData",
@@ -40,31 +40,30 @@ CHAR16 *mMemoryTypeShortName[] = {
   L"Persistent",
 };
 
-CHAR16 mUnknownStr[11];
+CHAR16  mUnknownStr[11];
 
 CHAR16 *
-ShortNameOfMemoryType(
-  IN UINT32 Type
+ShortNameOfMemoryType (
+  IN UINT32  Type
   )
 {
-  if (Type < sizeof(mMemoryTypeShortName) / sizeof(mMemoryTypeShortName[0])) {
+  if (Type < sizeof (mMemoryTypeShortName) / sizeof (mMemoryTypeShortName[0])) {
     return mMemoryTypeShortName[Type];
   } else {
-    UnicodeSPrint(mUnknownStr, sizeof(mUnknownStr), L"%08x", Type);
+    UnicodeSPrint (mUnknownStr, sizeof (mUnknownStr), L"%08x", Type);
     return mUnknownStr;
   }
 }
 
-
 VOID
 DumpMemoryAttributesTable (
-  IN EFI_MEMORY_ATTRIBUTES_TABLE                     *MemoryAttributesTable
+  IN EFI_MEMORY_ATTRIBUTES_TABLE  *MemoryAttributesTable
   )
 {
-  UINTN                 Index;
-  EFI_MEMORY_DESCRIPTOR *Entry;
-  UINT64                RTDataPages;
-  UINT64                RTCodePages;
+  UINTN                  Index;
+  EFI_MEMORY_DESCRIPTOR  *Entry;
+  UINT64                 RTDataPages;
+  UINT64                 RTCodePages;
 
   RTDataPages = 0;
   RTCodePages = 0;
@@ -77,45 +76,47 @@ DumpMemoryAttributesTable (
   Entry = (EFI_MEMORY_DESCRIPTOR *)(MemoryAttributesTable + 1);
   Print (L"Type       Start            End              # Pages          Attributes\n");
   for (Index = 0; Index < MemoryAttributesTable->NumberOfEntries; Index++) {
-    Print(L"% -10s %016LX-%016LX %016LX %016LX\n", 
-      ShortNameOfMemoryType(Entry->Type),
+    Print (
+      L"% -10s %016LX-%016LX %016LX %016LX\n",
+      ShortNameOfMemoryType (Entry->Type),
       Entry->PhysicalStart,
-      Entry->PhysicalStart + EFI_PAGES_TO_SIZE((UINTN)Entry->NumberOfPages) - 1,
+      Entry->PhysicalStart + EFI_PAGES_TO_SIZE ((UINTN)Entry->NumberOfPages) - 1,
       Entry->NumberOfPages,
       Entry->Attribute
       );
     switch (Entry->Type) {
-    case EfiRuntimeServicesCode:
-      RTCodePages += Entry->NumberOfPages;
-      break;
-    case EfiRuntimeServicesData:
-      RTDataPages += Entry->NumberOfPages;
-      break;
-    default:
-      break;
+      case EfiRuntimeServicesCode:
+        RTCodePages += Entry->NumberOfPages;
+        break;
+      case EfiRuntimeServicesData:
+        RTDataPages += Entry->NumberOfPages;
+        break;
+      default:
+        break;
     }
+
     Entry = NEXT_MEMORY_DESCRIPTOR (Entry, MemoryAttributesTable->DescriptorSize);
   }
 
   Print (L"\n");
-  Print (L"  RT_Code   : %,14ld Pages (%,ld Bytes)\n", RTCodePages, MultU64x64(SIZE_4KB, RTCodePages));
-  Print (L"  RT_Data   : %,14ld Pages (%,ld Bytes)\n", RTDataPages, MultU64x64(SIZE_4KB, RTDataPages));
+  Print (L"  RT_Code   : %,14ld Pages (%,ld Bytes)\n", RTCodePages, MultU64x64 (SIZE_4KB, RTCodePages));
+  Print (L"  RT_Data   : %,14ld Pages (%,ld Bytes)\n", RTDataPages, MultU64x64 (SIZE_4KB, RTDataPages));
   Print (L"              -------------- \n");
 }
 
 EFI_STATUS
 EFIAPI
 MemoryAttributesDumpEntrypoint (
-  IN EFI_HANDLE           ImageHandle,
-  IN EFI_SYSTEM_TABLE     *SystemTable
+  IN EFI_HANDLE        ImageHandle,
+  IN EFI_SYSTEM_TABLE  *SystemTable
   )
 {
   EFI_STATUS  Status;
   VOID        *MemoryAttributesTable;
-  
+
   Status = EfiGetSystemConfigurationTable (&gEfiMemoryAttributesTableGuid, &MemoryAttributesTable);
   if (!EFI_ERROR (Status)) {
-    DumpMemoryAttributesTable(MemoryAttributesTable);
+    DumpMemoryAttributesTable (MemoryAttributesTable);
   }
 
   return EFI_SUCCESS;

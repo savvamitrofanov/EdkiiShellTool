@@ -23,7 +23,7 @@ WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
 
 #include <Guid/MemoryTypeInformation.h>
 
-CHAR16 *mMemoryTypeShortName[] = {
+CHAR16  *mMemoryTypeShortName[] = {
   L"Reserved",
   L"LoaderCode",
   L"LoaderData",
@@ -41,49 +41,49 @@ CHAR16 *mMemoryTypeShortName[] = {
   L"Persistent",
 };
 
-CHAR16 mUnknownStr[11];
+CHAR16  mUnknownStr[11];
 
 CHAR16 *
-ShortNameOfMemoryType(
-  IN UINT32 Type
+ShortNameOfMemoryType (
+  IN UINT32  Type
   )
 {
-  if (Type < sizeof(mMemoryTypeShortName) / sizeof(mMemoryTypeShortName[0])) {
+  if (Type < sizeof (mMemoryTypeShortName) / sizeof (mMemoryTypeShortName[0])) {
     return mMemoryTypeShortName[Type];
   } else {
-    UnicodeSPrint(mUnknownStr, sizeof(mUnknownStr), L"%08x", Type);
+    UnicodeSPrint (mUnknownStr, sizeof (mUnknownStr), L"%08x", Type);
     return mUnknownStr;
   }
 }
 
 VOID
 DumpMemoryTypeInformation (
-  IN EFI_MEMORY_TYPE_INFORMATION                     *MemoryTypeInformation
+  IN EFI_MEMORY_TYPE_INFORMATION  *MemoryTypeInformation
   )
 {
-  UINTN                 Index;
+  UINTN  Index;
 
   for (Index = 0; MemoryTypeInformation[Index].Type != EfiMaxMemoryType; Index++) {
-    Print (L"  % -10s : 0x%08x\n", ShortNameOfMemoryType(MemoryTypeInformation[Index].Type), MemoryTypeInformation[Index].NumberOfPages);
+    Print (L"  % -10s : 0x%08x\n", ShortNameOfMemoryType (MemoryTypeInformation[Index].Type), MemoryTypeInformation[Index].NumberOfPages);
   }
 }
 
 VOID
 DumpMemoryTypeInfoSummary (
-  IN EFI_MEMORY_TYPE_INFORMATION *CurrentMemoryTypeInformation,
-  IN EFI_MEMORY_TYPE_INFORMATION *PreviousMemoryTypeInformation
+  IN EFI_MEMORY_TYPE_INFORMATION  *CurrentMemoryTypeInformation,
+  IN EFI_MEMORY_TYPE_INFORMATION  *PreviousMemoryTypeInformation
   )
 {
-  UINTN                        Index;
-  UINTN                        Index1;
-  EFI_BOOT_MODE                BootMode;
-  UINT32                       Previous;
-  UINT32                       Current;
-  UINT32                       Next;
-  BOOLEAN                      MemoryTypeInformationModified;
+  UINTN          Index;
+  UINTN          Index1;
+  EFI_BOOT_MODE  BootMode;
+  UINT32         Previous;
+  UINT32         Current;
+  UINT32         Next;
+  BOOLEAN        MemoryTypeInformationModified;
 
   MemoryTypeInformationModified = FALSE;
-  BootMode = GetBootModeHob();
+  BootMode                      = GetBootModeHob ();
 
   //
   // Use a heuristic to adjust the Memory Type Information for the next boot
@@ -95,12 +95,12 @@ DumpMemoryTypeInfoSummary (
   Print (L"==========  ========  ========  ========\n");
 
   for (Index = 0; PreviousMemoryTypeInformation[Index].Type != EfiMaxMemoryType; Index++) {
-
     for (Index1 = 0; CurrentMemoryTypeInformation[Index1].Type != EfiMaxMemoryType; Index1++) {
       if (PreviousMemoryTypeInformation[Index].Type == CurrentMemoryTypeInformation[Index1].Type) {
         break;
       }
     }
+
     if (CurrentMemoryTypeInformation[Index1].Type == EfiMaxMemoryType) {
       continue;
     }
@@ -110,8 +110,8 @@ DumpMemoryTypeInfoSummary (
     // Current is the number of pages actually needed
     //
     Previous = PreviousMemoryTypeInformation[Index].NumberOfPages;
-    Current = CurrentMemoryTypeInformation[Index1].NumberOfPages;
-    Next = Previous;
+    Current  = CurrentMemoryTypeInformation[Index1].NumberOfPages;
+    Next     = Previous;
 
     //
     // Inconsistent Memory Reserved across bootings may lead to S4 fail
@@ -126,54 +126,57 @@ DumpMemoryTypeInfoSummary (
     } else if (Current > Previous) {
       Next = Current + (Current >> 2);
     }
-    if (Next > 0 && Next < 4) {
+
+    if ((Next > 0) && (Next < 4)) {
       Next = 4;
     }
 
     if (Next != Previous) {
       PreviousMemoryTypeInformation[Index].NumberOfPages = Next;
-      MemoryTypeInformationModified = TRUE;
+      MemoryTypeInformationModified                      = TRUE;
     }
 
-    Print (L"%-10s  %08x  %08x  %08x\n", ShortNameOfMemoryType(PreviousMemoryTypeInformation[Index].Type), Previous, Current, Next);
+    Print (L"%-10s  %08x  %08x  %08x\n", ShortNameOfMemoryType (PreviousMemoryTypeInformation[Index].Type), Previous, Current, Next);
   }
-  Print(L"\n");
+
+  Print (L"\n");
 
   if (MemoryTypeInformationModified) {
     Print (L"MemoryTypeInformation - Modified. RESET Needed!!!\n");
   } else {
     Print (L"MemoryTypeInformation - Unmodified.\n");
   }
-  Print(L"\n");
+
+  Print (L"\n");
 }
 
 EFI_STATUS
 EFIAPI
 MemoryTypeInfoEntrypoint (
-  IN EFI_HANDLE           ImageHandle,
-  IN EFI_SYSTEM_TABLE     *SystemTable
+  IN EFI_HANDLE        ImageHandle,
+  IN EFI_SYSTEM_TABLE  *SystemTable
   )
 {
-  EFI_STATUS              Status;
-  EFI_HOB_GUID_TYPE       *GuidHob;
-  VOID                    *CurrentMemoryTypeInformation;
-  VOID                    *PreviousMemoryTypeInformation;
-  VOID                    *VariableMemoryTypeInformation;
-  
-  CurrentMemoryTypeInformation = NULL;
+  EFI_STATUS         Status;
+  EFI_HOB_GUID_TYPE  *GuidHob;
+  VOID               *CurrentMemoryTypeInformation;
+  VOID               *PreviousMemoryTypeInformation;
+  VOID               *VariableMemoryTypeInformation;
+
+  CurrentMemoryTypeInformation  = NULL;
   PreviousMemoryTypeInformation = NULL;
 
   Status = EfiGetSystemConfigurationTable (&gEfiMemoryTypeInformationGuid, &CurrentMemoryTypeInformation);
   if (!EFI_ERROR (Status)) {
-    //Print (L"MemoryTypeInfo in UEFI Configuration Table (Current, actually needed):\n");
-    //DumpMemoryTypeInformation (CurrentMemoryTypeInformation);
+    // Print (L"MemoryTypeInfo in UEFI Configuration Table (Current, actually needed):\n");
+    // DumpMemoryTypeInformation (CurrentMemoryTypeInformation);
   }
 
   GuidHob = GetFirstGuidHob (&gEfiMemoryTypeInformationGuid);
   if (GuidHob != NULL) {
-    PreviousMemoryTypeInformation = GET_GUID_HOB_DATA(GuidHob);
-    //Print (L"MemoryTypeInfo in Hob (Previous, preallocated):\n");
-    //DumpMemoryTypeInformation (PreviousMemoryTypeInformation);
+    PreviousMemoryTypeInformation = GET_GUID_HOB_DATA (GuidHob);
+    // Print (L"MemoryTypeInfo in Hob (Previous, preallocated):\n");
+    // DumpMemoryTypeInformation (PreviousMemoryTypeInformation);
   }
 
   Status = GetVariable2 (
@@ -182,14 +185,14 @@ MemoryTypeInfoEntrypoint (
              &VariableMemoryTypeInformation,
              NULL
              );
-  if (!EFI_ERROR(Status)) {
-    //Print (L"MemoryTypeInfo in Variable (Next):\n");
-    //DumpMemoryTypeInformation (VariableMemoryTypeInformation);
+  if (!EFI_ERROR (Status)) {
+    // Print (L"MemoryTypeInfo in Variable (Next):\n");
+    // DumpMemoryTypeInformation (VariableMemoryTypeInformation);
     FreePool (VariableMemoryTypeInformation);
   }
 
   if ((CurrentMemoryTypeInformation != NULL) && (PreviousMemoryTypeInformation != NULL)) {
-    DumpMemoryTypeInfoSummary(CurrentMemoryTypeInformation, PreviousMemoryTypeInformation);
+    DumpMemoryTypeInfoSummary (CurrentMemoryTypeInformation, PreviousMemoryTypeInformation);
   }
 
   return EFI_SUCCESS;

@@ -29,14 +29,14 @@ WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
 
 VOID
 DumpHsti (
-  IN VOID                     *HstiData
+  IN VOID  *HstiData
   )
 {
-  ADAPTER_INFO_PLATFORM_SECURITY *Hsti;
-  UINT8                          *SecurityFeatures;
-  CHAR16                         *ErrorString;
-  UINTN                          Index;
-  CHAR16                         ErrorChar;
+  ADAPTER_INFO_PLATFORM_SECURITY  *Hsti;
+  UINT8                           *SecurityFeatures;
+  CHAR16                          *ErrorString;
+  UINTN                           Index;
+  CHAR16                          ErrorChar;
 
   Hsti = HstiData;
   Print (L"HSTI\n");
@@ -50,6 +50,7 @@ DumpHsti (
   for (Index = 0; Index < Hsti->SecurityFeaturesSize; Index++) {
     Print (L"%02x ", SecurityFeatures[Index]);
   }
+
   Print (L"\n");
 
   SecurityFeatures = (UINT8 *)(SecurityFeatures + Hsti->SecurityFeaturesSize);
@@ -57,6 +58,7 @@ DumpHsti (
   for (Index = 0; Index < Hsti->SecurityFeaturesSize; Index++) {
     Print (L"%02x ", SecurityFeatures[Index]);
   }
+
   Print (L"\n");
 
   SecurityFeatures = (UINT8 *)(SecurityFeatures + Hsti->SecurityFeaturesSize);
@@ -64,12 +66,13 @@ DumpHsti (
   for (Index = 0; Index < Hsti->SecurityFeaturesSize; Index++) {
     Print (L"%02x ", SecurityFeatures[Index]);
   }
+
   Print (L"\n");
 
   ErrorString = (CHAR16 *)(SecurityFeatures + Hsti->SecurityFeaturesSize);
   Print (L"  ErrorString                 - \"");
-  CopyMem (&ErrorChar, ErrorString, sizeof(ErrorChar));
-  for (; ErrorChar != 0;) {
+  CopyMem (&ErrorChar, ErrorString, sizeof (ErrorChar));
+  for ( ; ErrorChar != 0;) {
     if (ErrorChar == L'\r') {
       Print (L"\\r");
     } else if (ErrorChar == L'\n') {
@@ -77,16 +80,18 @@ DumpHsti (
     } else {
       Print (L"%c", ErrorChar);
     }
+
     ErrorString++;
-    CopyMem (&ErrorChar, ErrorString, sizeof(ErrorChar));
+    CopyMem (&ErrorChar, ErrorString, sizeof (ErrorChar));
   }
+
   Print (L"\"\n");
 }
 
 VOID
 DumpHstiData (
-  IN UINT32                   Role OPTIONAL,
-  IN CHAR16                   *ImplementationID OPTIONAL
+  IN UINT32  Role OPTIONAL,
+  IN CHAR16  *ImplementationID OPTIONAL
   )
 {
   EFI_STATUS                        Status;
@@ -110,12 +115,12 @@ DumpHstiData (
                   &Handles
                   );
   if (EFI_ERROR (Status)) {
-    return ;
+    return;
   }
 
-  Hsti = NULL;
-  Aip = NULL;
-  InformationBlock = NULL;
+  Hsti                 = NULL;
+  Aip                  = NULL;
+  InformationBlock     = NULL;
   InformationBlockSize = 0;
   for (Index = 0; Index < NoHandles; Index++) {
     Status = gBS->HandleProtocol (
@@ -146,6 +151,7 @@ DumpHstiData (
         break;
       }
     }
+
     FreePool (InfoTypesBuffer);
 
     if (AipCandidate == NULL) {
@@ -155,7 +161,7 @@ DumpHstiData (
     //
     // Check HSTI Role
     //
-    Aip = AipCandidate;
+    Aip    = AipCandidate;
     Status = Aip->GetInformation (
                     Aip,
                     &gAdapterInfoPlatformSecurityGuid,
@@ -169,30 +175,33 @@ DumpHstiData (
     Hsti = InformationBlock;
 
     if ((Role == 0) ||
-        ((Hsti->Role == Role) && 
-         ((ImplementationID == NULL) || (StrCmp (ImplementationID, Hsti->ImplementationID) == 0)))) {
+        ((Hsti->Role == Role) &&
+         ((ImplementationID == NULL) || (StrCmp (ImplementationID, Hsti->ImplementationID) == 0))))
+    {
       DumpHsti (Hsti);
     }
+
     FreePool (InformationBlock);
   }
+
   FreePool (Handles);
 
   if (Hsti == NULL) {
-    Print(L"HSTI - %r\n", EFI_NOT_FOUND);
+    Print (L"HSTI - %r\n", EFI_NOT_FOUND);
   }
 }
 
 VOID
 DumpAcpiTableHeader (
-  EFI_ACPI_DESCRIPTION_HEADER                    *Header
+  EFI_ACPI_DESCRIPTION_HEADER  *Header
   )
 {
-  UINT8               *Signature;
-  UINT8               *OemTableId;
-  UINT8               *CreatorId;
-  
+  UINT8  *Signature;
+  UINT8  *OemTableId;
+  UINT8  *CreatorId;
+
   Print (L"  Table Header:\n");
-  Signature = (UINT8*)&Header->Signature;
+  Signature = (UINT8 *)&Header->Signature;
   Print (L"    Signature                         - '%c%c%c%c'\n", Signature[0], Signature[1], Signature[2], Signature[3]);
   Print (L"    Length                            - 0x%08x\n", Header->Length);
   Print (L"    Revision                          - 0x%02x\n", Header->Revision);
@@ -209,16 +218,16 @@ DumpAcpiTableHeader (
 }
 
 VOID
-DumpWsmt(
-  IN EFI_ACPI_WSMT_TABLE *Wsmt
+DumpWsmt (
+  IN EFI_ACPI_WSMT_TABLE  *Wsmt
   )
 {
-  Print(L"WSMT\n");
+  Print (L"WSMT\n");
   DumpAcpiTableHeader (&Wsmt->Header);
-  Print(L"  ProtectionFlags                     - 0x%08x\n", Wsmt->ProtectionFlags);
-  Print(L"    FIXED_COMM_BUFFERS                - 0x%08x\n", Wsmt->ProtectionFlags & EFI_WSMT_PROTECTION_FLAGS_FIXED_COMM_BUFFERS);
-  Print(L"    COMM_BUFFER_NESTED_PTR_PROTECTION - 0x%08x\n", Wsmt->ProtectionFlags & EFI_WSMT_PROTECTION_FLAGS_COMM_BUFFER_NESTED_PTR_PROTECTION);
-  Print(L"    SYSTEM_RESOURCE_PROTECTION        - 0x%08x\n", Wsmt->ProtectionFlags & EFI_WSMT_PROTECTION_FLAGS_SYSTEM_RESOURCE_PROTECTION);
+  Print (L"  ProtectionFlags                     - 0x%08x\n", Wsmt->ProtectionFlags);
+  Print (L"    FIXED_COMM_BUFFERS                - 0x%08x\n", Wsmt->ProtectionFlags & EFI_WSMT_PROTECTION_FLAGS_FIXED_COMM_BUFFERS);
+  Print (L"    COMM_BUFFER_NESTED_PTR_PROTECTION - 0x%08x\n", Wsmt->ProtectionFlags & EFI_WSMT_PROTECTION_FLAGS_COMM_BUFFER_NESTED_PTR_PROTECTION);
+  Print (L"    SYSTEM_RESOURCE_PROTECTION        - 0x%08x\n", Wsmt->ProtectionFlags & EFI_WSMT_PROTECTION_FLAGS_SYSTEM_RESOURCE_PROTECTION);
 }
 
 /**
@@ -233,29 +242,29 @@ DumpWsmt(
 **/
 VOID *
 ScanTableInRSDT (
-  IN EFI_ACPI_DESCRIPTION_HEADER    *Rsdt,
-  IN UINT32                         Signature
+  IN EFI_ACPI_DESCRIPTION_HEADER  *Rsdt,
+  IN UINT32                       Signature
   )
 {
-  UINTN                              Index;
-  UINT32                             EntryCount;
-  UINT32                             *EntryPtr;
-  EFI_ACPI_DESCRIPTION_HEADER        *Table;
+  UINTN                        Index;
+  UINT32                       EntryCount;
+  UINT32                       *EntryPtr;
+  EFI_ACPI_DESCRIPTION_HEADER  *Table;
 
   if (Rsdt == NULL) {
     return NULL;
   }
 
-  EntryCount = (Rsdt->Length - sizeof (EFI_ACPI_DESCRIPTION_HEADER)) / sizeof(UINT32);
-  
+  EntryCount = (Rsdt->Length - sizeof (EFI_ACPI_DESCRIPTION_HEADER)) / sizeof (UINT32);
+
   EntryPtr = (UINT32 *)(Rsdt + 1);
-  for (Index = 0; Index < EntryCount; Index ++, EntryPtr ++) {
+  for (Index = 0; Index < EntryCount; Index++, EntryPtr++) {
     Table = (EFI_ACPI_DESCRIPTION_HEADER *)((UINTN)(*EntryPtr));
     if (Table->Signature == Signature) {
       return Table;
     }
   }
-  
+
   return NULL;
 }
 
@@ -271,31 +280,31 @@ ScanTableInRSDT (
 **/
 VOID *
 ScanTableInXSDT (
-  IN EFI_ACPI_DESCRIPTION_HEADER    *Xsdt,
-  IN UINT32                         Signature
+  IN EFI_ACPI_DESCRIPTION_HEADER  *Xsdt,
+  IN UINT32                       Signature
   )
 {
-  UINTN                          Index;
-  UINT32                         EntryCount;
-  UINT64                         EntryPtr;
-  UINTN                          BasePtr;
-  EFI_ACPI_DESCRIPTION_HEADER    *Table;
+  UINTN                        Index;
+  UINT32                       EntryCount;
+  UINT64                       EntryPtr;
+  UINTN                        BasePtr;
+  EFI_ACPI_DESCRIPTION_HEADER  *Table;
 
   if (Xsdt == NULL) {
     return NULL;
   }
 
-  EntryCount = (Xsdt->Length - sizeof (EFI_ACPI_DESCRIPTION_HEADER)) / sizeof(UINT64);
-  
+  EntryCount = (Xsdt->Length - sizeof (EFI_ACPI_DESCRIPTION_HEADER)) / sizeof (UINT64);
+
   BasePtr = (UINTN)(Xsdt + 1);
-  for (Index = 0; Index < EntryCount; Index ++) {
-    CopyMem (&EntryPtr, (VOID *)(BasePtr + Index * sizeof(UINT64)), sizeof(UINT64));
+  for (Index = 0; Index < EntryCount; Index++) {
+    CopyMem (&EntryPtr, (VOID *)(BasePtr + Index * sizeof (UINT64)), sizeof (UINT64));
     Table = (EFI_ACPI_DESCRIPTION_HEADER *)((UINTN)(EntryPtr));
     if (Table->Signature == Signature) {
       return Table;
     }
   }
-  
+
   return NULL;
 }
 
@@ -304,7 +313,7 @@ ScanTableInXSDT (
 
   @param AcpiTableGuid   The guid used to find ACPI table in UEFI ConfigurationTable.
   @param Signature       ACPI table signature
-  
+
   @return  Acpi table pointer.
 **/
 VOID  *
@@ -319,7 +328,7 @@ FindAcpiTableByAcpiGuid (
   VOID                                          *Table;
   UINTN                                         Index;
 
-  Rsdp  = NULL;
+  Rsdp = NULL;
   //
   // found ACPI table RSD_PTR from system table
   //
@@ -341,7 +350,7 @@ FindAcpiTableByAcpiGuid (
   // Search XSDT
   //
   if (Rsdp->Revision >= EFI_ACPI_2_0_ROOT_SYSTEM_DESCRIPTION_POINTER_REVISION) {
-    Xsdt = (EFI_ACPI_DESCRIPTION_HEADER *)(UINTN) Rsdp->XsdtAddress;
+    Xsdt  = (EFI_ACPI_DESCRIPTION_HEADER *)(UINTN)Rsdp->XsdtAddress;
     Table = ScanTableInXSDT (Xsdt, Signature);
     if (Table != NULL) {
       return Table;
@@ -351,7 +360,7 @@ FindAcpiTableByAcpiGuid (
   //
   // Search RSDT
   //
-  Rsdt = (EFI_ACPI_DESCRIPTION_HEADER *)(UINTN) Rsdp->RsdtAddress;
+  Rsdt  = (EFI_ACPI_DESCRIPTION_HEADER *)(UINTN)Rsdp->RsdtAddress;
   Table = ScanTableInRSDT (Rsdt, Signature);
   if (Table != NULL) {
     return Table;
@@ -362,17 +371,17 @@ FindAcpiTableByAcpiGuid (
 
 /**
   To find table in Acpi tables.
- 
+
   @param Signature ACPI table signature
 
   @return  Acpi table pointer.
 **/
 VOID  *
 FindAcpiTable (
-  IN UINT32    Signature
+  IN UINT32  Signature
   )
 {
-  VOID *Table;
+  VOID  *Table;
 
   Table = FindAcpiTableByAcpiGuid (&gEfiAcpi20TableGuid, Signature);
   if (Table != NULL) {
@@ -387,21 +396,22 @@ DumpWsmtData (
   VOID
   )
 {
-  VOID *Wsmt;
+  VOID  *Wsmt;
 
   Wsmt = FindAcpiTable (EFI_ACPI_WINDOWS_SMM_SECURITY_MITIGATION_TABLE_SIGNATURE);
   if (Wsmt == NULL) {
-    Print(L"WSMT - %r\n", EFI_NOT_FOUND);
+    Print (L"WSMT - %r\n", EFI_NOT_FOUND);
     return;
   }
+
   DumpWsmt (Wsmt);
 }
 
 EFI_STATUS
 EFIAPI
 HstiWsmtDumpEntrypoint (
-  IN EFI_HANDLE           ImageHandle,
-  IN EFI_SYSTEM_TABLE     *SystemTable
+  IN EFI_HANDLE        ImageHandle,
+  IN EFI_SYSTEM_TABLE  *SystemTable
   )
 {
   DumpHstiData (0, NULL);

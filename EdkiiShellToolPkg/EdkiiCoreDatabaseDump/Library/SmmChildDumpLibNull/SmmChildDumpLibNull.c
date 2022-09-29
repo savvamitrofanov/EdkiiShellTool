@@ -15,7 +15,7 @@ WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
 
 EFI_STATUS
 EFIAPI
-SmmChildInit(
+SmmChildInit (
   VOID
   )
 {
@@ -24,7 +24,7 @@ SmmChildInit(
 
 EFI_STATUS
 EFIAPI
-SmmChildDump(
+SmmChildDump (
   VOID
   )
 {
@@ -33,7 +33,7 @@ SmmChildDump(
 
 EFI_STATUS
 EFIAPI
-SmmChildGetDataSize(
+SmmChildGetDataSize (
   OUT UINTN  *Size
   )
 {
@@ -43,7 +43,7 @@ SmmChildGetDataSize(
 
 EFI_STATUS
 EFIAPI
-SmmChildGetData(
+SmmChildGetData (
   IN     UINTN  Size,
   IN OUT VOID   *Data
   )
@@ -53,9 +53,9 @@ SmmChildGetData(
 
 VOID
 EFIAPI
-DumpSmmChildHandler(
-  IN VOID  *Data,
-  IN UINTN Size
+DumpSmmChildHandler (
+  IN VOID   *Data,
+  IN UINTN  Size
   )
 {
   return;

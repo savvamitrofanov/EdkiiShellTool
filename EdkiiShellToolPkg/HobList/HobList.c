@@ -53,7 +53,7 @@ WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
 #define EFI_RESOURCE_ATTRIBUTE_PERSISTABLE              0x01000000
 */
 
-#define MEMORY_ATTRIBUTE_MASK (EFI_RESOURCE_ATTRIBUTE_PRESENT | \
+#define MEMORY_ATTRIBUTE_MASK  (EFI_RESOURCE_ATTRIBUTE_PRESENT |\
                                EFI_RESOURCE_ATTRIBUTE_INITIALIZED | \
                                EFI_RESOURCE_ATTRIBUTE_TESTED | \
                                EFI_RESOURCE_ATTRIBUTE_16_BIT_IO | \
@@ -61,15 +61,15 @@ WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
                                EFI_RESOURCE_ATTRIBUTE_64_BIT_IO \
                                )
 
-#define TESTED_MEMORY_ATTRIBUTES      (EFI_RESOURCE_ATTRIBUTE_PRESENT | EFI_RESOURCE_ATTRIBUTE_INITIALIZED | EFI_RESOURCE_ATTRIBUTE_TESTED)
+#define TESTED_MEMORY_ATTRIBUTES  (EFI_RESOURCE_ATTRIBUTE_PRESENT | EFI_RESOURCE_ATTRIBUTE_INITIALIZED | EFI_RESOURCE_ATTRIBUTE_TESTED)
 
-#define INITIALIZED_MEMORY_ATTRIBUTES (EFI_RESOURCE_ATTRIBUTE_PRESENT | EFI_RESOURCE_ATTRIBUTE_INITIALIZED)
+#define INITIALIZED_MEMORY_ATTRIBUTES  (EFI_RESOURCE_ATTRIBUTE_PRESENT | EFI_RESOURCE_ATTRIBUTE_INITIALIZED)
 
-#define PRESENT_MEMORY_ATTRIBUTES     (EFI_RESOURCE_ATTRIBUTE_PRESENT)
+#define PRESENT_MEMORY_ATTRIBUTES  (EFI_RESOURCE_ATTRIBUTE_PRESENT)
 
-EFI_GUID mZeroGuid;
+EFI_GUID  mZeroGuid;
 
-CHAR16 *mMemoryTypeShortName[] = {
+CHAR16  *mMemoryTypeShortName[] = {
   L"Reserved",
   L"LoaderCode",
   L"LoaderData",
@@ -87,22 +87,22 @@ CHAR16 *mMemoryTypeShortName[] = {
   L"Persistent",
 };
 
-CHAR16 mUnknownStr[11];
+CHAR16  mUnknownStr[11];
 
 CHAR16 *
 ShortNameOfMemoryType (
-  IN UINT32 Type
+  IN UINT32  Type
   )
 {
-  if (Type < sizeof(mMemoryTypeShortName) / sizeof(mMemoryTypeShortName[0])) {
+  if (Type < sizeof (mMemoryTypeShortName) / sizeof (mMemoryTypeShortName[0])) {
     return mMemoryTypeShortName[Type];
   } else {
-    UnicodeSPrint(mUnknownStr, sizeof(mUnknownStr), L"%08x", Type);
+    UnicodeSPrint (mUnknownStr, sizeof (mUnknownStr), L"%08x", Type);
     return mUnknownStr;
   }
 }
 
-CHAR16 *mResourceTypeShortName[] = {
+CHAR16  *mResourceTypeShortName[] = {
   L"Mem",
   L"MMIO",
   L"I/O",
@@ -114,13 +114,13 @@ CHAR16 *mResourceTypeShortName[] = {
 
 CHAR16 *
 ShortNameOfResourceType (
-  IN UINT32 Type
+  IN UINT32  Type
   )
 {
-  if (Type < sizeof(mResourceTypeShortName) / sizeof(mResourceTypeShortName[0])) {
+  if (Type < sizeof (mResourceTypeShortName) / sizeof (mResourceTypeShortName[0])) {
     return mResourceTypeShortName[Type];
   } else {
-    UnicodeSPrint(mUnknownStr, sizeof(mUnknownStr), L"%08x", Type);
+    UnicodeSPrint (mUnknownStr, sizeof (mUnknownStr), L"%08x", Type);
     return mUnknownStr;
   }
 }
@@ -128,9 +128,10 @@ ShortNameOfResourceType (
 EFI_STATUS
 EFIAPI
 InitializeHobList (
-  IN EFI_HANDLE         ImageHandle,
-  IN EFI_SYSTEM_TABLE   *SystemTable
+  IN EFI_HANDLE        ImageHandle,
+  IN EFI_SYSTEM_TABLE  *SystemTable
   )
+
 /*++
 
 Routine Description:
@@ -139,7 +140,7 @@ Routine Description:
 
 Arguments:
 
-  ImageHandle     The image handle. 
+  ImageHandle     The image handle.
   SystemTable     The system table.
 
 Returns:
@@ -150,16 +151,16 @@ Returns:
 
 --*/
 {
-  EFI_STATUS                  Status;
-  VOID                        *HobList;
-  EFI_PEI_HOB_POINTERS        Hob;
-  EFI_HOB_RESOURCE_DESCRIPTOR *ResourceHob;
-  EFI_HOB_MEMORY_ALLOCATION   *MemoryHob;
-  EFI_HOB_FIRMWARE_VOLUME     *FirmwareVolumeHob;
-  EFI_HOB_FIRMWARE_VOLUME2    *FirmwareVolume2Hob;
-  EFI_HOB_UEFI_CAPSULE        *CapsuleHob;
-  EFI_HOB_CPU                 *CpuHob;
-  EFI_HOB_HANDOFF_INFO_TABLE  *PhitHob;
+  EFI_STATUS                   Status;
+  VOID                         *HobList;
+  EFI_PEI_HOB_POINTERS         Hob;
+  EFI_HOB_RESOURCE_DESCRIPTOR  *ResourceHob;
+  EFI_HOB_MEMORY_ALLOCATION    *MemoryHob;
+  EFI_HOB_FIRMWARE_VOLUME      *FirmwareVolumeHob;
+  EFI_HOB_FIRMWARE_VOLUME2     *FirmwareVolume2Hob;
+  EFI_HOB_UEFI_CAPSULE         *CapsuleHob;
+  EFI_HOB_CPU                  *CpuHob;
+  EFI_HOB_HANDOFF_INFO_TABLE   *PhitHob;
 
   //
   // Get Hob list
@@ -170,22 +171,22 @@ Returns:
     return EFI_NOT_FOUND;
   }
 
-  Print(L"PHIT HOB\n");
+  Print (L"PHIT HOB\n");
   PhitHob = HobList;
-  ASSERT(GET_HOB_TYPE(HobList) == EFI_HOB_TYPE_HANDOFF);
-  Print(L"  PhitHob             - 0x%x\n", PhitHob);
-  Print(L"  BootMode            - 0x%x\n", PhitHob->BootMode);
-  Print(L"  EfiMemoryTop        - 0x%016lx\n", PhitHob->EfiMemoryTop);
-  Print(L"  EfiMemoryBottom     - 0x%016lx\n", PhitHob->EfiMemoryBottom);
-  Print(L"  EfiFreeMemoryTop    - 0x%016lx\n", PhitHob->EfiFreeMemoryTop);
-  Print(L"  EfiFreeMemoryBottom - 0x%016lx\n", PhitHob->EfiFreeMemoryBottom);
-  Print(L"  EfiEndOfHobList     - 0x%lx\n", PhitHob->EfiEndOfHobList);
+  ASSERT (GET_HOB_TYPE (HobList) == EFI_HOB_TYPE_HANDOFF);
+  Print (L"  PhitHob             - 0x%x\n", PhitHob);
+  Print (L"  BootMode            - 0x%x\n", PhitHob->BootMode);
+  Print (L"  EfiMemoryTop        - 0x%016lx\n", PhitHob->EfiMemoryTop);
+  Print (L"  EfiMemoryBottom     - 0x%016lx\n", PhitHob->EfiMemoryBottom);
+  Print (L"  EfiFreeMemoryTop    - 0x%016lx\n", PhitHob->EfiFreeMemoryTop);
+  Print (L"  EfiFreeMemoryBottom - 0x%016lx\n", PhitHob->EfiFreeMemoryBottom);
+  Print (L"  EfiEndOfHobList     - 0x%lx\n", PhitHob->EfiEndOfHobList);
 
-  Print(L"CPU HOBs\n");
-  for (Hob.Raw = HobList; !END_OF_HOB_LIST(Hob); Hob.Raw = GET_NEXT_HOB(Hob)) {
-    if (GET_HOB_TYPE(Hob) == EFI_HOB_TYPE_CPU) {
+  Print (L"CPU HOBs\n");
+  for (Hob.Raw = HobList; !END_OF_HOB_LIST (Hob); Hob.Raw = GET_NEXT_HOB (Hob)) {
+    if (GET_HOB_TYPE (Hob) == EFI_HOB_TYPE_CPU) {
       CpuHob = Hob.Cpu;
-      Print(
+      Print (
         L"  SizeOfMemorySpace=%x  SizeOfIoSpace=%x\n",
         CpuHob->SizeOfMemorySpace,
         CpuHob->SizeOfIoSpace
@@ -195,9 +196,7 @@ Returns:
 
   Print (L"Resource Descriptor HOBs\n");
   for (Hob.Raw = HobList; !END_OF_HOB_LIST (Hob); Hob.Raw = GET_NEXT_HOB (Hob)) {
-
     if (GET_HOB_TYPE (Hob) == EFI_HOB_TYPE_RESOURCE_DESCRIPTOR) {
-
       ResourceHob = Hob.ResourceDescriptor;
 
       Print (
@@ -207,26 +206,28 @@ Returns:
         ResourceHob->ResourceAttribute
         );
 
-      Print (ShortNameOfResourceType(ResourceHob->ResourceType));
+      Print (ShortNameOfResourceType (ResourceHob->ResourceType));
       switch (ResourceHob->ResourceType) {
-      case EFI_RESOURCE_SYSTEM_MEMORY:
-        if ((ResourceHob->ResourceAttribute & EFI_RESOURCE_ATTRIBUTE_PERSISTENT) != 0) {
-          Print(L" (Persistent)");
-        } else if ((ResourceHob->ResourceAttribute & EFI_RESOURCE_ATTRIBUTE_MORE_RELIABLE) != 0) {
-          Print(L" (MoreReliable)");
-        } else if ((ResourceHob->ResourceAttribute & MEMORY_ATTRIBUTE_MASK) == TESTED_MEMORY_ATTRIBUTES) {
-          Print (L" (Tested)");
-        } else if ((ResourceHob->ResourceAttribute & MEMORY_ATTRIBUTE_MASK) == INITIALIZED_MEMORY_ATTRIBUTES) {
-          Print (L" (Init)");
-        } else if ((ResourceHob->ResourceAttribute & MEMORY_ATTRIBUTE_MASK) == PRESENT_MEMORY_ATTRIBUTES) {
-          Print (L" (Present)");
-        } else {
-          Print (L" (Unknown)");
-        }
-        break;
-      default:
-        break;
+        case EFI_RESOURCE_SYSTEM_MEMORY:
+          if ((ResourceHob->ResourceAttribute & EFI_RESOURCE_ATTRIBUTE_PERSISTENT) != 0) {
+            Print (L" (Persistent)");
+          } else if ((ResourceHob->ResourceAttribute & EFI_RESOURCE_ATTRIBUTE_MORE_RELIABLE) != 0) {
+            Print (L" (MoreReliable)");
+          } else if ((ResourceHob->ResourceAttribute & MEMORY_ATTRIBUTE_MASK) == TESTED_MEMORY_ATTRIBUTES) {
+            Print (L" (Tested)");
+          } else if ((ResourceHob->ResourceAttribute & MEMORY_ATTRIBUTE_MASK) == INITIALIZED_MEMORY_ATTRIBUTES) {
+            Print (L" (Init)");
+          } else if ((ResourceHob->ResourceAttribute & MEMORY_ATTRIBUTE_MASK) == PRESENT_MEMORY_ATTRIBUTES) {
+            Print (L" (Present)");
+          } else {
+            Print (L" (Unknown)");
+          }
+
+          break;
+        default:
+          break;
       }
+
       Print (L"\n");
     }
   }
@@ -234,7 +235,6 @@ Returns:
   Print (L"FV HOBs\n");
   for (Hob.Raw = HobList; !END_OF_HOB_LIST (Hob); Hob.Raw = GET_NEXT_HOB (Hob)) {
     if (GET_HOB_TYPE (Hob) == EFI_HOB_TYPE_FV) {
-
       FirmwareVolumeHob = Hob.FirmwareVolume;
 
       Print (
@@ -248,7 +248,6 @@ Returns:
   Print (L"FV2 HOBs\n");
   for (Hob.Raw = HobList; !END_OF_HOB_LIST (Hob); Hob.Raw = GET_NEXT_HOB (Hob)) {
     if (GET_HOB_TYPE (Hob) == EFI_HOB_TYPE_FV2) {
-
       FirmwareVolume2Hob = Hob.FirmwareVolume2;
 
       Print (
@@ -263,29 +262,28 @@ Returns:
 
   Print (L"Memory Allocation HOBs\n");
   for (Hob.Raw = HobList; !END_OF_HOB_LIST (Hob); Hob.Raw = GET_NEXT_HOB (Hob)) {
-    if (GET_HOB_TYPE(Hob) == EFI_HOB_TYPE_MEMORY_ALLOCATION) {
-
+    if (GET_HOB_TYPE (Hob) == EFI_HOB_TYPE_MEMORY_ALLOCATION) {
       MemoryHob = Hob.MemoryAllocation;
 
-      Print(
+      Print (
         L"  BA=%016lx  L=%016lx  ",
         MemoryHob->AllocDescriptor.MemoryBaseAddress,
         MemoryHob->AllocDescriptor.MemoryLength
         );
-      Print(ShortNameOfMemoryType(MemoryHob->AllocDescriptor.MemoryType));
-      if (!CompareGuid(&mZeroGuid, &MemoryHob->AllocDescriptor.Name)) {
-        if (CompareGuid(&gEfiHobMemoryAllocStackGuid, &MemoryHob->AllocDescriptor.Name)) {
-          Print(
+      Print (ShortNameOfMemoryType (MemoryHob->AllocDescriptor.MemoryType));
+      if (!CompareGuid (&mZeroGuid, &MemoryHob->AllocDescriptor.Name)) {
+        if (CompareGuid (&gEfiHobMemoryAllocStackGuid, &MemoryHob->AllocDescriptor.Name)) {
+          Print (
             L"  {Stack}",
             &MemoryHob->AllocDescriptor.Name
             );
-        } else if (CompareGuid(&gEfiHobMemoryAllocBspStoreGuid, &MemoryHob->AllocDescriptor.Name)) {
-          Print(
+        } else if (CompareGuid (&gEfiHobMemoryAllocBspStoreGuid, &MemoryHob->AllocDescriptor.Name)) {
+          Print (
             L"  {BspStore}",
             &MemoryHob->AllocDescriptor.Name
             );
-        } else if (CompareGuid(&gEfiHobMemoryAllocModuleGuid, &MemoryHob->AllocDescriptor.Name)) {
-          Print(
+        } else if (CompareGuid (&gEfiHobMemoryAllocModuleGuid, &MemoryHob->AllocDescriptor.Name)) {
+          Print (
             L"  {Module=%g,Entry=0x%lx}",
             &((EFI_HOB_MEMORY_ALLOCATION_MODULE *)MemoryHob)->ModuleName,
             ((EFI_HOB_MEMORY_ALLOCATION_MODULE *)MemoryHob)->EntryPoint
@@ -297,15 +295,16 @@ Returns:
             );
         }
       }
+
       Print (L"\n");
     }
   }
 
-  Print(L"Capsule HOBs\n");
-  for (Hob.Raw = HobList; !END_OF_HOB_LIST(Hob); Hob.Raw = GET_NEXT_HOB(Hob)) {
-    if (GET_HOB_TYPE(Hob) == EFI_HOB_TYPE_UEFI_CAPSULE) {
+  Print (L"Capsule HOBs\n");
+  for (Hob.Raw = HobList; !END_OF_HOB_LIST (Hob); Hob.Raw = GET_NEXT_HOB (Hob)) {
+    if (GET_HOB_TYPE (Hob) == EFI_HOB_TYPE_UEFI_CAPSULE) {
       CapsuleHob = Hob.Capsule;
-      Print(
+      Print (
         L"  BA=%016lx  L=%016lx\n",
         CapsuleHob->BaseAddress,
         CapsuleHob->Length
